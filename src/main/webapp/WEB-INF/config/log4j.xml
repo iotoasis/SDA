@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<!-- Appenders -->
+
+	<!-- 콘솔 로그 -->
+	<appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+		<!-- 패턴 레이아웃 설정.. -->
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss}] [%c{1}] [%L] [%p] %m %n" />
+		</layout>
+	</appender>
+
+	<!-- 날짜별 파일로그 -->
+	<appender name="dailyout" class="org.apache.log4j.DailyRollingFileAppender">
+		<!-- 이것은 날짜별로 로그를 남김. 파일명.확장자.DatePattern으로 정의 함 -->
+		<param name="file" value="/svc/log/sda/sda-log/sda.log" />
+		<param name="Append" value="true" />
+		<param name="DatePattern" value="'.'yyMMdd" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss}] [%c{1}] [%L] [%p] %m %n" />
+		</layout>
+	</appender>
+
+	<logger name="com.pineone.icbms.sda" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="dailyout" />
+		<appender-ref ref="stdout" />
+	</logger>
+
+	<logger name="org.springframework" additivity="false">
+		<level value="INFO" />
+		<appender-ref ref="dailyout" />
+		<appender-ref ref="stdout" />
+	</logger>
+
+	<logger name="jdbc.sqlonly" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="dailyout" />
+		<appender-ref ref="stdout" />
+	</logger>
+
+	<logger name="jdbc.resultsettable" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="dailyout" />
+		<appender-ref ref="stdout" />
+	</logger>
+
+
+	<!-- root 로거 기본 설정 -->
+	<root>
+		<level value="WARN" />
+		<appender-ref ref="dailyout" />
+		<appender-ref ref="stdout" />
+	</root>
+
+</log4j:configuration>
