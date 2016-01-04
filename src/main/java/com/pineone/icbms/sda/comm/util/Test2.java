@@ -43,6 +43,8 @@ public class Test2 {
 		 String[] idxVal = new String[]{"aa","bb","cc","dd"};
 		 int cnt = 0; 
 			
+		 int cnt2 = 0;
+		 
 			StringBuffer parseQl = new StringBuffer();
 			String addStr = "";
 			String lastStr = "";
