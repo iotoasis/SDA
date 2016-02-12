@@ -4,7 +4,7 @@
 <mapper namespace="aggr">
 	<select id="selectList" parameterType="hashmap" resultType="com.pineone.icbms.sda.sch.dto.AggrDTO">
 		<![CDATA[
-			select aggr_id, aggr_name, aggrql, argsql, deleteql, insertql, remarks, use_yn, cuser, cdate, uuser, udate
+			select aggr_id, aggr_name, aggrql, argsql, updateql, deleteql, insertql, remarks, use_yn, cuser, cdate, uuser, udate
 			 from tnsda_aggr
 			 where use_yn = 'Y' and aggr_id = #{aggr_id}
 		]]>

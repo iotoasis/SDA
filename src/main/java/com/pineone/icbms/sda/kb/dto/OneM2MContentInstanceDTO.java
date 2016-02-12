@@ -1,5 +1,6 @@
 package com.pineone.icbms.sda.kb.dto;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -119,6 +120,17 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 
 	public String getCon() {
 		return con;
+	}
+	
+	public String getCon(int encoded){
+		switch (encoded) {
+		case 1 :
+			byte[] encodedContent = this.getCon().getBytes();
+			return Base64.getDecoder().decode(encodedContent).toString();
+		case 0 :
+			return this.getCon();
+		}
+		return "error : encode option must 1 or 0";
 	}
 
 	public void setCon(String con) {

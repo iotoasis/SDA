@@ -32,7 +32,7 @@ public class CollectTimeTableFromSSJobService extends SchedulerJobComm implement
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 
-		log.debug("CollectTimeTableFromSSJobService(id : " + jec.getJobDetail().getName()
+		log.info("CollectTimeTableFromSSJobService(id : " + jec.getJobDetail().getName()
 				+ ") start.......................");
 
 		String riot_mode = Utils.getSdaProperty("com.pineone.icbms.sda.riot.mode");
@@ -50,31 +50,48 @@ public class CollectTimeTableFromSSJobService extends SchedulerJobComm implement
 		log.debug("endDate : " + endDate);
 
 		StringBuffer sql = new StringBuffer();
-
+		sql.append(Utils.NEW_LINE);
 		sql.append(
 				" SELECT DISTINCT CONCAT('icbms:',concat(classcode,'', weekday, '', substring(time_start,1,2)), ' rdf:type ', 'icbms:Lecture .') as col FROM user_timetable ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" UNION ALL ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
 				" SELECT DISTINCT CONCAT('icbms:',concat(classcode,'', weekday, '', substring(time_start,1,2)), ' foaf:name \"' , classname, '\"^^xsd:string .') as col  FROM user_timetable ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" UNION ALL ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
 				" SELECT DISTINCT CONCAT('icbms:',concat(classcode,'', weekday, '', substring(time_start,1,2)), ' icbms:hasIdentifier \"' , classcode, '\"^^xsd:string .') as col  FROM user_timetable ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" UNION ALL ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
 				" SELECT DISTINCT CONCAT('icbms:',concat(classcode,'', weekday, '', substring(time_start,1,2)), ' icbms:starttime \"' , replace(substring(time_start,1,5),':',''), '\"^^xsd:string .') as col  FROM user_timetable ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" UNION ALL ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
 				" SELECT DISTINCT CONCAT('icbms:',concat(classcode,'', weekday, '', substring(time_start,1,2)), ' icbms:endtime \"' , replace(substring(time_end,1,5),':',''), '\"^^xsd:string .') as col  FROM user_timetable ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" UNION ALL ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
 				" SELECT DISTINCT CONCAT('icbms:',concat(classcode,'', weekday, '', substring(time_start,1,2)), ' icbms:hasWeekday ' , (CASE LOWER(WEEKDAY) WHEN 'mon' THEN 'icbms:monday' WHEN 'tue' THEN 'icbms:tuesday' WHEN 'wed' THEN 'icbms:wednesday' WHEN 'thu' THEN 'icbms:thursday' WHEN 'fri' THEN 'icbms:friday' WHEN 'sat' THEN 'icbms:saturday' WHEN 'sun' THEN 'icbms:sunday' ELSE '' END),' .')  as col  FROM user_timetable ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" UNION ALL ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
 				" SELECT DISTINCT CONCAT('icbms:',concat(classcode,'', weekday, '', substring(time_start,1,2)), ' DUL:hasLocation ' ,'icbms:',location ,' .')  as col  FROM user_timetable ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" UNION ALL ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
 				" SELECT DISTINCT CONCAT('icbms:',user_id, ' icbms:takeLecture ' ,'icbms:',concat(classcode,'', weekday, '_', substring(time_start,1,2)) ,' .')  as col  FROM user_timetable ");
+		sql.append(Utils.NEW_LINE);
 
+		log.debug("sql ==>\n"+sql.toString());
+		
 		int cnt = 0;
 		// int col_cnt = 4; // user_id, phone_no, user_name, gender
 
@@ -156,7 +173,7 @@ public class CollectTimeTableFromSSJobService extends SchedulerJobComm implement
 			}
 			// 파일 전송
 			tripleService.sendTripleFile(triple_path_file);
-			log.debug("CollectTimeTableFromSSJobService(id : " + jec.getJobDetail().getName()
+			log.info("CollectTimeTableFromSSJobService(id : " + jec.getJobDetail().getName()
 					+ ") end.......................");
 		}
 

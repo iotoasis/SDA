@@ -27,12 +27,13 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
+import com.pineone.icbms.sda.comm.dto.ResponseMessageErr;
 import com.pineone.icbms.sda.comm.exception.RemoteSIException;
 import com.pineone.icbms.sda.comm.exception.RemoteSOException;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 
 public class Utils {
-	private static Log log = LogFactory.getLog(Utils.class);
+	private static final Log log = LogFactory.getLog(Utils.class);
 	
 	// 날짜 형식
 	public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
@@ -46,11 +47,19 @@ public class Utils {
 	public static final SimpleDateFormat sysdatetimeFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	public static final SimpleDateFormat sysweekdayFormat = new SimpleDateFormat("u");
-
+	
+	public static final SimpleDateFormat nYearFormat = new SimpleDateFormat("yyyy");
+	public static final SimpleDateFormat nMonthFormat = new SimpleDateFormat("MM");
+	public static final SimpleDateFormat nDayFormat = new SimpleDateFormat("dd");
+	public static final SimpleDateFormat nHourFormat = new SimpleDateFormat("HH");
+	public static final SimpleDateFormat nMinuteFormat = new SimpleDateFormat("mm");
+	public static final SimpleDateFormat nSecondFormat = new SimpleDateFormat("ss");
+	
 	// 
 	public static final String NoTripleFile = "No Triple File";
 	public static final String NotCheck = "Not Check";
 	public static final String NotSendToSo = "Not Sent To SO";
+	public static final String NoArg = "No argument or result ! "; 
 	public static final String None = "None";
 	public static final String Valid = "Valid";
 	public static final String NotSupportingType = "Not Supporting Type";
@@ -59,6 +68,9 @@ public class Utils {
 	public static final String CALLBACK_EMERGENCY = "occ-emergency";
 	// SO 결과 리턴 구분(schedule)
 	public static final String CALLBACK_SCHEDULE = "occ-schedule";
+	
+	//test용
+	public static final String CALLBACK_TEST = "occ-test";
 
 	// response
 	public static final String RESPONSE_CODE = "code";
@@ -80,22 +92,22 @@ public class Utils {
 	public static final int UNKNOWNEXCEPTION_CODE = 400;
 	public static final String UNKNOWNEXCEPTION_MSG = "UnknownException !";
 
-	public static ResponseMessage makeResponseBody(Exception e) {
+	public static final  ResponseMessage makeResponseBody(Exception e) {
 		ResponseMessage resultMsg = new ResponseMessage();
 
 		// 원격지 오류는 원격지에서 보내준 메세지를 그대로 보여준다.
 		if (e instanceof RemoteSOException) {
 			resultMsg.setCode(((RemoteSOException) e).getCode());
 			resultMsg.setMessage(((RemoteSOException) e).getMsg());
-			resultMsg.setContent("{}");
+			resultMsg.setContent("");
 		} else if (e instanceof RemoteSIException) {
 			resultMsg.setCode(((RemoteSIException) e).getCode());
 			resultMsg.setMessage(((RemoteSIException) e).getMsg());
-			resultMsg.setContent("{}");
+			resultMsg.setContent("");
 		} else if (e instanceof UserDefinedException) {
 			resultMsg.setCode(((UserDefinedException) e).getCode());
 			resultMsg.setMessage(((UserDefinedException) e).getMsg());
-			resultMsg.setContent("{}");
+			resultMsg.setContent("");
 		} else {
 			String[] msg = e.toString().split(":");
 			resultMsg.setCode(UNKNOWNEXCEPTION_CODE);
@@ -104,30 +116,30 @@ public class Utils {
 				resultMsg.setContent(msg[1]);
 			} else if(msg.length == 1){
 				resultMsg.setMessage(msg[0]);
-				resultMsg.setContent("{}");
+				resultMsg.setContent("");
 			} else if(msg.length == 0) {
 				resultMsg.setMessage("");
-				resultMsg.setContent("{}");
+				resultMsg.setContent("");
 			}
 		}
 
 		return resultMsg;
 	}
 
-	public static String getSparQlHeader() {
+	public static final String getSparQlHeader() {
 		String sparQlHeader = ""
 					+"prefix swrlb: <http://www.w3.org/2003/11/swrlb#>\n"   
 					+"prefix protege: <http://protege.stanford.edu/plugins/owl/protege#>\n"    
 					+"prefix ssn: <http://purl.oclc.org/NET/ssnx/ssn#>    \n"
-					+"prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"   
+					+"prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
 					+"prefix dct: <http://purl.org/dc/terms/>    \n"
 					+"prefix icbms: <http://www.pineone.com/campus/>\n"    
 					+"prefix dc: <http://purl.org/dc/elements/1.1/>    \n"
 					+"prefix j.0: <http://data.qudt.org/qudt/owl/1.0.0/text/>\n"    
 					+"prefix owl: <http://www.w3.org/2002/07/owl#>    \n"
-					+"prefix xsp: <http://www.owl-ontologies.com/2005/08/07/xsp.owl#>\n"    
+					+"prefix xsp: <http://www.owl-ontologies.com/2005/08/07/xsp.owl#>\n"
 					+"prefix swrl: <http://www.w3.org/2003/11/swrl#>    \n"
-					+"prefix skos: <http://www.w3.org/2004/02/skos/core#>\n"    
+					+"prefix skos: <http://www.w3.org/2004/02/skos/core#>\n"
 					+"prefix DUL: <http://www.loa-cnr.it/ontologies/DUL.owl#>  \n"  
 					+"prefix m2m: <http://www.pineone.com/m2m/>    \n"
 					+"prefix cc: <http://creativecommons.org/ns#>    \n"
@@ -136,10 +148,7 @@ public class Utils {
 					+"prefix xsd: <http://www.w3.org/2001/XMLSchema#>\n"      
 					+"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"   
 					+"prefix qudt: <http://data.nasa.gov/qudt/owl/qudt#>\n"
-					+"prefix skos: <http://www.w3.org/2004/02/skos/core#>\n"
-					+"prefix xsp: <http://www.owl-ontologies.com/2005/08/07/xsp.owl#>\n"
 					+"prefix quantity: <http://data.nasa.gov/qudt/owl/quantity#>\n"
-					+"prefix dct: <http://purl.org/dc/terms/>\n"
 					+"prefix unit: <http://data.nasa.gov/qudt/owl/unit#>\n"
 					+"prefix dim: <http://data.nasa.gov/qudt/owl/dimension#>\n"
 					+"prefix oecc: <http://www.oegov.org/models/common/cc#>\n";
@@ -147,7 +156,7 @@ public class Utils {
 		return sparQlHeader;
 	}
 	
-	public static String getHeaderForTripleFile() {
+	public static final String getHeaderForTripleFile() {
 		String headerForTripleFile = ""
 				+"@prefix swrlb: <http://www.w3.org/2003/11/swrlb#> . \n"
 				+"@prefix protege: <http://protege.stanford.edu/plugins/owl/protege#> . \n"
@@ -176,7 +185,7 @@ public class Utils {
 		return headerForTripleFile;
 	}
 
-	public static String getSdaProperty(String envName) {
+	public static final String getSdaProperty(String envName) {
 		return SdaConstant.sdaVariables.get(envName);
 	}
 	
@@ -209,7 +218,7 @@ public class Utils {
 	*/
 
 	// POST로 요청
-	public static ResponseMessage requestData(String uri, String data) throws Exception {
+	public static final ResponseMessage requestData(String uri, String data) throws Exception {
 		HttpResponse response = null;
 		ResponseMessage responseMessage = new ResponseMessage();
 
@@ -246,7 +255,7 @@ public class Utils {
 	}
 
 	// GET으로 요청
-	public static ResponseMessage requestData(String uri) throws Exception {
+	public static final ResponseMessage requestData(String uri) throws Exception {
 		HttpResponse response = null;
 		ResponseMessage responseMessage = new ResponseMessage();
 
@@ -281,7 +290,7 @@ public class Utils {
 	}
 
 	// uri로부터 부모 객체를 식별
-	public static String getParentURI(String inputUri) {
+	public static final String getParentURI(String inputUri) {
 		if (inputUri.contains("/")) {
 			return inputUri.substring(0,inputUri.lastIndexOf("/"));
 		} else {
@@ -290,13 +299,13 @@ public class Utils {
 	}
 
 	// 데이터 초기화
-	public static void deleteTripleAll() throws Exception {
+	public static final void deleteTripleAll() throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
 		DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
 		accessor.deleteDefault();
 	}
 
-	public static void getTripleCount() throws Exception {
+	public static final void getTripleCount() throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
 
 		String queryString = "select  (count(?s) as ?count) where {?s ?p ?o }";
@@ -308,7 +317,7 @@ public class Utils {
 		ResultSetFormatter.out(rs);
 	}
 
-	public static void getTripleAll() throws Exception {
+	public static final void getTripleAll() throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
 
 		String queryString = "select ?s ?p ?o {?s ?p ?o}";
@@ -318,7 +327,7 @@ public class Utils {
 		ResultSetFormatter.out(rs);
 	}
 
-	public static String[] runShell(StringBuilder args) throws Exception {
+	public static final String[] runShell(StringBuilder args) throws Exception {
 		Process process = null;
 		boolean notTimeOver = true;
 		String[] result = new String[] { "", "" };
@@ -386,7 +395,7 @@ public class Utils {
 	}
 	
 	// 폴더를 만듬(폴더끝에 년월일을 붙임)
-	public static String makeSavePath(String save_path) {
+	public static final String makeSavePath(String save_path) {
 		save_path = save_path + "/" + Utils.sysdateFormat.format(new Date());
 		File desti = new File(save_path);
 		if (!desti.exists()) {
@@ -398,7 +407,7 @@ public class Utils {
 	}
 	
 	// 날짜계산(오늘+- iDay)
-	public static String getDate ( int iDay ) 
+	public static final String getDate ( int iDay ) 
 	{
 	    Calendar temp=Calendar.getInstance ( );    
 	    temp.add ( Calendar.DAY_OF_MONTH, iDay );

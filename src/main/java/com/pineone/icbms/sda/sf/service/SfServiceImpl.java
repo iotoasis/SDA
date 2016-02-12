@@ -1,6 +1,8 @@
 package com.pineone.icbms.sda.sf.service;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,8 +13,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.pineone.icbms.sda.comm.dto.RequestDTO;
+import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
+import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sf.service.SparqlService;
 import com.pineone.icbms.sda.itf.ci.dao.CiDAO;
 import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
@@ -31,8 +36,8 @@ public class SfServiceImpl implements SfService{
 	private CiDAO ciDAO;
 
 	
-	//test수행(ciid여러개를 이용하여 test수행)
-	public List<Map<String, String>> test(RequestDTO requestDTO) throws Exception {
+	//getContext수행(ciid여러개를 이용하여 getContext수행)
+	public List<Map<String, String>> getContext(RequestDTO requestDTO) throws Exception {
 		//List<String> list = new ArrayList<String>();
 		String[] ciids;
 		
@@ -55,14 +60,14 @@ public class SfServiceImpl implements SfService{
 		
 		List<Map<String, String>> returnList = sparqlService.runSparqlUniqueResult(sparqlList);
 		
-		log.debug("sparqlList in test by ciids =>"+sparqlList);
-		log.debug("returnList in test by ciids =>"+returnList);
+		log.debug("sparqlList in getContext by ciids =>"+sparqlList);
+		log.debug("returnList in getContext by ciids =>"+returnList);
 		
 		return returnList;
 	}
 
-	//test수행(cmid를 받아서 test수행)
-	public List<Map<String, String>> test(Map<String, Object> commandMap) throws Exception {
+	//getContext수행(cmid를 받아서 getContext수행)
+	public List<Map<String, String>> getContext(Map<String, Object> commandMap) throws Exception {
 		List<CmCiDTO> list = new ArrayList<CmCiDTO>();
 		String cmid = (String) commandMap.get("cmid");
 		
@@ -85,15 +90,15 @@ public class SfServiceImpl implements SfService{
 		
 		List<Map<String, String>> returnList = sparqlService.runSparqlUniqueResult(sparqlList);
 		
-		log.debug("sparqlList in test by cmid =>"+sparqlList);
-		log.debug("returnList in test by cmid =>"+returnList);
+		log.debug("sparqlList in getContext by cmid =>"+sparqlList);
+		log.debug("returnList in getContext by cmid =>"+returnList);
 		
 		return returnList;
 	}
 
 	
-	//test수행(cmid및 쿼리조건을 받아서 test수행)
-	public List<Map<String, String>> test(Map<String, Object> commandMap, String args) throws Exception {
+	//getContext수행(cmid및 쿼리조건을 받아서 getContext수행)
+	public List<Map<String, String>> getContext(Map<String, Object> commandMap, String args) throws Exception {
 		List<CmCiDTO> list = new ArrayList<CmCiDTO>();
 		String cmid = (String) commandMap.get("cmid");
 		
@@ -137,17 +142,308 @@ public class SfServiceImpl implements SfService{
 		// 쿼리실행결과를 로그로 남김
 		
 		
-		log.debug("sparqlList in test by cmid with args =>"+sparqlList);
-		log.debug("returnList in test by cmid with args =>"+returnList);
+		log.debug("sparqlList in getContext by cmid with args =>"+sparqlList);
+		log.debug("returnList in getContext by cmid with args =>"+returnList);
 		
 		return returnList;
 	}
 	
-	// SO스케줄등에서 사용됨
-	/*
-	public List<CmCiDTO> selectCmCiList(Map<String, Object> commandMap) throws Exception {
-		return cmDAO.selectCmCiList(commandMap);
-	}
-	*/
+	// test
+	//getContext2수행(cmid및 쿼리조건을 받아서 getContext2수행)
+	public List<Map<String, String>> getContext2(String cmid, String args) throws Exception {
+		Gson gson = new Gson();
+		if( cmid == null || cmid.equals("")) {
+			throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+		}
 
-}
+		if( args == null || args.equals("")) {
+			throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+		}
+
+		List<Map<String, String>> returnList = new ArrayList<Map<String, String>>();
+		String mode = "";
+
+		if(cmid.equals("CM-1-2-100")) {	 // http://localhost:8080/sda/ctx2/CM-1-2-100/?p=http://www.pineone.com/LB0001
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-140")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("dev", arg[0]);
+			returnList.add(tmp_map);
+		} else if(cmid.equals("CM-1-2-150")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("dev", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-160")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-170")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-200")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-210")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-220")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("person_id", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-230")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-240")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-250")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-260")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-270")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);
+		} else if(cmid.equals("CM-1-2-280")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-290")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+
+		} else if(cmid.equals("CM-1-2-300")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			tmp_map.put("cond", arg[1]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-310")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("person_id", arg[0]);
+			returnList.add(tmp_map);
+		} else if(cmid.equals("CM-1-2-320")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-330")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-340")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-350")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-360")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-370")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-380")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-390")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-2-400")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		}
+		
+		
+		if(cmid.equals("CM-1-1-100")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-1-110")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("dev", arg[0]);
+			returnList.add(tmp_map);
+		} else if(cmid.equals("CM-1-1-120")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("dev", arg[0]);
+			tmp_map.put("type", arg[1]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-1-130")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("dev", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-1-140")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("dev", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-1-150")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("student_id", arg[0]);
+			tmp_map.put("lecture", arg[1]);
+			tmp_map.put("cond", arg[2]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-1-160")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("min_value", arg[0]);
+			tmp_map.put("max_value", arg[1]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-1-170")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("manager", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-1-190")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("user_id", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-1-200")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-1-210")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("uri", arg[0]);
+			tmp_map.put("camurl", arg[1]);
+			returnList.add(tmp_map);
+		} else if(cmid.equals("CM-1-1-220")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("user_id", arg[0]);
+			tmp_map.put("student_id", arg[1]);
+			tmp_map.put("name", arg[2]);
+			tmp_map.put("phone", arg[3]);
+			returnList.add(tmp_map);		   
+		} else if(cmid.equals("CM-1-1-230")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			tmp_map.put("cond", arg[1]);
+			returnList.add(tmp_map);
+		} else if(cmid.equals("CM-1-1-240")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			tmp_map.put("cond", arg[1]);
+			returnList.add(tmp_map);
+		} else if(cmid.equals("CM-1-1-250")) {
+			mode = Utils.CALLBACK_TEST;
+			Map<String, String> tmp_map = new HashMap<String, String>();
+			String[] arg = args.split(",");
+			tmp_map.put("loc", arg[0]);
+			tmp_map.put("cond", arg[1]);
+			returnList.add(tmp_map);
+		}
+		
+		// SO에 결과 전송 시작
+		String so_notice_time = Utils.dateFormat.format(new Date());
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("cmd", mode);
+		map.put("contextId", cmid);
+		map.put("time", so_notice_time);
+		map.put("domains", returnList);
+
+		String jsonMsg = gson.toJson(map);
+
+		log.debug("Request message of Schedule for sending to SO =>  " + jsonMsg);
+		ResponseMessage responseMessage = Utils.requestData(Utils.getSdaProperty("com.pineone.icbms.sda.so.callback_result_uri"), jsonMsg); // POST
+		log.debug("responseMessage of Schedule from SO => " + responseMessage.toString());
+		// SO에 결과 전송 끝
+		
+		// 쿼리실행결과를 로그로 남김
+		log.debug("returnList in getContext2 by cmid with args =>"+returnList);
+		
+		return returnList;
+	}}

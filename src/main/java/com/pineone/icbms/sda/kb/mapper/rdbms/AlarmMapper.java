@@ -22,6 +22,7 @@ public class AlarmMapper implements RDBMSMapper {
 		String s = " icbms:u00001 rdf:type foaf:Person . ";
 		
 		AlarmMapper mapper = new AlarmMapper(s);
+		
 
 		System.out.println("resul from mapper ====>  "+mapper.from());
 

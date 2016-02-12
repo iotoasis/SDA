@@ -1,5 +1,9 @@
 package com.pineone.icbms.sda.kb.mapper.onem2m;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -24,6 +28,7 @@ import com.pineone.icbms.sda.comm.util.StrUtils;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.kb.dto.OneM2MContentInstanceDTO;
 import com.pineone.icbms.sda.kb.mapper.OneM2MMapper;
+import com.pineone.icbms.sda.kb.mapper.service.PresenceServiceMapper;
 import com.pineone.icbms.sda.kb.mapper.service.SurveyServiceMapper;
 import com.pineone.icbms.sda.kb.mapper.service.UserInOutServiceMapper;
 import com.pineone.icbms.sda.kb.model.ICBMSResource;
@@ -41,9 +46,10 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 	private String contentInfo;
 	private String content;
 	private String contentType;
+	int isEncoded = 0;
 
 	public enum EnumContentType {
-		userinout, survey, normal
+		userinout, survey, normal, presence, present
 	}
 
 	public OneM2MContentInstanceMapper(OneM2MContentInstanceDTO dto) {
@@ -65,13 +71,21 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		parentResource = model.createResource(baseuri + Utils.getParentURI(dto.get_uri()));
 		contentInfo = dto.getCnf();
 		resourceName = dto.getRn();
-		content = dto.getCon();
+		contentInfo = dto.getCnf();
 		label = "";
 		for (int i = 0; i < dto.getLbl().length; i++) {
 			label = label + "," + dto.getLbl()[i];
 		}
 		Resource Content = recognizeContentResource();
 
+		// getDecodedContent
+		if (contentInfo.contains("text/plain:0")) {
+			isEncoded = 0;
+			content = dto.getCon(0);
+		} else if (contentInfo.contains("application/json:1")) {
+			isEncoded = 1;
+		}
+		content = dto.getCon(isEncoded);
 	}
 
 	private Resource recognizeContentResource() {
@@ -169,24 +183,53 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 
 		// call UserInoutServiceMapper when _uri contain "UserInOut"
 		// officially service depended mapper
+
+		System.out.println("contentType : " + this.getContentType());
 		switch (this.getContentType()) {
+
 		case "userinout":
 			Resource userinout = model.createResource(baseuri + "/campus/GoInOut_" + UUID.randomUUID());
 			byte[] encodedContent = this.dto.getCon().getBytes();
 			slist.add(model.createStatement(contentInstance,
 					model.createProperty("http://www.pineone.com/campus/hasActivityInfo"), userinout));
 			try {
-	
-				slist.addAll(new UserInOutServiceMapper(new String(Base64.getDecoder().decode(encodedContent)), userinout).from());
+
+				slist.addAll(
+						new UserInOutServiceMapper(new String(Base64.getDecoder().decode(encodedContent)), userinout)
+								.from());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-  
 			break;
+
 		case "survey":
-			//slist.addAll(new SurveyServiceMapper(this.dto.getCon()).from());
+			String con1 = this.dto.getCon();
+			SurveyServiceMapper mapper1 = new SurveyServiceMapper(contentInstance, con1);
+			List<Statement> slist2 = mapper1.from();
+			slist.addAll(slist2);
+			break;
+
+		case "present":
+			String con2 = this.dto.getCon();
+			if (con2.contains("not presence") || con2.contains("not present")) {
+				con2 = con2.replaceAll(" ", "-");
+				Statement presenceStatement = model.createStatement(contentInstance,
+						model.createProperty(baseuri + "/campus/hasPresenceContent"),
+						model.createResource(baseuri + "/campus/" + con2));
+				slist.add(presenceStatement);
+			} else if (con2.contains("present") || con2.contains("presence")) {
+				Statement presenceStatement = model.createStatement(contentInstance,
+						model.createProperty(baseuri + "/campus/hasPresenceContent"),
+						model.createResource(baseuri + "/campus/" + con2));
+				slist.add(presenceStatement);
+			}
 			break;
 		}
+		// case "normal":
+		// Statement normalStatement = model.createStatement(contentInstance,
+		// model.createProperty(baseuri + "/m2m/hasContentValue"),
+		// model.createTypedLiteral(dto.getCon()));
+		// slist.add(normalStatement);\
 
 		// time
 		Statement stmtCreateTime = model.createStatement(contentInstance,
@@ -207,6 +250,8 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 			this.setContentType(EnumContentType.survey);
 		} else if (this.dto.get_uri().toLowerCase().contains(EnumContentType.userinout.toString())) {
 			this.setContentType(EnumContentType.userinout);
+		} else if (this.dto.get_uri().toLowerCase().contains(EnumContentType.presence.toString())) {
+			this.setContentType(EnumContentType.present);
 		} else {
 			this.setContentType(EnumContentType.normal);
 		}
@@ -238,13 +283,17 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 
 	}
 
-	public static void main(String[] args) {
-		String s = "{ " + " \"_id\" : 		 ObjectId(\"560c9b1e1ee8203c53a63554\")," + " \"rn\" : \"CONTENT_INST_0\","
-				+ " \"ty\" : 4," + " \"ri\" :		 \"CONTENT_INST_0\"," + " \"pi\" : \"CONTAINER_15\","
-				+ " \"lbl\" : [ " + "		 \"cnt-temperature\"" + " ]," + " \"cr\" : \"C_AE-D-GASLOCK1001\","
-				+ " \"cnf\" :		 \"text/plain:0\"," + " \"cs\" : 2," + " \"con\" : \"eyJkaXJlY3Rpb24iOiJpbiIsInVzZXJfaWQiOiJ1MDAwMDIiLCJ6b25lIjoiTFIwMDAxIn0=\","
-				+ " \"_uri\" :		 \"/herit-in/herit-cse/UserInOutInfo_u00002/status/Data/CONTENT_INST_67599\" ,"
-				+ " \"ct\" : \"20151212T121212\"," + " \"lt\" : \"20151212T121258\" " + " } ";
+	public static void main(String[] args) throws IOException {
+
+		File f = new File("/Users/rosenc/Documents/business/[2015]icbms/json_sample1.txt");
+		BufferedReader br = new BufferedReader(new FileReader(f));
+		String line = null;
+		String s = "";
+		while ((line = br.readLine()) != null) {
+			s = s + line + "\n";
+		}
+
+		System.out.println(s);
 		Gson gson = new Gson();
 		OneM2MContentInstanceDTO cont = gson.fromJson(s, OneM2MContentInstanceDTO.class);
 		OneM2MContentInstanceMapper mapper = new OneM2MContentInstanceMapper(cont);

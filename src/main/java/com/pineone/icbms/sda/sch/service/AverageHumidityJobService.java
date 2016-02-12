@@ -31,7 +31,7 @@ public class AverageHumidityJobService extends SchedulerJobComm implements Job {
 		AggrDAO aggrDAO;
 		StringBuffer msg = new StringBuffer();
 
-		log.debug("AverageHumidityJobService(id : "+jec.getJobDetail().getName()+") start.......................");
+		log.info("AverageHumidityJobService(id : "+jec.getJobDetail().getName()+") start.......................");
 		
 		try {
 			start_time = Utils.dateFormat.format(new Date());
@@ -89,7 +89,7 @@ public class AverageHumidityJobService extends SchedulerJobComm implements Job {
 				msg.append(aggrValue);
 				msg.append(Utils.NEW_LINE);
 				
-				sparqlService.updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{argsResultList.get(m).get("observation_value"), aggrValue});
+				sparqlService.updateSparql(aggrList.get(0).getUpdateql(),  new String[]{argsResultList.get(m).get("observation_value"), aggrValue});
 				msg.append("observation_uri["+m+"] ==> ");
 				msg.append(argsResultList.get(m).get("observation_value"));
 				msg.append(Utils.NEW_LINE);
@@ -103,7 +103,7 @@ public class AverageHumidityJobService extends SchedulerJobComm implements Job {
 
 			// finish_time값을 sch테이블의 last_work_time에 update
 			updateLastWorkTime(jec, finish_time);
-			log.debug("AverageHumidityJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
+			log.info("AverageHumidityJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

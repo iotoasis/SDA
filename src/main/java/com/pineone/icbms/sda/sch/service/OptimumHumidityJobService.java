@@ -111,7 +111,7 @@ public class OptimumHumidityJobService extends SchedulerJobComm implements Job {
 				}
 
 				if(jec.getJobDetail().getName().equals("AG-2-2-001")) {
-					sparqlService.updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{argsResultList.get(m).get("prefer_value"), minValue});
+					sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{argsResultList.get(m).get("prefer_value"), minValue});
 					msg.append("prefer_uri["+m+"] ==>  ");
 					msg.append(argsResultList.get(m).get("prefer_value"));
 					msg.append(Utils.NEW_LINE);
@@ -121,7 +121,7 @@ public class OptimumHumidityJobService extends SchedulerJobComm implements Job {
 
 					log.debug("min("+minValue+") value updated...");
 				} else if(jec.getJobDetail().getName().equals("AG-2-2-002")) {
-					sparqlService.updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{argsResultList.get(m).get("prefer_value"), maxValue});
+					sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{argsResultList.get(m).get("prefer_value"), maxValue});
 					msg.append("prefer_uri["+m+"] ==>  ");
 					msg.append(argsResultList.get(m).get("prefer_value"));
 					msg.append(Utils.NEW_LINE);

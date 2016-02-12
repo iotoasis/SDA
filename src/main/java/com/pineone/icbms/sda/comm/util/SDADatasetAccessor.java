@@ -37,6 +37,7 @@ public class SDADatasetAccessor implements DatasetAccessor {
 
 	private static Model makeSampleModel() {
 		String BASE = "http://example/";
+		
 		Model model = ModelFactory.createDefaultModel();
 		model.setNsPrefix("", BASE);
 		Resource r1 = model.createResource(BASE + "r1");
