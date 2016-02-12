@@ -30,7 +30,7 @@ public class CollectAlarmFromSSJobService extends SchedulerJobComm implements Jo
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 
-		log.debug(
+		log.info(
 				"CollectAlarmFromSSJobService(id : " + jec.getJobDetail().getName() + ") start.......................");
 
 		String riot_mode = Utils.getSdaProperty("com.pineone.icbms.sda.riot.mode");
@@ -51,13 +51,21 @@ public class CollectAlarmFromSSJobService extends SchedulerJobComm implements Jo
 		// schDTO = getSchDTO(jec);
 
 		StringBuffer sql = new StringBuffer();
-		sql.append(" select concat('icbms:alarm',alarm_id, ' rdf:type ',' icbms:Alarm .') as col from alarm ");
+		sql.append(Utils.NEW_LINE);
+		sql.append(" select concat('icbms:alarm',id, ' rdf:type ',' icbms:Alarm .') as col from alarm ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" union all ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
-				" select concat('icbms:alarm',alarm_id, ' icbms:hasAlarmTime \"' ,wakeTime,'\"^^xsd:string .') as col from alarm ");
+				" select concat('icbms:alarm',id, ' icbms:hasAlarmTime \"' ,wakeTime,'\"^^xsd:string .') as col from alarm ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" union all ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
-				" select concat('icbms:',user_id , ' icbms:hasAlarm ' , 'icbms:alarm',alarm_id ,' .') as col from alarm ");
+				" select concat('icbms:',user_id , ' icbms:hasAlarm ' , 'icbms:alarm',id ,' .') as col from alarm ");
+		sql.append(Utils.NEW_LINE);
+		
+		log.debug("sql ==>\n"+sql.toString());
 
 		int cnt = 0;
 
@@ -139,7 +147,7 @@ public class CollectAlarmFromSSJobService extends SchedulerJobComm implements Jo
 			}
 			// 파일 전송
 			tripleService.sendTripleFile(triple_path_file);
-			log.debug("CollectAlarmFromSSJobService(id : " + jec.getJobDetail().getName()
+			log.info("CollectAlarmFromSSJobService(id : " + jec.getJobDetail().getName()
 					+ ") end.......................");
 		}
 

@@ -43,7 +43,6 @@ public class NoticeToSOJobService extends SchedulerJobComm implements Job {
 			start_time = Utils.dateFormat.format(new Date());
 
 			// task_group_id, task_id에 대한 schDTO정보
-			//SchDTO schDTO = getSchDTO(jec);
 
 			// cmid를 기준으로 ciid에 설정된 sparql을 가져온다.
 			String cmid = jec.getJobDetail().getName();
@@ -79,18 +78,6 @@ public class NoticeToSOJobService extends SchedulerJobComm implements Job {
 				map.put("cmd", Utils.CALLBACK_SCHEDULE);
 				map.put("contextId", cmid);
 				map.put("time", so_notice_time);
-		
-				// domains값을 List배열로 만듬
-				/*
-				domainList = new ArrayList<Map<String, String>>();
-				for (int k = 0; k < returnList.size(); k++) {
-					domainMap = new HashMap<String, String>();
-					//domainMap.put("id", returnList.get(k));
-					domainMap.put("id", gson.toJson(returnList.get(k)));
-					domainList.add(domainMap);
-				}
-				map.put("domains", domainList);
-				*/
 				map.put("domains", returnList);
 		
 				jsonMsg = gson.toJson(map);

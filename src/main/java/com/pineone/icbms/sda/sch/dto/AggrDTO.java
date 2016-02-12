@@ -6,6 +6,7 @@ public class AggrDTO {
 	private String aggr_name;
 	private String aggrql;
 	private String argsql;
+	private String updateql;
 	private String deleteql;
 	private String insertql;;
 	private String remarks;
@@ -49,6 +50,14 @@ public class AggrDTO {
 
 	public void setArgsql(String argsql) {
 		this.argsql = argsql;
+	}
+
+	public String getUpdateql() {
+		return updateql;
+	}
+
+	public void setUpdateql(String updateql) {
+		this.updateql = updateql;
 	}
 
 	public String getDeleteql() {
@@ -118,7 +127,9 @@ public class AggrDTO {
 	@Override
 	public String toString() {
 		return "AggrDTO [aggr_id=" + aggr_id + ", aggr_name=" + aggr_name + ", aggrql=" + aggrql + ", argsql=" + argsql
-				+ ", deleteql=" + deleteql + ", insertql=" + insertql + ", remarks=" + remarks + ", use_yn=" + use_yn
-				+ ", cuser=" + cuser + ", cdate=" + cdate + ", uuser=" + uuser + ", udate=" + udate + "]";
+				+ ", updateql=" + updateql + ", deleteql=" + deleteql + ", insertql=" + insertql + ", remarks="
+				+ remarks + ", use_yn=" + use_yn + ", cuser=" + cuser + ", cdate=" + cdate + ", uuser=" + uuser
+				+ ", udate=" + udate + "]";
 	}
+
 }

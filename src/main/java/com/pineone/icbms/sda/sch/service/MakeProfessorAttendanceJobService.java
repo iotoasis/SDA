@@ -21,7 +21,7 @@ import com.pineone.icbms.sda.sch.dao.AggrDAO;
 import com.pineone.icbms.sda.sch.dto.AggrDTO;
 
 @Service
-public class OptimumTemperatureJobService extends SchedulerJobComm implements Job {
+public class MakeProfessorAttendanceJobService extends SchedulerJobComm implements Job {
 	private final Log log = LogFactory.getLog(this.getClass());
 	
 	// triple로 부터 집계를해서 domain에 값을 넣음을 스케줄링함
@@ -29,9 +29,8 @@ public class OptimumTemperatureJobService extends SchedulerJobComm implements Jo
 		String start_time = "";
 		String finish_time = "";
 		AggrDAO aggrDAO;
-		StringBuffer msg = new StringBuffer();
 
-		log.info("OptimumTemperatureJobService(id : "+jec.getJobDetail().getName()+") start.......................");
+		log.info("MakeProfessorAttendanceJobService(id : "+jec.getJobDetail().getName()+") start.......................");
 		
 		try {
 			start_time = Utils.dateFormat.format(new Date());
@@ -58,7 +57,7 @@ public class OptimumTemperatureJobService extends SchedulerJobComm implements Jo
 			// aggr테이블의 aggr_id에 설정된 개수만큼 아래를 수행한다.(1개만 있다..)
 			SparqlService sparqlService = new SparqlService();
 			List<Map<String, String>> argsResultList;		// 대상목록
-//			List<Map<String, String>> aggrResultList;
+
 			// argsql로 대상및 값을 구함
 			argsResultList = sparqlService.runSparql(aggrList.get(0).getArgsql());
 			
@@ -67,78 +66,21 @@ public class OptimumTemperatureJobService extends SchedulerJobComm implements Jo
 				log.debug("map of argsResultList==============>"+map.toString());
 			}
 			
-			int today = Integer.parseInt(Utils.MMddFormat.format(new Date()));
-			log.debug("today ======> "+today);
-			msg.append("today ==> "+today);
-			msg.append("------------------------------");
-			msg.append(Utils.NEW_LINE);
-			
-			String maxValue = "0";
-			String minValue = "0";
-			boolean working_date = false;
-
-			// 정해진 날짜에만 실행함
-			if(today == 302 || today == 625 || today == 908 || today == 1127) {
-				working_date = true;
+			StringBuffer msg = new StringBuffer();
+			if(argsResultList.size() == 0) {
+				msg.append(Utils.NoArg);
 			} else {
-				// 나머지 날자는 수행하지 않음
-				//test
-				// working_date = false;
-				working_date = true;
-			}
-			
-			// 사계절 판단
-			if(today >= 302 && today <= 624) {  // spring
-				maxValue = "25";
-				minValue = "21";
-			} else if(today >= 625 && today <= 907) { // summer
-				maxValue = "28";
-				minValue = "26";
-			} else if(today >= 908 && today <= 1126) { // fall
-				maxValue = "25";
-				minValue = "21";
-			}else if(today >= 1127 && today <= 1231) { // winter
-				maxValue = "20";
-				minValue = "18";
-			}else if(today >= 101 && today <= 301) { // winter
-				maxValue = "20";
-				minValue = "18";
-			}
-			
-			if(working_date) {
-				msg.append(" is working date(working date :  302, 625, 908, 1127)...");
-				msg.append(Utils.NEW_LINE);
-				
 				for(int m = 0; m < argsResultList.size(); m++) {
-					if(jec.getJobDetail().getName().equals("AG-2-1-001")) {
-						sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{argsResultList.get(m).get("prefer_value"), minValue});
-						msg.append("prefer_uri["+m+"] ==>  ");
-						msg.append(argsResultList.get(m).get("prefer_value"));
-						msg.append(Utils.NEW_LINE);
-						msg.append("min(");
-						msg.append(minValue);
-						msg.append(") value updated.");
-						
-						log.debug("min("+minValue+") value updated...");
-					} else if(jec.getJobDetail().getName().equals("AG-2-1-002")) {
-						sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{argsResultList.get(m).get("prefer_value"), maxValue});
-						msg.append("prefer_uri["+m+"] ==>  ");
-						msg.append(argsResultList.get(m).get("prefer_value"));
-						msg.append(Utils.NEW_LINE);
-						msg.append("max(");
-						msg.append(maxValue);
-						msg.append(") value updated.");
-	
-						log.debug("max("+maxValue+") value updated...");
-					} else {
-						throw new UserDefinedException(HttpStatus.BAD_REQUEST);
-					}
-					msg.append(Utils.NEW_LINE);				
+					sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{argsResultList.get(m).get("lec_loc"), argsResultList.get(m).get("rst")});
+					msg.append("lec_loc["+m+"] ==>  ");
+					msg.append(argsResultList.get(m).get("lec_loc"));
+					msg.append("rst["+m+"] ==>  ");
+					msg.append(argsResultList.get(m).get("rst"));
+					
+					msg.append(Utils.NEW_LINE);
 					msg.append("------------------------------");
 					msg.append(Utils.NEW_LINE);
 				}
-			} else {
-				msg.append(" is not working date(working date : 302, 625, 908, 1127)...");
 			}
 
 			finish_time = Utils.dateFormat.format(new Date());
@@ -146,7 +88,7 @@ public class OptimumTemperatureJobService extends SchedulerJobComm implements Jo
 
 			// finish_time값을 sch테이블의 last_work_time에 update
 			updateLastWorkTime(jec, finish_time);
-			log.info("OptimumTemperatureJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
+			log.info("MakeProfessorAttendanceJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

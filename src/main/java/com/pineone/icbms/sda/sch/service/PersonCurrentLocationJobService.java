@@ -31,7 +31,7 @@ public class PersonCurrentLocationJobService extends SchedulerJobComm implements
 		AggrDAO aggrDAO;
 		StringBuffer msg = new StringBuffer();
 
-		log.debug("PersonCurrentLocationJobService(id : "+jec.getJobDetail().getName()+") start.......................");
+		log.info("PersonCurrentLocationJobService(id : "+jec.getJobDetail().getName()+") start.......................");
 		
 		try {
 			start_time = Utils.dateFormat.format(new Date());
@@ -82,21 +82,78 @@ public class PersonCurrentLocationJobService extends SchedulerJobComm implements
 				
 				// update수행(한번에 한개의 값에 대해서만....)
 				String loc = "";
+				String has_loc = "";
+				String direction = "";
+
 				if(aggrResultList.size() == 0) {
 					// pass
 				} else {
+					msg.append("["+m+"] aggrResultList : "+aggrResultList.get(0).toString());
+					msg.append(Utils.NEW_LINE);
+					
 					loc =aggrResultList.get(0).get("loc"); 
+					has_loc = aggrResultList.get(0).get("has_loc");
+					direction = aggrResultList.get(0).get("direction");
 				}
 				
-				// loc값이 없으면 delete만 수행한다.
+				// loc값이 없으면 delete만 수행한다. --> loc값이 없으면 pass하여 이전값을 유지 시킴
+				
 				if(loc.equals("")) {
-					sparqlService.deleteSparql(aggrList.get(0).getDeleteql(), new String[]{argsResultList.get(m).get("user"), loc});
+					msg.append("loc is \"\" ===> pass ");
+					msg.append(Utils.NEW_LINE);
+
+					// pass
+					//sparqlService.deleteSparql(aggrList.get(0).getDeleteql(), new String[]{argsResultList.get(m).get("user"), loc});
 				} else {
-					sparqlService.updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{argsResultList.get(m).get("user"), loc});
+						if(loc.equals(has_loc)) {
+							// hasLocation과 현재의 위치가 같으므로 pass
+							msg.append("loc.equals(has_loc) is equal ===> pass ");
+							msg.append(Utils.NEW_LINE);
+						} else {
+//							synchronized (this) {
+
+							msg.append("loc.equals(has_loc) is not equal");
+							msg.append(Utils.NEW_LINE);
+							
+								if(direction.equals("http://www.pineone.com/campus/in")) {
+									sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{argsResultList.get(m).get("user"), has_loc});
+									
+									msg.append("updateSparq().....by loc ");
+									msg.append(Utils.NEW_LINE);
+									
+									msg.append("state of direction.equals(\"http://www.pineone.com/campus/in\") ");
+									msg.append(Utils.NEW_LINE);
+									
+									sparqlService.updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{argsResultList.get(m).get("user"), loc});
+									
+								} else if(direction.equals("http://www.pineone.com/campus/out")){
+									sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{argsResultList.get(m).get("user"), has_loc});
+									msg.append("updateSparq().....by loc ");
+									msg.append(Utils.NEW_LINE);
+									
+									msg.append("state of direction.equals(\"http://www.pineone.com/campus/out\") ");
+									msg.append(Utils.NEW_LINE);
+									
+									sparqlService.updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{argsResultList.get(m).get("user"), "http://www.pineone.com/campus/nowhere"});
+								} else {
+									msg.append("direction is not valid value :  "+direction);
+									msg.append(Utils.NEW_LINE);
+									
+								}
+//							}
+						}
 				}
 
 				msg.append("loc ==> ");
 				msg.append(loc);
+				msg.append(Utils.NEW_LINE);
+				
+				msg.append("has_loc ==> ");
+				msg.append(has_loc);
+				msg.append(Utils.NEW_LINE);
+				
+				msg.append("direction ==> ");
+				msg.append(direction);
 				msg.append(Utils.NEW_LINE);
 				
 				msg.append("user["+m+"] ==> ");
@@ -111,7 +168,7 @@ public class PersonCurrentLocationJobService extends SchedulerJobComm implements
 
 			// finish_time값을 sch테이블의 last_work_time에 update
 			updateLastWorkTime(jec, finish_time);
-			log.debug("PersonCurrentLocationJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
+			log.info("PersonCurrentLocationJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

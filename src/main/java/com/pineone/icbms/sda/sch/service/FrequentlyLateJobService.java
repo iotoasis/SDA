@@ -21,7 +21,7 @@ import com.pineone.icbms.sda.sch.dao.AggrDAO;
 import com.pineone.icbms.sda.sch.dto.AggrDTO;
 
 @Service
-public class AverageTemperatureJobService extends SchedulerJobComm implements Job {
+public class FrequentlyLateJobService extends SchedulerJobComm implements Job {
 	private final Log log = LogFactory.getLog(this.getClass());
 	
 	// triple로 부터 집계를해서 domain에 값을 넣음을 스케줄링함
@@ -29,9 +29,8 @@ public class AverageTemperatureJobService extends SchedulerJobComm implements Jo
 		String start_time = "";
 		String finish_time = "";
 		AggrDAO aggrDAO;
-		StringBuffer msg = new StringBuffer();
 
-		log.info("AverageTemperatureJobService(id : "+jec.getJobDetail().getName()+") start.......................");
+		log.info("FrequentlyLateJobService(id : "+jec.getJobDetail().getName()+") start.......................");
 		
 		try {
 			start_time = Utils.dateFormat.format(new Date());
@@ -57,9 +56,9 @@ public class AverageTemperatureJobService extends SchedulerJobComm implements Jo
 			
 			// aggr테이블의 aggr_id에 설정된 개수만큼 아래를 수행한다.(1개만 있다..)
 			SparqlService sparqlService = new SparqlService();
-			List<Map<String, String>> argsResultList;		// 대상목록
-			List<Map<String, String>> aggrResultList;
-			// argsql로 대상을 구함
+			List<Map<String, String>> argsResultList;		// 대상및 값 목록
+
+			// argsql로 대상및 값을 구함
 			argsResultList = sparqlService.runSparql(aggrList.get(0).getArgsql());
 			
 			//test
@@ -67,35 +66,20 @@ public class AverageTemperatureJobService extends SchedulerJobComm implements Jo
 				log.debug("map of argsResultList==============>"+map.toString());
 			}
 			
-			// 위해서 구한 대상을 이용하여 aggrql을 수행시켜준다.
-			for(int m = 0; m < argsResultList.size(); m++) {
-				// 결과값은 한개만..
-				aggrResultList = sparqlService.runSparql(aggrList.get(0).getAggrql(), new String[]{argsResultList.get(m).get("uri")});
-				//test
-				for(Map<String, String> map : aggrResultList) {
-					log.debug("map of aggrResultList =====>" + map.toString());
+			StringBuffer msg = new StringBuffer();
+			
+			if(argsResultList.size() == 0) {
+				msg.append(Utils.NoArg);
+			} else {
+				for(int m = 0; m < argsResultList.size(); m++) {
+					sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{argsResultList.get(m).get("person_id")});
+					msg.append("person_id["+m+"] ==>  ");
+					msg.append(argsResultList.get(m).get("person_id"));
+					
+					msg.append(Utils.NEW_LINE);
+					msg.append("------------------------------");
+					msg.append(Utils.NEW_LINE);
 				}
-				
-				if(aggrResultList.size() > 1) {
-					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "aggrValue have too many values or not ! ");
-				}
-				
-				// update수행(한번에 한개의 값에 대해서만....)
-				String aggrValue = aggrResultList.get(0).get("aggrValue");
-				if(aggrValue == null || aggrValue.equals("") || aggrValue.equals("null")) {
-					aggrValue = "0";
-				}
-				msg.append("aggrValue ==> ");
-				msg.append(aggrValue);
-				msg.append(Utils.NEW_LINE);
-				
-				sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{argsResultList.get(m).get("observation_value"), aggrValue});
-				msg.append("observation_uri["+m+"] ==> ");
-				msg.append(argsResultList.get(m).get("observation_value"));
-				msg.append(Utils.NEW_LINE);
-				msg.append("------------------------------");
-				msg.append(Utils.NEW_LINE);
-
 			}
 
 			finish_time = Utils.dateFormat.format(new Date());
@@ -103,7 +87,7 @@ public class AverageTemperatureJobService extends SchedulerJobComm implements Jo
 
 			// finish_time값을 sch테이블의 last_work_time에 update
 			updateLastWorkTime(jec, finish_time);
-			log.info("AverageTemperatureJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
+			log.info("FrequentlyLateJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1,10 +1,13 @@
 package com.pineone.icbms.sda.sf.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +32,24 @@ import com.pineone.icbms.sda.comm.util.Utils;
 public class SparqlService {
 
 	private final Log log = LogFactory.getLog(this.getClass());
+
+	// private final String[][] prefix = {
+
+	// test
+	private final static String[][] prefix = { { "swrlb", "http://www.w3.org/2003/11/swrlb#" },
+			{ "protege", "http://protege.stanford.edu/plugins/owl/protege#" },
+			{ "ssn", "http://purl.oclc.org/NET/ssnx/ssn#" }, { "rdfs", "http://www.w3.org/2000/01/rdf-schema#" },
+			{ "dct", "http://purl.org/dc/terms/" }, { "icbms", "http://www.pineone.com/campus/" },
+			{ "dc", "http://purl.org/dc/elements/1.1/" }, { "j.0", "http://data.qudt.org/qudt/owl/1.0.0/text/" },
+			{ "owl", "http://www.w3.org/2002/07/owl#" }, { "xsp", "http://www.owl-ontologies.com/2005/08/07/xsp.owl#" },
+			{ "swrl", "http://www.w3.org/2003/11/swrl#" }, { "skos", "http://www.w3.org/2004/02/skos/core#" },
+			{ "DUL", "http://www.loa-cnr.it/ontologies/DUL.owl#" }, { "m2m", "http://www.pineone.com/m2m/" },
+			{ "cc", "http://creativecommons.org/ns#" }, { "p1", "http://purl.org/dc/elements/1.1/#" },
+			{ "foaf", "http://xmlns.com/foaf/0.1/" }, { "xsd", "http://www.w3.org/2001/XMLSchema#" },
+			{ "rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#" }, { "qudt", "http://data.nasa.gov/qudt/owl/qudt#" },
+			{ "quantity", "http://data.nasa.gov/qudt/owl/quantity#" },
+			{ "unit", "http://data.nasa.gov/qudt/owl/unit#" }, { "dim", "http://data.nasa.gov/qudt/owl/dimension#" },
+			{ "oecc", "http://www.oegov.org/models/common/cc#" } };
 
 	// sparql 쿼리 실행(args없음)
 	public List<Map<String, String>> runSparql(String sparql) throws Exception {
@@ -65,13 +86,16 @@ public class SparqlService {
 				log.debug("vName[" + (m) + "][" + (n++) + "]==================>" + vName);
 
 				if (qs.get(vName).isLiteral()) {
-					log.debug("this is Literal............................");
+					log.debug("this is Literal type ............................");
 					Literal literal = qs.getLiteral(vName);
-					map.put(vName, String.valueOf(literal.getValue()));
+					String vValue = String.valueOf(literal.getValue());
+					// vValue = replaceUriWithPrefix(vValue);
+					map.put(vName, vValue);
 				} else if (qs.get(vName).isResource()) {
-					log.debug("this is Resource............................");
-
-					map.put(vName, qs.getResource(vName).toString());
+					log.debug("this is Resource type ............................");
+					String vValue = qs.getResource(vName).toString();
+					// vValue = replaceUriWithPrefix(vValue);
+					map.put(vName, vValue);
 
 				} else {
 					log.debug("this is unKnown QuerySolution type............................");
@@ -130,16 +154,26 @@ public class SparqlService {
 			parseQl.append(addStr);
 			if (argStr.equals("systime")) {
 				parseQl.append(Utils.systimeFormat.format(now));
-				skipCnt += 7;
 			} else if (argStr.equals("sysdate")) {
 				parseQl.append(Utils.sysdateFormat.format(now));
-				skipCnt += 7;
 			} else if (argStr.equals("todayzero")) {
 				parseQl.append(Utils.sysdateFormat2.format(now) + "T00:00:00");
-				skipCnt += 9;
+			} else if (argStr.equals("todaylast")) {
+				parseQl.append(Utils.sysdateFormat2.format(now) + "T23:59:59");
 			} else if (argStr.equals("sysdatetime")) {
 				parseQl.append(Utils.sysdatetimeFormat.format(now));
-				skipCnt += 11;
+			} else if (argStr.equals("nyear")) {
+				parseQl.append(Utils.nYearFormat.format(now));
+			} else if (argStr.equals("nmonth")) {
+				parseQl.append(Utils.nMonthFormat.format(now));
+			} else if (argStr.equals("nday")) {
+				parseQl.append(Utils.nDayFormat.format(now));
+			} else if (argStr.equals("nhour")) {
+				parseQl.append(Utils.nHourFormat.format(now));
+			} else if (argStr.equals("nminute")) {
+				parseQl.append(Utils.nMinuteFormat.format(now));
+			} else if (argStr.equals("nsecond")) {
+				parseQl.append(Utils.nSecondFormat.format(now));
 			} else if (argStr.equals("sysweekday")) {
 				String d = Utils.sysweekdayFormat.format(now);
 				String dStr = "";
@@ -159,26 +193,62 @@ public class SparqlService {
 					dStr = "sunday";
 				}
 				parseQl.append(dStr);
-				skipCnt += 10;
 			} else if (argStr.startsWith("arg")) {
-				skipCnt += 3;
 				idx = argStr.substring(3); // "arg"이후의 숫자값을 취함
 				for (int i = 0; i < 100; i++) {
 					if (Integer.parseInt(idx) == i) {
-						// log.debug("idx.length() of argXX===========>" +
-						// idx.length());
 						parseQl.append(idxVals[i]);
-						skipCnt += idx.length();
 						break;
 					}
 				}
+			} else if (argStr.startsWith("now")) {
+
+				String[] split = argStr.split(","); // @{now+3, second,
+													// "YYYYMM"}
+				int val = Integer.parseInt(split[0].substring(3)); // "now"이후의
+																	// 연산자(+,
+																	// -)를 취함
+
+				// 날짜계산
+				Calendar cal = new GregorianCalendar();
+				cal.setTime(now);
+
+				if (split[1].trim().equals("year")) {
+					log.debug("add year by " + String.valueOf(val));
+					cal.add(Calendar.YEAR, val); // 년을 더한다.
+
+				} else if (split[1].trim().equals("month")) {
+					log.debug("add month by " + String.valueOf(val));
+					cal.add(Calendar.MONTH, val); // 월을 더한다.
+
+				} else if (split[1].trim().equals("day")) {
+					log.debug("add day by " + String.valueOf(val));
+					cal.add(Calendar.DAY_OF_YEAR, val); // 하루를 더한다.
+
+				} else if (split[1].trim().equals("hour")) {
+					log.debug("add hour by " + String.valueOf(val));
+					cal.add(Calendar.HOUR, val); // 시간을 더한다.
+
+				} else if (split[1].trim().equals("minute")) {
+					log.debug("add minute by " + String.valueOf(val));
+					System.out.println("add minute by " + String.valueOf(val));
+					cal.add(Calendar.MINUTE, val); // 분을 더한다
+
+				} else if (split[1].trim().equals("second")) {
+					log.debug("add second by " + String.valueOf(val));
+					System.out.println("add second by " + String.valueOf(val));
+					cal.add(Calendar.SECOND, val); // 초를 더한다
+				}
+
+				SimpleDateFormat dateFormat = new SimpleDateFormat(split[2]);
+				parseQl.append(dateFormat.format(cal.getTime()));
+
 			} else {
-				skipCnt += argStr.length();
 				parseQl.append("@{" + argStr + "}");
 			}
+			skipCnt += argStr.length();
 
 			// skipCnt만큼 지난 이후의 나머지 문자열을 설정
-			// log.debug("skipCnt[" + cnt + "]==========>" + skipCnt);
 			sparql = lastStr.substring(skipCnt + 1); // '}'에 대한 1 증가
 			skipCnt = 0;
 			lastStr = "";
@@ -246,7 +316,10 @@ public class SparqlService {
 		if (haveNullResult == false && query_result_list.size() > 1) {
 			Collections.sort(cntList, new CntCompare());
 			int idx = cntList.get(0).getIdx(); // 첫번째 값이 제일 작은값(개수가 제일작은..)
-			List<Map<String, String>> stdList = query_result_list.get(idx); // 기준이 되는 List를 추출
+			List<Map<String, String>> stdList = query_result_list.get(idx); // 기준이
+																			// 되는
+																			// List를
+																			// 추출
 			query_result_list.remove(idx); // idx에 속하는 List는 제거하여 중복체크되지 않도록 함
 
 			log.debug("stdList =========> " + stdList.toString());
@@ -281,37 +354,40 @@ public class SparqlService {
 		return returnList;
 	}
 
+	// update
+	public void updateSparql(String updateql, String[] idxVals) throws Exception {
+		runModifySparql(updateql, idxVals);
+	}
+
+	// update(delete->insert)
 	public void updateSparql(String deleteql, String insertql, String[] idxVals) throws Exception {
 		// delete
-		deleteSparql(deleteql, idxVals);
+		runModifySparql(deleteql, idxVals);
 		// insert
-		insertSparql(deleteql, idxVals);
+		runModifySparql(insertql, idxVals);
 	}
-	
+
+	// delete
 	public void deleteSparql(String deleteql, String[] idxVals) throws Exception {
-		String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint") + "/update";
-
-		// delete
-		String madeDeleteQl = makeSparql(deleteql, idxVals);
-		UpdateRequest ur = UpdateFactory.create(madeDeleteQl);
-		UpdateProcessor up = UpdateExecutionFactory.createRemote(ur, updateService);
-		up.execute();
+		runModifySparql(deleteql, idxVals);
 	}
 
-	
+	// insert
 	public void insertSparql(String insertql, String[] idxVals) throws Exception {
+		runModifySparql(insertql, idxVals);
+	}
+
+	private void runModifySparql(String sparql, String[] idxVals) throws Exception {
 		String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint") + "/update";
 
-		// insert
-		String madeInsertQl = makeSparql(insertql, idxVals);
-		UpdateRequest ur = UpdateFactory.create(madeInsertQl);
+		String madeQl = makeSparql(sparql, idxVals);
+		UpdateRequest ur = UpdateFactory.create(madeQl);
 		UpdateProcessor up = UpdateExecutionFactory.createRemote(ur, updateService);
 		up.execute();
 	}
-
 
 	// cnt를 담고 있는 임시 Cnt클래스
-	private class Cnt {
+	private final class Cnt {
 		int idx;
 		int cnt;
 
@@ -333,10 +409,36 @@ public class SparqlService {
 	}
 
 	// 숫자 비교용 클래스(내림차순, DESC)
-	private class CntCompare implements Comparator<Cnt> {
+	private final class CntCompare implements Comparator<Cnt> {
 		@Override
 		public int compare(Cnt arg0, Cnt arg1) {
 			return arg0.getCnt() > arg1.getCnt() ? -1 : arg0.getCnt() < arg1.getCnt() ? 1 : 0;
 		}
 	}
+
+	// prefix로 치환(test)
+	private String replaceUriWithPrefix(String vValue) throws Exception {
+		String rst = vValue;
+		for (int m = 0; m < prefix.length; m++) {
+			if (vValue.indexOf((prefix[m][1])) != -1) {
+				rst = vValue.replace(prefix[m][1], prefix[m][0] + ":");
+				break;
+			}
+		}
+		return rst;
+
+	}
+
+	public static void main(String[] args) {
+		SparqlService s = new SparqlService();
+		try {
+			System.out.println("now1 ==>" + new Date());
+			System.out.println("result ===>" + s.makeSparql("aaa @{now+10, second, mmss}", new String[] { "" }));
+			System.out.println("result ===>" + s.makeSparql("aaa @{now+50, minute, HHmm}", new String[] { "" }));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

@@ -35,8 +35,8 @@ public class AttendanceServiceMapper implements OneM2MMapper {
 	 * @param user
 	 */
 	public AttendanceServiceMapper(String lecture, String createDate, String condition, String user) {
-		this.lecture = model.createResource(baseuri + "/campus/" + lecture);
-		this.user = model.createResource(baseuri + "/campus/" + user);
+		this.lecture = model.createResource(lecture);
+		this.user = model.createResource(user);
 		this.condition = model.createResource(baseuri + "/campus/" + condition);
 		this.createDate = model.createTypedLiteral(createDate, XSDDateType.XSDdateTime); 
 	}
@@ -59,7 +59,7 @@ public class AttendanceServiceMapper implements OneM2MMapper {
 	}
 
 	public static void main(String[] args) {
-		AttendanceServiceMapper map = new AttendanceServiceMapper("cm001","2015-12-12T00:00:00","absent","u00001");
+		AttendanceServiceMapper map = new AttendanceServiceMapper("http://www.pineone.com/campus/cm001","2015-12-12T00:00:00","absent","http://www.pineone.com/campus/u00001");
 		List<Statement> result = map.from();
 		Iterator it = result.iterator();
 		while (it.hasNext()) {

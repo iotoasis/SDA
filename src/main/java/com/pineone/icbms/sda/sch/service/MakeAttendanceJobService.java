@@ -44,7 +44,7 @@ public class MakeAttendanceJobService extends SchedulerJobComm implements Job {
 		AggrDAO aggrDAO;
 		StringBuffer msg = new StringBuffer();
 		
-		log.debug(
+		log.info(
 				"MakeAttendanceJobService(id : " + jec.getJobDetail().getName() + ") start.......................");
 
 		String riot_mode = Utils.getSdaProperty("com.pineone.icbms.sda.riot.mode");
@@ -91,18 +91,14 @@ public class MakeAttendanceJobService extends SchedulerJobComm implements Job {
 			}
 			
 			Date now = new Date();
-			int HHmm = Integer.parseInt(Utils.systimeFormat.format(now));
-
-			
+		
 			// 위해서 구한 대상을 이용하여 수행한다.
 			for(int m = 0; m < argsResultList.size(); m++) {
 				String lectureLoc = argsResultList.get(m).get("lectureLoc");
 			    String curLoc = argsResultList.get(m).get("curLoc");
 			    String student = argsResultList.get(m).get("student");
-			    String starttime = argsResultList.get(m).get("starttime");
 			    String lecture = argsResultList.get(m).get("lecture");
 				String attendance = "";
-				int lecture_start_time = Integer.parseInt(starttime);
 				
 			    if(lectureLoc.equals(curLoc)) { // 현재위치가 강의실인 경우
 			    	attendance = "attend";

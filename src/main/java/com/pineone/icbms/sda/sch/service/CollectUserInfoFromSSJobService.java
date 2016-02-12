@@ -31,7 +31,7 @@ public class CollectUserInfoFromSSJobService extends SchedulerJobComm implements
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 
-		log.debug(
+		log.info(
 				"CollectUserInfoFromSSJobService(id : " + jec.getJobDetail().getName() + ") start.......................");
 
 		String riot_mode = Utils.getSdaProperty("com.pineone.icbms.sda.riot.mode");
@@ -52,17 +52,32 @@ public class CollectUserInfoFromSSJobService extends SchedulerJobComm implements
 		// schDTO = getSchDTO(jec);
 
 		StringBuffer sql = new StringBuffer();
+		sql.append(Utils.NEW_LINE);
 		sql.append(" select concat('icbms:',user_id,' rdf:type ','foaf:Person .') as col from user_info_master ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" union all ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
 				" select concat('icbms:',user_id,' foaf:phone ' ,'\"',phone_no,'\"^^xsd:string .') as col from user_info_master ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" union all ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
 				" select concat('icbms:',user_id,' foaf:name ' ,'\"',user_name,'\"^^xsd:string .') as col from user_info_master ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(" union all ");
+		sql.append(Utils.NEW_LINE);
 		sql.append(
 				" select concat('icbms:',user_id,' foaf:gender ' ,'\"',gender,'\"^^xsd:string .') as col from user_info_master ");
-
+		sql.append(Utils.NEW_LINE);
+		sql.append(" union all ");
+		sql.append(Utils.NEW_LINE);
+		sql.append(
+				" select concat('icbms:',user_id,' icbms:hasUserId ' ,'\"',user_id,'\"^^xsd:string .') as col from user_info_master ");
+		sql.append(Utils.NEW_LINE);
+		
+		log.debug("sql ==>\n"+sql.toString());
+		
 		int cnt = 0;
 		//int col_cnt = 4; // user_id, phone_no, user_name, gender
 
@@ -144,7 +159,7 @@ public class CollectUserInfoFromSSJobService extends SchedulerJobComm implements
 			}
 			// 파일 전송
 			tripleService.sendTripleFile(triple_path_file);
-			log.debug("CollectUserInfoFromSSJobService(id : " + jec.getJobDetail().getName()
+			log.info("CollectUserInfoFromSSJobService(id : " + jec.getJobDetail().getName()
 					+ ") end.......................");
 		}
 

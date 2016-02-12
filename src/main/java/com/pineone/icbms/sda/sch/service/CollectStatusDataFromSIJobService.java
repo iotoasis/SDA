@@ -36,7 +36,7 @@ public class CollectStatusDataFromSIJobService extends SchedulerJobComm implemen
 			throws Exception {
 		String start_time = Utils.dateFormat.format(new Date());
 		
-		log.debug("CollectStatusDataFromSIJobService(id : "+jec.getJobDetail().getName()+") start.......................");
+		log.info("CollectStatusDataFromSIJobService(id : "+jec.getJobDetail().getName()+") start.......................");
 		
 		mongoClient = new MongoClient(new ServerAddress(ip, port));
 		db = mongoClient.getDB(dbname);
@@ -220,7 +220,7 @@ public class CollectStatusDataFromSIJobService extends SchedulerJobComm implemen
 			}
 			// 파일 전송
 			tripleService.sendTripleFile(triple_path_file);
-			log.debug("CollectStatusDataFromSIJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
+			log.info("CollectStatusDataFromSIJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
 		}
 
 		// sch_hist테이블의 finish_time에 날짜 설정
