@@ -648,6 +648,7 @@ public class Utils {
 	public static String getDeviceInfo(String deviceUri) throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint")+"/sparql";
 		StringWriter out = new StringWriter();
+		// 요기
 		String query = getSparQlHeader() + "\n"+ "describe "+ deviceUri;
 	
 		QueryExecution qe = QueryExecutionFactory.sparqlService(serviceURI, query);
