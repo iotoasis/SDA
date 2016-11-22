@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="aggr">
+	<select id="selectList" parameterType="hashmap" resultType="com.pineone.icbms.sda.comm.sch.dto.AggrDTO">
+		<![CDATA[
+			select aggr_id, aggr_name, aggrql, argsql, updateql, deleteql, insertql, remarks, use_yn, cuser, cdate, uuser, udate
+			 from tnsda_aggr
+			 where use_yn = 'Y' and aggr_id = #{aggr_id}
+		]]>
+	</select>
+	
+</mapper>

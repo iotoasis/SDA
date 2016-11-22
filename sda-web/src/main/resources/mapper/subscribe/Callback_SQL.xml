@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="callback">
+	<select id="selectInsertId" parameterType="hashmap" resultType="hashmap">
+		<![CDATA[
+			select last_insert_id() as callback_seq;
+		]]>
+	</select>
+
+	<select id="selectmaxseq" parameterType="hashmap" resultType="hashmap">
+		<![CDATA[
+			select max(callback_seq) as callback_seq from thsda_callback where cdate >= curdate()- interval 1 day;
+		]]>
+	</select>
+
+	<insert id="insert" parameterType="com.pineone.icbms.sda.subscribe.dto.CallbackDTO">
+		<![CDATA[
+			insert into thsda_callback(callback_uri, callback_time, callback_msg, cuser)
+			 values (#{callback_uri}, #{callback_time}, #{callback_msg}, #{cuser})
+		]]>
+	</insert>
+</mapper>
+

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sch.hist">
+	<insert id="insert" parameterType="com.pineone.icbms.sda.comm.sch.dto.SchHistDTO">
+	    <if test="work_cnt == -1">
+		<![CDATA[
+			insert into thsda_sch_hist(task_group_id, task_id, start_time, task_class, task_expression, work_cnt, work_time, cuser)
+			 values (#{task_group_id}, #{task_id}, #{start_time}, #{task_class}, #{task_expression}, null, #{work_time}, #{cuser})
+		]]>
+	    </if>
+	    <if test="work_cnt != -1">
+		<![CDATA[
+			insert into thsda_sch_hist(task_group_id, task_id, start_time, task_class, task_expression, work_cnt, work_time, cuser)
+			 values (#{task_group_id}, #{task_id}, #{start_time}, #{task_class}, #{task_expression}, #{work_cnt}, #{work_time}, #{cuser})
+		]]>
+		</if>
+	</insert>
+
+
+	<select id="updateFinishTime" parameterType="com.pineone.icbms.sda.comm.sch.dto.SchHistDTO">
+		<![CDATA[
+			update thsda_sch_hist set finish_time=#{finish_time}, work_result=#{work_result}, triple_file_name=#{triple_file_name}, triple_check_result=#{triple_check_result},
+			uuser  = #{uuser}, udate = now()
+			 where task_group_id = #{task_group_id} and task_id = #{task_id} and start_time = #{start_time}
+		]]>
+	</select>
+</mapper>
+

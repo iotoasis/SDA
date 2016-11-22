@@ -1,0 +1,131 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+  		<groupId>com.pineone.icbms.sda</groupId>  
+  		<artifactId>sdaf</artifactId>
+  		<version>2.0</version>
+  		<relativePath>../../sdaf</relativePath>
+  </parent>
+
+  <artifactId>sda-client</artifactId>
+  <packaging>jar</packaging>
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/java</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+    </resources>
+    
+    <plugins>
+      <plugin>
+         <artifactId>maven-compiler-plugin</artifactId>
+         <version>3.5.1</version>
+         <configuration>
+           <source>1.8</source>
+           <target>1.8</target>
+        </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.4.2</version>
+        <configuration>
+          <shadedArtifactAttached>false</shadedArtifactAttached>
+          <transformers>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+              <mainClass>org.apache.jena.fuseki.cmd.FusekiCmd</mainClass>
+            </transformer>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
+              <addHeader>false</addHeader>
+            </transformer>
+          </transformers>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <!-- Some jars are signed but shading breaks that.
+                     Don't include signing files.
+                -->
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
+              </excludes>
+            </filter>
+          </filters>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <!--<phase /><!- - Switch off -->
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <repositories>
+    <repository>      <id>central</id>      <name>Maven Repository</name>      <url>https://repo1.maven.org/maven2</url></repository>  
+  	<repository>		 <id>icbms-project</id>			<url>C:\\dev\\workspace\\sdaf\\sda-common\\target</url> <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>
+  	
+<!--
+
+    <repository>      <id>central</id>      <name>Maven Repository</name>      <url>https://repo1.maven.org/maven2</url>     <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>  
+  	<repository>		 <id>icbms-project</id>			<url>C:\\dev\\workspace\\sda-common\\target</url>    <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>
+ 
+    <repository>      <id>googlecode</id>      <url>http://mesir.googlecode.com/svn/trunk/mavenrepo</url>    <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>
+    <repository>      <id>apache.snapshots</id>      <name>Apache Snapshot Repository</name>      <url>http://repository.apache.org/snapshots</url>      <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases>    </repository>
+    
+    <repository>       <id>com.springsource.repository.bundles.release</id>    <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>    <url>http://repository.springsource.com/maven/bundles/release</url>    <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>
+    <repository>      <id>com.springsource.repository.bundles.external</id>    <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>    <url>http://repository.springsource.com/maven/bundles/external</url>     <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases>    </repository>    
+    -->
+  </repositories>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  
+  
+<dependencies>
+	<!-- dependency>    <groupId>jdk.tools</groupId>    <artifactId>jdk.tools</artifactId>    <version>1.8</version><scope>system</scope>    <systemPath>${java.home}/../lib/tools.jar</systemPath></dependency -->
+
+   <dependency>      <groupId>com.pineone.icbms.sda</groupId>      <artifactId>sda-common</artifactId>      <version>2.0</version>      <scope>compile</scope>  </dependency>
+
+	<dependency>    <groupId>org.scala-lang</groupId>    <artifactId>scala-library</artifactId>    <version>2.11.8</version>      <scope>provided</scope>   </dependency>
+
+    <dependency>      <groupId>org.apache.spark</groupId>      <artifactId>spark-core_2.11</artifactId>      <version>2.0.0</version>      <scope>provided</scope>    </dependency>
+    <dependency>      <groupId>org.apache.spark</groupId>      <artifactId>spark-sql_2.11</artifactId>      <version>2.0.0</version>      <scope>provided</scope>    </dependency>
+    <dependency>      <groupId>org.apache.spark</groupId>      <artifactId>spark-streaming_2.11</artifactId>      <version>2.0.0</version>      <scope>provided</scope>    </dependency>
+    <dependency>      <groupId>org.apache.spark</groupId>      <artifactId>spark-streaming-kafka_2.11</artifactId>      <version>1.6.2</version>      <scope>provided</scope>    </dependency>
+    
+    <!-- 
+	<dependency>
+	<groupId>log4j</groupId><artifactId>log4j</artifactId><version>1.2.15</version>
+		<exclusions>
+		    <exclusion><groupId>com.sun.jmx</groupId><artifactId>jmxri</artifactId></exclusion>
+		    <exclusion><groupId>com.sun.jdmk</groupId><artifactId>jmxtools</artifactId></exclusion>
+		    <exclusion><groupId>javax.jms</groupId><artifactId>jms</artifactId></exclusion>
+		</exclusions>
+	</dependency>
+	-->
+	
+   <dependency>      <groupId>org.apache.hadoop</groupId>     <artifactId>hadoop-common</artifactId>     <version>2.7.2</version>     <scope>compile</scope>   </dependency>
+   <dependency>      <groupId>org.apache.hadoop</groupId>     <artifactId>hadoop-mapreduce-client-common</artifactId>     <version>2.7.2</version>     <scope>compile</scope>   </dependency>
+
+  </dependencies>  
+</project>
