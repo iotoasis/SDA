@@ -6,4 +6,8 @@ bin/
 target/
 build.gradle
 dependency-reduced-pom.xml
+.settings/
 *.swp
+.classpath
+.project
+.springBeans
