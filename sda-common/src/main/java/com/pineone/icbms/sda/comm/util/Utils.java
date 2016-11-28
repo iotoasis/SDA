@@ -11,6 +11,12 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +46,7 @@ import com.pineone.icbms.sda.sf.SparqlService;
 
 public class Utils {
 	private static final Log log = LogFactory.getLog(Utils.class);
-	private static Properties properties = null;
+	private static Configuration conf  = null;
 	
 	// topic 
 	public static enum KafkaTopics {
@@ -315,42 +321,32 @@ public class Utils {
 */
 	
 
-	/* */
+	/* 
 	public static final String getSdaProperty(String envName) {
 		return SdaConstant.sdaVariables.get(envName);
 	}
-	 /* */
+	 */
 	
-	/*
-	public static String getSdaProperty(String envName){
-		String sda_home = System.getenv("SDA_HOME");
+	public static String getSdaProperty(String envName) {
 		String getValue = "";
 
-		// 강제로 설정함
-		if (sda_home == null) {
-			sda_home = "/svc/apps/sda/webapps/sda";
-		}
-
-		// Configuration config = ConfigurationFactory
-		//		.createConfiguration(sda_home + "/WEB-INF/classes/conf/system.properties");
-		//	return config.getStringProperty(envName);
-
-		try {
-			if(properties == null) {
-				properties = new Properties();
-				log.debug("property file read start ...........");
-				properties.load(new FileInputStream(sda_home + "/WEB-INF/classes/conf/system.properties"));
-				log.debug("property file read end ...........");
+		if(conf == null) {
+			log.debug("configuration file reading start ...........");
+			try {
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+								.configure(params.properties().setEncoding("UTF-8").setFileName("system.properties"));
+			conf = builder.getConfiguration();
+			} catch (Exception e) {
+				log.debug("configuration file reading exception .......:"+e.getMessage());
+				getValue = null;
 			}
-			
-			getValue = properties.getProperty(envName); 
-		} catch (Exception e) {
-			e.printStackTrace();
-			getValue = null;
+			log.debug("configuration file reading end ...........");
 		}
+			
+		getValue = conf.getString(envName); 
 		return getValue;
 	}
-	*/
 
 	// POST로 요청
 	public static final ResponseMessage requestData(String uri, String data) throws Exception {
@@ -648,6 +644,7 @@ public class Utils {
 	public static String getDeviceInfo(String deviceUri) throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint")+"/sparql";
 		StringWriter out = new StringWriter();
+		// 요기
 		String query = getSparQlHeader() + "\n"+ "describe "+ deviceUri;
 	
 		QueryExecution qe = QueryExecutionFactory.sparqlService(serviceURI, query);

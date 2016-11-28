@@ -137,6 +137,8 @@
    
    <!-- dependency>     <groupId>commons-dbcp</groupId>     <artifactId>commons-dbcp</artifactId>    <version>1.4</version>     <scope>compile</scope>   </dependency -->
    <dependency>    <groupId>org.apache.commons</groupId>    <artifactId>commons-dbcp2</artifactId>  <scope>compile</scope>  <version>2.1.1</version></dependency>
+   <dependency>    <groupId>org.apache.commons</groupId>    <artifactId>commons-configuration2</artifactId>  <scope>compile</scope>  <version>2.0</version></dependency>
+      <dependency>    <groupId>commons-beanutils</groupId>    <artifactId>commons-beanutils</artifactId>  <scope>compile</scope>  <version>1.9.3</version></dependency>
    
    <dependency>     <groupId>commons-fileupload</groupId>     <artifactId>commons-fileupload</artifactId>     <version>1.2.2</version>     <scope>compile</scope>   </dependency>
    <dependency>     <groupId>commons-collections</groupId>     <artifactId>commons-collections</artifactId>     <version>3.2</version>     <scope>provided</scope>   </dependency>
