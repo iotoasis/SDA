@@ -9,6 +9,14 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+
+
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
@@ -25,7 +33,7 @@ public class Test {
 //		UpdateRequest ur = UpdateFactory
 //				.create(""
 //						+ "delete  { <http://www.iotoasis.org/TemperatureObservationValue_LB0001> <http://data.nasa.gov/qudt/owl/qudt#hasNumericValue>  ?value . } "
-//						+ "insert  { <http://www.iotoasis.org/TemperatureObservationValue_LB0001> <http://data.nasa.gov/qudt/owl/qudt#hasNumericValue>  \"19\" . } " //<-- 19대신 여기 온도를 넣어주세
+//						+ "insert  { <http://www.iotoasis.org/TemperatureObservationValue_LB0001> <http://data.nasa.gov/qudt/owl/qudt#hasNumericValue>  \"19\" . } " //<-- 19���떊 �뿬湲� �삩�룄瑜� �꽔�뼱二쇱꽭
 //						+ "WHERE   { <http://www.iotoasis.org/TemperatureObservationValue_LB0001> <http://data.nasa.gov/qudt/owl/qudt#hasNumericValue> ?value . }");
 //		UpdateProcessor up = UpdateExecutionFactory.createRemote(ur, service);
 //		up.execute();
@@ -130,6 +138,12 @@ public class Test {
 		//System.out.println("result2 : "+result2);
 		
 		
+		
+		for(int i = 0; i < 1000000; i ++) {
+			if((i % 5000) == 0) {
+				System.out.println("com.pineone.icbms.sda.triple.regist.bin["+i+"] =>"+Utils.getSdaProperty("com.pineone.icbms.sda.triple.regist.bin"));
+			}
+		}
 		
 		
 	}
