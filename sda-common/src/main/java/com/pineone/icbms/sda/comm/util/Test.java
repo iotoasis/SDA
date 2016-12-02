@@ -5,16 +5,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import org.apache.commons.configuration2.Configuration;
+
+/*import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+*/
 
 
 import org.apache.jena.query.QueryExecution;
@@ -33,7 +36,7 @@ public class Test {
 //		UpdateRequest ur = UpdateFactory
 //				.create(""
 //						+ "delete  { <http://www.iotoasis.org/TemperatureObservationValue_LB0001> <http://data.nasa.gov/qudt/owl/qudt#hasNumericValue>  ?value . } "
-//						+ "insert  { <http://www.iotoasis.org/TemperatureObservationValue_LB0001> <http://data.nasa.gov/qudt/owl/qudt#hasNumericValue>  \"19\" . } " //<-- 19���떊 �뿬湲� �삩�룄瑜� �꽔�뼱二쇱꽭
+//						+ "insert  { <http://www.iotoasis.org/TemperatureObservationValue_LB0001> <http://data.nasa.gov/qudt/owl/qudt#hasNumericValue>  \"19\" . } " 
 //						+ "WHERE   { <http://www.iotoasis.org/TemperatureObservationValue_LB0001> <http://data.nasa.gov/qudt/owl/qudt#hasNumericValue> ?value . }");
 //		UpdateProcessor up = UpdateExecutionFactory.createRemote(ur, service);
 //		up.execute();
@@ -139,12 +142,14 @@ public class Test {
 		
 		
 		
-		for(int i = 0; i < 1000000; i ++) {
-			if((i % 5000) == 0) {
-				System.out.println("com.pineone.icbms.sda.triple.regist.bin["+i+"] =>"+Utils.getSdaProperty("com.pineone.icbms.sda.triple.regist.bin"));
-			}
-		}
+//		for(int i = 0; i < 1000000; i ++) {
+//			if((i % 5000) == 0) {
+//				System.out.println("com.pineone.icbms.sda.triple.regist.bin["+i+"] =>"+Utils.getSdaProperty("com.pineone.icbms.sda.triple.regist.bin"));
+//			}
+//		}
 		
+		UUID uid = UUID.randomUUID();
+		System.out.println(uid.toString());
 		
 	}
 }

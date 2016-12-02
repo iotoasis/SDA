@@ -82,11 +82,9 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 		
 		ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
 		
-		int cnt = 1;
 //		final AtomicInteger idx = new AtomicInteger();
 		for (final KafkaStream<byte[], byte[]> stream : streams) {
 			//Future future = executor.submit(new Runnable() {
-			log.debug("cnt=>"+cnt++);
 			executor.execute(new ConsumerT(stream));
 			
 			/*
@@ -136,10 +134,6 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 				SchComm schComm = new SchComm();
 				 
 				try {
-					log.debug("stream.isEmpty() : "+stream.isEmpty());
-					log.debug("stream.clientId() : "+stream.clientId());
-					log.debug("stream.isTraversableAgain() : "+stream.isTraversableAgain());
-					
 					 read = specificDatumReader.read(null, binaryDecoder);
 					 
 					 List<java.lang.CharSequence> data= read.getData();
@@ -169,9 +163,7 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 								try {
 									tripleService.addLatestContentInstance();
 								} catch (Exception e) { 
-									log.debug("tripleService.addLatestContentInstance() exception ---------------park --------------------------"+e.getMessage());
-									log.debug("Thread.currentThread().getState()========>"+Thread.currentThread().getState().toString());
-									log.debug("Thread.currentThread().getName() ==========>"+Thread.currentThread().getName());
+									log.debug("tripleService.addLatestContentInstance() exception : "+e.getMessage());
 								}
 							}
 							//log.debug("delete->insert o:hasLatestContentInstance end....................");
@@ -195,9 +187,7 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 						 try {
 							 hm = sendTriples(sb, start_time);
 						 } catch (Exception  e) {
-							 log.debug("sendTriples(sb, start_time) exception ---------------park --------------------------"+e.getMessage());
-							 log.debug("Thread.currentThread().getState()========>"+Thread.currentThread().getState().toString());
-							 log.debug("Thread.currentThread().getName() ==========>"+Thread.currentThread().getName());
+							 log.debug("sendTriples(sb, start_time) exception : "+e.getMessage());
 						 }
 						 triple_check_result_file = hm.get("triple_check_result_file").equals("") ? Utils.None : hm.get("triple_check_result_file");
 						 triple_path_file = hm.get("triple_path_file").equals("") ? Utils.None : hm.get("triple_path_file");
@@ -233,7 +223,7 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 					} catch (Exception ex) {
 						// pass
 					}
-					log.debug("consumer("+this.getClass().getName()+") exception --------------park ------------------------ "+e.toString());
+					log.debug("consumer("+this.getClass().getName()+") exception :"+e.toString());
 					//Thread.currentThread().run();
 				}
 			}

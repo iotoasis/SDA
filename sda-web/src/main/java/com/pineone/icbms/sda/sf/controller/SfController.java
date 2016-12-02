@@ -5,11 +5,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.conn.HttpHostConnectException;
+import org.apache.jena.atlas.web.HttpException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,9 +41,8 @@ public class SfController {
 	private SfService sfService;
 
 /*
-	// 여러개의 ci를 묶어서 상황인지수행
 	// http://localhost:8080/sda/ctx
-	// {"cmid":"","ciid":"CI-1-1-011","name":"임박강의실테스트","conditions":[],"execution_type":"test","schedule":"","domain":"", "remarks":""}
+	// {"cmid":"","ciid":"CI-1-1-011","name":"이름","conditions":[],"execution_type":"test","schedule":"","domain":"", "remarks":""}
 	@RequestMapping(value = "/ctx", method = RequestMethod.POST)
 	public @ResponseBody ResponseEntity<Object> getContext(@RequestBody RequestDTO requestDTO) {
 		log.debug("requested parameter for getContext ==>" + requestDTO.toString());
@@ -53,7 +55,6 @@ public class SfController {
 
 			List<Map<String, String>> returnMsg = sfService.getContext(requestDTO);
 
-			// 응답객체
 			ResponseMessageOk ok = new ResponseMessageOk();
 			ok.setContents(returnMsg);
 			if(returnMsg.size() == 0) {
@@ -68,7 +69,6 @@ public class SfController {
 			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
 			responseHeaders.add("ExceptionClass", e.getClass().getName());
 			
-			// 응답객체
 			ResponseMessageErr str = new ResponseMessageErr();
 			str.setContents(resultMsg.getMessage());
 
@@ -80,7 +80,7 @@ public class SfController {
 */
 	
 	
-	// cmid및 쿼리조건을 지정하여 상황인지 수행(호출 형태 : http://sda1:20080/sda/ctx/cm-announcement-on/?p=, 혹은 http://sda1:20080/sda/ctx/cm-announcement-on?p=)
+	//     http://sda1:20080/sda/ctx/cm-announcement-on/?p=, 혹은 http://sda1:20080/sda/ctx/cm-announcement-on?p= 
 	@RequestMapping(value = "/ctx/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<Object> getContext(@PathVariable String cmid, @RequestParam(value="p")  String args){
 		log.debug("requested parameter(cmid) for getContext ==>" + cmid);
@@ -95,7 +95,6 @@ public class SfController {
 
 		log.info("/ctx/{cmid} GET getContext start================>");
 		
-		// 응답객체
 		ResponseMessageOk ok = new ResponseMessageOk();
 		ok.setCmd(Utils.CMD);
 		ok.setContextId(cmid);
@@ -131,7 +130,7 @@ public class SfController {
 	}
 	
 	
-	// cmid및 쿼리조건을 지정하여 상황인지 수행(호출형태 : http://sda1:20080/sda/deviceinfo/deviceinfo?p=ONSB_BleScanner01_001)
+	// http://sda1:20080/sda/deviceinfo/deviceinfo?p=ONSB_BleScanner01_001
 	@RequestMapping(value = "/deviceinfo/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<Object> getDeviceInfo(@PathVariable String cmid, @RequestParam(value="p")  String args){
 		log.debug("requested parameter(cmid) for getDeviceInfo ==>" + cmid);
@@ -144,21 +143,18 @@ public class SfController {
 
 		List<Map<String, String>> returnMsg = new ArrayList<Map<String, String>>();
 		
-		// 응답객체
 		ResponseMessageOk ok = new ResponseMessageOk();
 		ok.setCmd(Utils.CMD);
 		ok.setContextId(cmid);
 		ok.setTime(Utils.dateFormat.format(new Date()));
 		
 		try {
-			// 인수가 없는 경우
 			if(args.equals("")) {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Not Valid Argument.");
 			}
 
 			String rtnStr = Utils.getDeviceInfo("<"+Utils.PREF+args+">");
 			
-			// 결과가 없는 경우 
 			if( ! rtnStr.contains("rdf:resource")) {
 				entity = new ResponseEntity<Object>(ok, responseHeaders, HttpStatus.NOT_FOUND);
 			} else {
@@ -167,6 +163,8 @@ public class SfController {
 
 			Map<String, String > msgMap = new HashMap<String, String>();
 			
+			// BlankNode Id 移섑솚
+			rtnStr = exchangeBlankNodeId(rtnStr);
 			msgMap.put("device_information", rtnStr);
 			returnMsg.add(msgMap);
 			
@@ -191,7 +189,7 @@ public class SfController {
 	}
 	
 	
-	// cmid및 쿼리조건을 지정하여 상황인지 수행(호출형태 : http://166.104.112.43:20080/sda/resourceinfo/resourceinfo?p=http://www.iotoasis.org/herit-in/herit-cse/ONSB_BleScanner01_001)
+	// http://sda1:20080/sda/resourceinfo/resourceinfo?p=http://www.iotoasis.org/herit-in/herit-cse/ONSB_BleScanner01_001
 	@RequestMapping(value = "/resourceinfo/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<Object> getResourceInfo(@PathVariable String cmid, @RequestParam(value="p")  String args){
 		log.debug("requested parameter(cmid) for getResourceInfo ==>" + cmid);
@@ -204,21 +202,18 @@ public class SfController {
 
 		List<Map<String, String>> returnMsg = new ArrayList<Map<String, String>>();
 		
-		// 응답객체
 		ResponseMessageOk ok = new ResponseMessageOk();
 		ok.setCmd(Utils.CMD);
 		ok.setContextId(cmid);
 		ok.setTime(Utils.dateFormat.format(new Date()));
 		
 		try {
-			// 인수가 없는 경우
 			if(args.equals("")) {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Not Valid Argument.");
 			}
 
 			String rtnStr = Utils.getDeviceInfo("<"+args+">");
 			
-			// 결과가 없는 경우 
 			if( ! rtnStr.contains("rdf:resource")) {
 				entity = new ResponseEntity<Object>(ok, responseHeaders, HttpStatus.NOT_FOUND);
 			} else {
@@ -227,6 +222,8 @@ public class SfController {
 
 			Map<String, String > msgMap = new HashMap<String, String>();
 			
+			// BlankNode Id 변환
+			rtnStr = exchangeBlankNodeId(rtnStr);
 			msgMap.put("resource_information", rtnStr);
 			returnMsg.add(msgMap);
 			
@@ -251,7 +248,6 @@ public class SfController {
 	}
 	
 /*	
-	// cmid및 쿼리조건을 지정하여 상황인지 수행
 	@RequestMapping(value = "/ctx2/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<Object> getContext2(@PathVariable String cmid, @RequestParam(value="p")  String args) {
 		log.debug("requested parameter(cmid) for getContext2 ==>" + cmid);
@@ -268,7 +264,6 @@ public class SfController {
 //			commandMap.put("cmid",cmid);
 			List<Map<String, String>> returnMsg = sfService.getContext2(cmid, args);
 
-			// 응답객체
 			ResponseMessageOk ok = new ResponseMessageOk();
 			ok.setContents(returnMsg);
 			if(returnMsg.size() == 0) {
@@ -283,7 +278,6 @@ public class SfController {
 			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
 			responseHeaders.add("ExceptionClass", e.getClass().getName());
 			
-			// 응답객체
 			ResponseMessageErr str = new ResponseMessageErr();
 			str.setContents(resultMsg.getMessage());
 
@@ -295,7 +289,7 @@ public class SfController {
 */
 	
 	
-	// cmid및 쿼리조건을 지정하여 상황인지 수행(호출형태 : http://sda1:20080/sda/ctx3/info?p=aaa)
+	// http://sda1:20080/sda/ctx3/info?p=aaa
 	@RequestMapping(value = "/ctx3/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<Object> getContext3(@PathVariable String cmid, @RequestParam(value="p")  String args){
 		log.debug("requested parameter(cmid) for getContext3 ==>" + cmid);
@@ -310,7 +304,6 @@ public class SfController {
 
 		log.info("/ctx3/{cmid} GET getContext3 start================>");
 		
-		// 응답객체
 		ResponseMessageOk ok = new ResponseMessageOk();
 		ok.setCmd(Utils.CMD_TEST);
 		ok.setContextId(cmid);
@@ -329,24 +322,21 @@ public class SfController {
 					entity = new ResponseEntity<Object>(ok, responseHeaders, HttpStatus.OK);
 				}
 
-				// message body준비
 				String jsonMsg = gson.toJson(ok);
 
 				log.debug("Request message of Schedule for sending to SO =>  " + jsonMsg);
 				ResponseMessage responseMessage = Utils.requestData(Utils.getSdaProperty("com.pineone.icbms.sda.so.callback_result_uri"), jsonMsg); // POST
 				log.debug("responseMessage of Schedule from SO => " + responseMessage.toString());
 				
-				// SO로 부터 받은 메세지
+				// SO에 오류 통보
 				if(responseMessage.getCode() != 200) {
 					List<Map<String, String>> msg = new ArrayList<Map<String, String>>();
 					HashMap<String, String> hm = new HashMap<String, String>();
 					hm.put("err_msg", responseMessage.toString());
 					ok.setContents(msg);
 					
-					// 서버에서 받은 내용으로 설정해줌
 					entity = new ResponseEntity<Object>(ok, responseHeaders, HttpStatus.valueOf(responseMessage.getCode()));					
 				}
-				// SO에 결과 전송 끝
 		} catch (Exception e) {
 			ResponseMessage resultMsg = Utils.makeResponseBody(e);
 			log.debug("ExceptionCause : "+resultMsg.getMessage());
@@ -365,4 +355,27 @@ public class SfController {
 		log.info("/ctx3/{cmid} GET getContext3 end================>");
 		return entity;
 	}	
+	
+	private String exchangeBlankNodeId(String str) {
+		UUID uid;
+		String exChanged = str;
+		String matchStr;
+		for(int i = 0; i < 10000; i ++) {
+			matchStr = "_:b"+i;
+			log.debug("matchStr :"+matchStr);
+			
+			try {
+				if(exChanged.contains(matchStr)) {
+					uid = UUID.randomUUID();
+					log.debug("uid.toString() : "+uid.toString());
+					exChanged = exChanged.replaceAll(matchStr, "_:"+uid.toString());
+				} else {
+					break;
+				}
+			} catch (Exception e) {
+				log.debug("Exception : "+e.getMessage());
+			}
+		}
+		return exChanged;
+	}
 }
