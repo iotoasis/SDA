@@ -82,18 +82,6 @@
   <repositories>
     <repository>      <id>central</id>      <name>Maven Repository</name>      <url>https://repo1.maven.org/maven2</url></repository>  
   	<repository>		 <id>icbms-project</id>			<url>C:\\dev\\workspace\\sdaf\\sda-common\\target</url> <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>
-  	
-<!--
-
-    <repository>      <id>central</id>      <name>Maven Repository</name>      <url>https://repo1.maven.org/maven2</url>     <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>  
-  	<repository>		 <id>icbms-project</id>			<url>C:\\dev\\workspace\\sda-common\\target</url>    <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>
- 
-    <repository>      <id>googlecode</id>      <url>http://mesir.googlecode.com/svn/trunk/mavenrepo</url>    <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>
-    <repository>      <id>apache.snapshots</id>      <name>Apache Snapshot Repository</name>      <url>http://repository.apache.org/snapshots</url>      <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases>    </repository>
-    
-    <repository>       <id>com.springsource.repository.bundles.release</id>    <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>    <url>http://repository.springsource.com/maven/bundles/release</url>    <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>
-    <repository>      <id>com.springsource.repository.bundles.external</id>    <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>    <url>http://repository.springsource.com/maven/bundles/external</url>     <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases>    </repository>    
-    -->
   </repositories>
 
   <properties>
@@ -102,8 +90,6 @@
   
   
 <dependencies>
-	<!-- dependency>    <groupId>jdk.tools</groupId>    <artifactId>jdk.tools</artifactId>    <version>1.8</version><scope>system</scope>    <systemPath>${java.home}/../lib/tools.jar</systemPath></dependency -->
-
    <dependency>      <groupId>com.pineone.icbms.sda</groupId>      <artifactId>sda-common</artifactId>      <version>2.0</version>      <scope>compile</scope>  </dependency>
 
 	<dependency>    <groupId>org.scala-lang</groupId>    <artifactId>scala-library</artifactId>    <version>2.11.8</version>      <scope>provided</scope>   </dependency>
@@ -112,19 +98,9 @@
     <dependency>      <groupId>org.apache.spark</groupId>      <artifactId>spark-sql_2.11</artifactId>      <version>2.0.0</version>      <scope>provided</scope>    </dependency>
     <dependency>      <groupId>org.apache.spark</groupId>      <artifactId>spark-streaming_2.11</artifactId>      <version>2.0.0</version>      <scope>provided</scope>    </dependency>
     <dependency>      <groupId>org.apache.spark</groupId>      <artifactId>spark-streaming-kafka_2.11</artifactId>      <version>1.6.2</version>      <scope>provided</scope>    </dependency>
-    
-    <!-- 
-	<dependency>
-	<groupId>log4j</groupId><artifactId>log4j</artifactId><version>1.2.15</version>
-		<exclusions>
-		    <exclusion><groupId>com.sun.jmx</groupId><artifactId>jmxri</artifactId></exclusion>
-		    <exclusion><groupId>com.sun.jdmk</groupId><artifactId>jmxtools</artifactId></exclusion>
-		    <exclusion><groupId>javax.jms</groupId><artifactId>jms</artifactId></exclusion>
-		</exclusions>
-	</dependency>
-	-->
 	
-   <dependency>      <groupId>org.apache.hadoop</groupId>     <artifactId>hadoop-common</artifactId>     <version>2.7.2</version>     <scope>compile</scope>   </dependency>
+   <dependency>      <groupId>org.apache.hadoop</groupId>     <artifactId>hadoop-common</artifactId>     <version>2.7.2</version>     <scope>compile</scope>   
+   </dependency>
    <dependency>      <groupId>org.apache.hadoop</groupId>     <artifactId>hadoop-mapreduce-client-common</artifactId>     <version>2.7.2</version>     <scope>compile</scope>   </dependency>
 
   </dependencies>  

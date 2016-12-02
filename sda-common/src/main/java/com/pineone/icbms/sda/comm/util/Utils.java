@@ -1,22 +1,28 @@
 package com.pineone.icbms.sda.comm.util;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.configuration2.Configuration;
+/*import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.ex.ConfigurationException;
+*/
+
+
+
+
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
+
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,9 +32,11 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.apache.jena.atlas.web.HttpException;
 import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.DatasetAccessorFactory;
 import org.apache.jena.query.QueryExecution;
@@ -38,15 +46,15 @@ import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
 
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
-import com.pineone.icbms.sda.comm.dto.ResponseMessageErr;
 import com.pineone.icbms.sda.comm.exception.RemoteSIException;
 import com.pineone.icbms.sda.comm.exception.RemoteSOException;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
-import com.pineone.icbms.sda.sf.SparqlService;
 
 public class Utils {
 	private static final Log log = LogFactory.getLog(Utils.class);
-	private static Configuration conf  = null;
+	//private static Configuration conf  = null;
+	
+	private static PropertiesConfiguration conf ;
 	
 	// topic 
 	public static enum KafkaTopics {
@@ -150,12 +158,18 @@ public class Utils {
 	public static final String OK_MSG = "OK";
 	public static final String PREF= "http://www.iotoasis.org/herit-in/herit-cse/"; 
 
+	// 내부오류
+	public static final int INTERNAL_SERVER_ERROR_CODE = 500;
+	public static final String INTERNAL_SERVER_ERROR_MSG = "Internal Server Error";
+	
 	// 핸들링되지 않은 Exception
 	public static final int UNKNOWNEXCEPTION_CODE = 400;
 	public static final String UNKNOWNEXCEPTION_MSG = "UnknownException !";
 
 	public static final  ResponseMessage makeResponseBody(Exception e) {
 		ResponseMessage resultMsg = new ResponseMessage();
+		
+		log.debug("e.getCause() : "+e.getCause());
 
 		// 원격지 오류는 원격지에서 보내준 메세지를 그대로 보여준다.
 		if (e instanceof RemoteSOException) {
@@ -170,18 +184,28 @@ public class Utils {
 			resultMsg.setCode(((UserDefinedException) e).getCode());
 			resultMsg.setMessage(((UserDefinedException) e).getMsg());
 			resultMsg.setContents("");
+//		} else if (e instanceof HttpHostConnectException) {
+//			resultMsg.setCode(500);
+//			resultMsg.setMessage(e.getMessage());
+//			resultMsg.setContents("");
 		} else {
-			String[] msg = e.toString().split(":");
-			resultMsg.setCode(UNKNOWNEXCEPTION_CODE);
-			if(msg.length >= 2) {
-				resultMsg.setMessage(msg[0]);
-				resultMsg.setContents(msg[1]);
-			} else if(msg.length == 1){
-				resultMsg.setMessage(msg[0]);
-				resultMsg.setContents("");
-			} else if(msg.length == 0) {
-				resultMsg.setMessage("");
-				resultMsg.setContents("");
+			String[] msg;
+			if(e.getMessage() ==null || e.getMessage().equals("")) {
+				resultMsg.setCode(INTERNAL_SERVER_ERROR_CODE);
+				resultMsg.setMessage(INTERNAL_SERVER_ERROR_MSG);
+			} else {
+				msg  = e.getMessage().split(":");
+				resultMsg.setCode(INTERNAL_SERVER_ERROR_CODE);
+				if(msg.length >= 2) {
+					resultMsg.setMessage(msg[0]);
+					resultMsg.setContents(msg[1]);
+				} else if(msg.length == 1){
+					resultMsg.setMessage(msg[0]);
+					resultMsg.setContents("");
+				} else if(msg.length == 0) {
+					resultMsg.setMessage("");
+					resultMsg.setContents("");
+				}
 			}
 		}
 
@@ -321,17 +345,19 @@ public class Utils {
 */
 	
 
-	/* 
+	/*
 	public static final String getSdaProperty(String envName) {
 		return SdaConstant.sdaVariables.get(envName);
 	}
 	 */
 	
+	/*
+	 // commons-configuration2용
 	public static String getSdaProperty(String envName) {
 		String getValue = "";
 
 		if(conf == null) {
-			log.debug("configuration file reading start ...........");
+			log.info("configuration file reading start ...........");
 			try {
 			Parameters params = new Parameters();
 			FileBasedConfigurationBuilder<FileBasedConfiguration> builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
@@ -347,6 +373,36 @@ public class Utils {
 		getValue = conf.getString(envName); 
 		return getValue;
 	}
+	 */
+	
+	/* */
+	// commons-configuration용
+	public static String getSdaProperty(String envName) {
+		String getValue = "";
+
+		if(conf == null) {
+			log.info("configuration file reading start ...........");
+			
+			try {
+			    // load the configuration
+			    conf = new PropertiesConfiguration("system.properties");
+				//FileChangedReloadingStrategy strategy = new FileChangedReloadingStrategy(); 
+			    //strategy.setRefreshDelay(500);
+			    //conf.setReloadingStrategy(strategy);
+			    conf.load();
+			} catch (Exception e) {
+				log.debug("configuration file reading exception .......:"+e.getMessage());
+				getValue = null;
+			}
+			
+			log.info("configuration file reading end ...........");
+		}
+			
+		getValue = conf.getString(envName); 
+		return getValue;
+	}
+	/* */
+
 
 	// POST로 요청
 	public static final ResponseMessage requestData(String uri, String data) throws Exception {
