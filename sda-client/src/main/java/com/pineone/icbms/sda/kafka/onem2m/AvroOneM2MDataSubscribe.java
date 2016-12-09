@@ -36,7 +36,7 @@ import java.util.concurrent.Future;
 public class AvroOneM2MDataSubscribe implements Serializable  {
 	private static final long serialVersionUID = -2895832218133628236L;
 	private final String TOPIC = Utils.KafkaTopics.COL_ONEM2M.toString();
-	private final Log log = LogFactory.getLog(AvroOneM2MDataSubscribe.class);
+	private static final Log log = LogFactory.getLog(AvroOneM2MDataSubscribe.class);
 	
 	private final TripleService tripleService = new TripleService();	
 	private final int NUM_THREADS = Integer.parseInt(Utils.getSdaProperty ("com.pineone.icbms.sda.kafka.thread.count"));
@@ -44,13 +44,12 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 	private final String user_id =this.getClass().getName();
 	private final String group_id = this.getClass().getSimpleName();
 	
-	//public static void main(String[] args) throws Exception{
 	public static void main(String[] args) {
 		AvroOneM2MDataSubscribe avroOneM2MDataSubscribe = new AvroOneM2MDataSubscribe();
 		try {
 			avroOneM2MDataSubscribe.collect();
 		} catch (Exception ex) {
-			System.out.println("exception in main() :"+ex.getStackTrace());
+			log.debug("exception in main() :"+ex.getStackTrace());
 		}
 	}
 
@@ -62,7 +61,6 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 		properties.put("group.id",group_id);
 		properties.put("zookeeper.session.timeout.ms", "500");
 		properties.put("zookeeper.sync.time.ms", "250");
-		//properties.put("auto.commit.enable", "false");
 		properties.put("auto.commit.enable", "true");
 		properties.put("auto.commit.interval.ms", "60000");
 		properties.put("fetch.message.max.bytes", "31457280");		// 30MB		
@@ -82,31 +80,12 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 		
 		ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
 		
-//		final AtomicInteger idx = new AtomicInteger();
 		for (final KafkaStream<byte[], byte[]> stream : streams) {
-			//Future future = executor.submit(new Runnable() {
 			executor.execute(new ConsumerT(stream));
-			
-			/*
-			try {
-				future.get();
-			} catch (InterruptedException e) {
-				log.debug("InterruptedException........................park......................................."+e);
-			} catch (ExecutionException e) {
-				log.debug("ExecutionException........................park......................................."+e);
-			}
-			*/
 		}
-		
-		//Thread.sleep(60000);
-		//if (consumer != null) consumer.shutdown();
-		//executor.awaitTermination(0, null);
-		//if (executor != null) executor.shutdown();
-
 	}
 	
 	public class ConsumerT implements Runnable {
-	//public class ConsumerT implements Callable<String> {
 		private KafkaStream<byte[], byte[]> stream;
 		private final SpecificDatumReader<COL_ONEM2M> specificDatumReader = new SpecificDatumReader<COL_ONEM2M>(COL_ONEM2M.class);
 		
@@ -116,7 +95,6 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 		}
 		
 		@Override
-		//public Object call() throws Exception {
 		public void run() {
 			for(MessageAndMetadata<byte[], byte[]> messageAndMetadata : stream) {
 				
@@ -155,10 +133,8 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 
 					 if(processing_ok) {
 						 for(int i = 0; i < data.size(); i++) {
-							//log.debug("data.get("+i+") : "+data.get(i));
 							eachTriple = tripleService.getTriple(data.get(i).toString());
 							
-							//log.debug("delete->insert o:hasLatestContentInstance start....................");
 							if(calcuate_latest_yn.equals("Y")) {
 								try {
 									tripleService.addLatestContentInstance();
@@ -166,9 +142,6 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 									log.debug("tripleService.addLatestContentInstance() exception : "+e.getMessage());
 								}
 							}
-							//log.debug("delete->insert o:hasLatestContentInstance end....................");
-							
-							//log.debug("eachTriple========>"+eachTriple);
 							sb.append(eachTriple);
 						 }
 					 }
@@ -224,10 +197,8 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 						// pass
 					}
 					log.debug("consumer("+this.getClass().getName()+") exception :"+e.toString());
-					//Thread.currentThread().run();
 				}
 			}
-			//return "ok";
 		}
 		
 	}
