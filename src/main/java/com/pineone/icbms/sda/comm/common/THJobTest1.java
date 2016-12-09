@@ -24,7 +24,7 @@ public class THJobTest1 extends SchedulerJobComm implements Job {
 		try {
 			start_time = Utils.dateFormat.format(new Date());
 
-			// task_group_id, task_id에 대한 schDTO정보
+			// task_group_id, task_id에 대한  schDTO정보
 			schDTO = getSchDTO(jec);
 
 			// sch_hist테이블에 data insert
