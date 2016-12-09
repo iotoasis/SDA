@@ -6,6 +6,7 @@ apply plugin: 'eclipse'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'war'
 apply plugin: 'maven'
+
 //apply plugin: 'idea'
 
 compileJava.options.encoding = 'UTF-8'  
