@@ -35,7 +35,7 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 	private static AtomicInteger ai = new AtomicInteger();
 	
 	// latestContentInstance값을 구해야 할지 여부
-	private static boolean haveToCalculate = false;
+	private static boolean haveToMakeLatestContentInstance = false;
 	
 	// latestContentInstance 산출하기 변경 기준 날짜(이 시간 전까지는 산출하지 않음)
 	private static String splitDate;
@@ -87,19 +87,17 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		// startdate구하기
 		if (schDTO.getLast_work_time() == null || schDTO.getLast_work_time().equals("")) {
 			startDate = "";
-			haveToCalculate = false;
-			// latestContentInstance를 구하지 않는 기준 일자를 구함(예, 현재시간 - 10초 전까지는 구하지 않음)
+			haveToMakeLatestContentInstance = false;
+			// latestContentInstance를 구하지 않는 기준 일자를 구함(예, 현재시간 - adjust.ms초 전까지는 구하지 않음)
 			long adjustMs = Long.parseLong(Utils.getSdaProperty("com.pineone.icbms.sda.init.adjust.ms"));
 			
 			splitDate = Utils.dateFormat.format(new Date().getTime() - adjustMs);
 			
 			log.debug("schDTO.getLast_work_time() is null or \"\" ================================");
-			log.debug("adjustMs================================"+adjustMs);
-			log.debug("haveToCalculate================================"+haveToCalculate);
-			log.debug("adjustedDate(splitDate)================================"+splitDate);
 		} else {
 			startDate = schDTO.getLast_work_time();
 		}
+		
 		
 		//splitDate가 없을때(war가 재기동 되는 경우) splitDate설정
 		if(splitDate == null || splitDate.equals("")) {
@@ -109,7 +107,7 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 			
 			splitDate = Utils.dateFormat.format(lastWorkTime_tmp - adjustMs);
 		}
-
+		
 		// enddate구하기
 		BasicDBObject searchQuery = new BasicDBObject("ct", new BasicDBObject("$gte", startDate));
 
@@ -124,7 +122,7 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 				break;
 			}
 			*/
-			log.debug("size of cursor ==> "+cursor.size());
+			log.debug("Size of cursor ==> "+cursor.size());
 			log.debug("maxLimit  ==> "+maxLimit);
 			
 			cursor.sort(new BasicDBObject("ct", 1)); // 1: 정순, -1 : 역순
@@ -146,20 +144,9 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 				DBObject doc = cursor.next();
 				endDate = (String) doc.get("ct");
 			}
-			/*
-		} catch (MongoException e) {
-			e.printStackTrace();
-			updateFinishTime(jec, start_time, Utils.dateFormat.format(new Date()), e.getMessage());
-			if(db != null) {
-				db.cleanCursors(true);
-				table = null;
-				db = null;				
-			}
-			if(mongoClient != null ) {
-				mongoClient.close();
-			}
-			throw e;
-			*/
+			
+			// endDate값을 sch테이블의 last_work_time에 update
+			updateLastWorkTime(jec, endDate);
 		} catch (Exception e) {
 			e.printStackTrace();
 			updateFinishTime(jec, start_time, Utils.dateFormat.format(new Date()), e.getMessage());			
@@ -181,21 +168,26 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		// 초기화하는 경우 최초에 startDate가 ""이다.
 		if(! startDate.equals("")) {
 			// latestContentInstance계산여부 판단
+			long startDate_tmp = Utils.dateFormat.parse(startDate).getTime();
 			long endDate_tmp = Utils.dateFormat.parse(endDate).getTime();
 			long splitDate_tmp = Utils.dateFormat.parse(splitDate).getTime();
 			
 			// endDate가 splitDate를 넘어가는 경우는 최근인스턴스를 구함
-			if(endDate_tmp > splitDate_tmp) {
-				haveToCalculate = true;
+			if(splitDate_tmp <= startDate_tmp) {
+				haveToMakeLatestContentInstance = true;
 			} else {
-				haveToCalculate = false;
+				if(endDate_tmp > splitDate_tmp) {
+					haveToMakeLatestContentInstance = true;
+				} else {
+					haveToMakeLatestContentInstance = false;
+				}
 			}
 		}
 		
 		log.debug("startDate : " + startDate);
 		log.debug("endDate : " + endDate);
 		log.debug("splitDate : " + splitDate);
-		log.debug("haveToCalculate : " + haveToCalculate);
+		log.debug("haveToMakeLatestContentInstance : " + haveToMakeLatestContentInstance);
 
 		// triple생성 대상 범위의 데이타 가져오기
 		BasicDBObject searchQuery2 = new BasicDBObject("ct", new BasicDBObject("$gte", startDate).append("$lt", endDate));
@@ -228,20 +220,6 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 				}
 				err_cnt++;
 			}
-			/*
-		} catch (MongoException e) {
-			e.printStackTrace();
-			updateFinishTime(jec, start_time, Utils.dateFormat.format(new Date()), e.getMessage());
-			if(db != null) {
-				db.cleanCursors(true);
-				table = null;
-				db = null;				
-			}
-			if(mongoClient != null ) {
-				mongoClient.close();
-			}
-			throw e;
-			*/
 		} catch (Exception e) {
 			e.printStackTrace();
 			updateFinishTime(jec, start_time, Utils.dateFormat.format(new Date()), e.getMessage());
@@ -271,9 +249,9 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		oneM2M.setTaskGroupId(jec.getJobDetail().getGroup());
 		oneM2M.setTaskId(jec.getJobDetail().getName());
 		oneM2M.setStartTime(start_time);
-		if(haveToCalculate) {
+		if(haveToMakeLatestContentInstance) {
 			oneM2M.setCalcuateLatestYn("Y");
-		} else if(haveToCalculate  == false) {
+		} else if(haveToMakeLatestContentInstance  == false) {
 			oneM2M.setCalcuateLatestYn("N");
 		}
 		oneM2M.setData(list);
@@ -309,8 +287,8 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		String finish_time = Utils.dateFormat.format(new Date());
 		updateFinishTime(jec, start_time, finish_time, triple_check_result_file, triple_path_file, triple_check_result);
 		
-		// endDate값을 sch테이블의 last_work_time에 update
-		updateLastWorkTime(jec, endDate);
+//		// endDate값을 sch테이블의 last_work_time에 update
+//		updateLastWorkTime(jec, endDate);
 		log.info("CollectDataFromSIJobService(id : "+jec.getJobDetail().getName()+") end.......................");
 	}
 
