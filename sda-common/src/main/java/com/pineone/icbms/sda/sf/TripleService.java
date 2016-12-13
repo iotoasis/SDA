@@ -168,7 +168,9 @@ public class TripleService {
 								+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 								+" insert data { <@{arg0}> o:hasLatestContentInstance <@{arg1}> . }" ;
 
-		SparqlService sparqlService = new SparqlService();
+		//SparqlService sparqlService = new SparqlService();
+		QueryService sparqlService= new QueryService(new SparqlQuery());
+		
 		//log.debug("this.getParentResourceUri() ====> "+this.getParentResourceUri());
 		//log.debug("this.getInstanceUri() =====>"+this.getInstanceUri());
 		sparqlService.updateSparql(deleteql, insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()});

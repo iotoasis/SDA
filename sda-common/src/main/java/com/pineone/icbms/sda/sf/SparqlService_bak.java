@@ -30,16 +30,16 @@ import org.springframework.http.HttpStatus;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 
-public class SparqlService {
+public  class SparqlService_bak extends QueryCommon {
 
 	private final Log log = LogFactory.getLog(this.getClass());
 
-	// sparql 쿼리 실행(args없음)
+	// 1개의 sparql 쿼리 실행(args없음)
 	public List<Map<String, String>> runSparql(String sparql) throws Exception {
 		return runSparql(sparql, new String[] { "" });
 	}
 
-	// sparql 쿼리 실행(args있음)
+	// 1개의 sparql 쿼리 실행(args있음)
 	public List<Map<String, String>> runSparql(String sparql, String[] idxVals) throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
 		String madeQl = "";
@@ -47,7 +47,7 @@ public class SparqlService {
 		log.info("runSparql start ======================>");
 
 		log.debug("try (first) .................................. ");
-		madeQl = makeSparql(sparql, idxVals);
+		madeQl = makeFinal(sparql, idxVals);
 		sparql = Utils.getSparQlHeader() + madeQl.toString();
 
 		log.debug("final sparql==========>\n" + sparql);
@@ -131,163 +131,13 @@ public class SparqlService {
 		return list;
 	}
 
-	// 쿼리에 있는 변수를 적절한 값으로 치환하여 리턴함
-	public String makeSparql(String sparql, String[] idxVals) throws Exception {
-		int cnt = 0;
-
-		StringBuffer parseQl = new StringBuffer();
-		Date now = new Date();
-		String addStr = "";
-		String lastStr = "";
-		String argStr = "";
-		String idx = "";
-		int skipCnt = 0;
-
-		if (idxVals == null) {
-			log.debug("idxVals is null");
-		} else {
-			log.debug("count of idxVals : " + idxVals.length);
-			log.debug("values of idxVals : " + Arrays.toString(idxVals));
-		}
-
-		if (sparql == null || sparql.equals("")) {
-			throw new UserDefinedException(HttpStatus.BAD_REQUEST, "sparql is null or none !");
-		}
-
-		//log.debug("sparql to make ===========>\n" + sparql);
-
-		while (!sparql.equals("")) {
-			try {
-				addStr = sparql.substring(0, sparql.indexOf("@{"));
-			} catch (StringIndexOutOfBoundsException e) { // 더이상 "@{"이 없다면 나머지
-															// 문자열은 그대로 적용
-				parseQl.append(sparql);
-				break;
-			}
-
-			lastStr = sparql.substring(sparql.indexOf("@{"));
-			skipCnt += 2;
-			argStr = lastStr.substring(skipCnt, lastStr.indexOf("}"));
-
-			// log.debug("addStr[" + cnt + "]==========>" + addStr);
-			// log.debug("lastStr[" + cnt + "]==========>" + lastStr);
-			// log.debug("argStr[" + cnt + "]==========>" + argStr);
-
-			parseQl.append(addStr);
-			if (argStr.equals("systime")) {
-				parseQl.append(Utils.systimeFormat.format(now));
-			} else if (argStr.equals("sysdate")) {
-				parseQl.append(Utils.sysdateFormat.format(now));
-			} else if (argStr.equals("todayzero")) {
-				parseQl.append(Utils.sysdateFormat2.format(now) + "T00:00:00");
-			} else if (argStr.equals("todaylast")) {
-				parseQl.append(Utils.sysdateFormat2.format(now) + "T23:59:59");
-			} else if (argStr.equals("sysdatetime")) {
-				parseQl.append(Utils.sysdatetimeFormat.format(now));
-			} else if (argStr.equals("nyear")) {
-				parseQl.append(Utils.nYearFormat.format(now));
-			} else if (argStr.equals("nmonth")) {
-				parseQl.append(Utils.nMonthFormat.format(now));
-			} else if (argStr.equals("nday")) {
-				parseQl.append(Utils.nDayFormat.format(now));
-			} else if (argStr.equals("nhour")) {
-				parseQl.append(Utils.nHourFormat.format(now));
-			} else if (argStr.equals("nminute")) {
-				parseQl.append(Utils.nMinuteFormat.format(now));
-			} else if (argStr.equals("nsecond")) {
-				parseQl.append(Utils.nSecondFormat.format(now));
-			} else if (argStr.equals("sysweekday")) {
-				String d = Utils.sysweekdayFormat.format(now);
-				String dStr = "";
-				if (d.equals("1")) { // 월요일
-					dStr = "monday";
-				} else if (d.equals("2")) {
-					dStr = "tuesday";
-				} else if (d.equals("3")) {
-					dStr = "wednesday";
-				} else if (d.equals("4")) {
-					dStr = "thursday";
-				} else if (d.equals("5")) {
-					dStr = "friday";
-				} else if (d.equals("6")) {
-					dStr = "saturday";
-				} else if (d.equals("7")) { // 일요일
-					dStr = "sunday";
-				}
-				parseQl.append(dStr);
-			} else if (argStr.startsWith("arg")) {
-				idx = argStr.substring(3); // "arg"이후의 숫자값을 취함
-				for (int i = 0; i < 100; i++) {
-					if (Integer.parseInt(idx) == i) {
-						parseQl.append(idxVals[i]);
-						break;
-					}
-				}
-			} else if (argStr.startsWith("now")) {
-
-				String[] split = argStr.split(","); // @{now+3, second,
-													// "YYYYMM"}
-				int val = Integer.parseInt(split[0].substring(3)); // "now"이후의
-																	// 연산자(+,
-																	// -)를 취함
-
-				// 날짜계산
-				Calendar cal = new GregorianCalendar();
-				cal.setTime(now);
-
-				if (split[1].trim().equals("year")) {
-					log.debug("add year by " + String.valueOf(val));
-					cal.add(Calendar.YEAR, val); // 년을 더한다.
-
-				} else if (split[1].trim().equals("month")) {
-					log.debug("add month by " + String.valueOf(val));
-					cal.add(Calendar.MONTH, val); // 월을 더한다.
-
-				} else if (split[1].trim().equals("day")) {
-					log.debug("add day by " + String.valueOf(val));
-					cal.add(Calendar.DAY_OF_YEAR, val); // 하루를 더한다.
-
-				} else if (split[1].trim().equals("hour")) {
-					log.debug("add hour by " + String.valueOf(val));
-					cal.add(Calendar.HOUR, val); // 시간을 더한다.
-
-				} else if (split[1].trim().equals("minute")) {
-					log.debug("add minute by " + String.valueOf(val));
-					cal.add(Calendar.MINUTE, val); // 분을 더한다
-
-				} else if (split[1].trim().equals("second")) {
-					log.debug("add second by " + String.valueOf(val));
-					cal.add(Calendar.SECOND, val); // 초를 더한다
-				}
-
-				SimpleDateFormat dateFormat = new SimpleDateFormat(split[2]);
-				parseQl.append(dateFormat.format(cal.getTime()));
-
-			} else {
-				parseQl.append("@{" + argStr + "}");
-			}
-			skipCnt += argStr.length();
-
-			// skipCnt만큼 지난 이후의 나머지 문자열을 설정
-			sparql = lastStr.substring(skipCnt + 1); // '}'에 대한 1 증가
-			skipCnt = 0;
-			lastStr = "";
-			argStr = "";
-			// cnt++;
-		} // end of while
-
-		//log.debug("sparql made ===========>\n" + parseQl.toString());
-
-		return parseQl.toString();
-	}
-
-	// sparql 쿼리결과 만들기(argument가 없음)
+	// 여러개의 sparql 쿼리를 이용하여 결과 만들기(argument가 없음)
 	public List<Map<String, String>> runSparqlUniqueResult(List<String> sparQlList) throws Exception {
 		String[] args = null;
 		return runSparqlUniqueResult(sparQlList, args);
 	}
 
-	// sparql 쿼리결과 만들기(argument가 있음), 컬럼의 명칭이 다르고 비교대상의 컬럼 개수가 동일한 경우의 결과 값 추출하는 로직 
+	// 여러개의 sparql 쿼리를 이용하여 결과 만들기(argument가 있음), 컬럼의 명칭이 다르고 비교대상의 컬럼 개수가 동일한 경우의 결과 값 추출하는 로직 
 	public List<Map<String, String>> runSparqlUniqueResultByVariableColumn(List<String> sparQlList, String[] idxVals) throws Exception {
 
 		// sparQlList의 쿼리를 수행한 결과를 모두 담고 있는 List
@@ -307,6 +157,7 @@ public class SparqlService {
 		// 1. 모든 줄에 있는 값을 찾아야 하므로 쿼리결과가 값이 없는 row가 있으면 다음 쿼리는 수행하지 않음
 		for (int i = 0; i < sparQlList.size(); i++) {
 			query_result = runSparql(sparQlList.get(i), idxVals);
+			
 			log.debug("query result[" + i + "]  =========> \n" + query_result.toString());
 			if (query_result.size() == 0) {
 				haveNullResult = true;
@@ -322,11 +173,11 @@ public class SparqlService {
 		log.debug("haveNullResult ==>" + haveNullResult);
 
 		// 제일 작은 개수를 찾기위해서 개수및 idx 만으로 이루어진 임시 List를 만듬
-		List<Cnt> cntList = new ArrayList<Cnt>();
+		List<IdxCnt> cntList = new ArrayList<IdxCnt>();
 
 		if (haveNullResult == false) {
 			for (int i = 0; i < query_result_list.size(); i++) {
-				Cnt cnt = new Cnt();
+				IdxCnt cnt = new IdxCnt();
 				cnt.setCnt(query_result_list.get(i).size());
 				cnt.setIdx(i);
 				cntList.add(cnt);
@@ -371,7 +222,7 @@ public class SparqlService {
 	}
 
 	
-	// sparql 쿼리결과 만들기(argument가 있음) -- 크기가 다른 로우를 가지고 있는 결과값이 동일한 명칭의 컬럼 1개만을  가지고 있는 경우 추출 로직
+	// 여러개의 sparql 쿼리를 이용하여 결과 만들기(argument가 있음) -- 크기가 다른 로우를 가지고 있는 결과값이 동일한 명칭의 컬럼 1개만을  가지고 있는 경우 추출 로직
 	public List<Map<String, String>> runSparqlUniqueResult(List<String> sparQlList, String[] idxVals) throws Exception {
 
 		// sparQlList의 쿼리를 수행한 결과를 모두 담고 있는 List
@@ -406,11 +257,11 @@ public class SparqlService {
 		log.debug("haveNullResult ==>" + haveNullResult);
 
 		// 제일 작은 개수를 찾기위해서 개수및 idx 만으로 이루어진 임시 List를 만듬
-		List<Cnt> cntList = new ArrayList<Cnt>();
+		List<IdxCnt> cntList = new ArrayList<IdxCnt>();
 
 		if (haveNullResult == false) {
 			for (int i = 0; i < query_result_list.size(); i++) {
-				Cnt cnt = new Cnt();
+				IdxCnt cnt = new IdxCnt();
 				cnt.setCnt(query_result_list.get(i).size());
 				cnt.setIdx(i);
 				cntList.add(cnt);
@@ -484,7 +335,7 @@ public class SparqlService {
 	private void runModifySparql(String sparql, String[] idxVals) throws Exception {
 		String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint") + "/update";
 
-		String madeQl = makeSparql(sparql, idxVals);
+		String madeQl = makeFinal(sparql, idxVals);
 		UpdateRequest ur = UpdateFactory.create(madeQl);
 		UpdateProcessor up;
 
@@ -533,42 +384,13 @@ public class SparqlService {
 		}
 	}
 
-	// cnt를 담고 있는 임시 Cnt클래스
-	private final class Cnt {
-		int idx;
-		int cnt;
-
-		int getCnt() {
-			return cnt;
-		}
-
-		void setCnt(int cnt) {
-			this.cnt = cnt;
-		}
-
-		int getIdx() {
-			return idx;
-		}
-
-		void setIdx(int idx) {
-			this.idx = idx;
-		}
-	}
-
-	// 숫자 비교용 클래스(내림차순, DESC)
-	private final class CntCompare implements Comparator<Cnt> {
-		@Override
-		public int compare(Cnt arg0, Cnt arg1) {
-			return arg0.getCnt() > arg1.getCnt() ? -1 : arg0.getCnt() < arg1.getCnt() ? 1 : 0;
-		}
-	}
-
 	public static void main(String[] args) {
-		SparqlService s = new SparqlService();
+		//SparqlService sparqlService = new SparqlService();
+		QueryService sparqlService= new QueryService(new SparqlQuery());
 		try {
 			System.out.println("now1 ==>" + new Date());
-			System.out.println("result ===>" + s.makeSparql("aaa @{now+10, second, mmss}", new String[] { "" }));
-			System.out.println("result ===>" + s.makeSparql("aaa @{now+50, minute, HHmm}", new String[] { "" }));
+			System.out.println("result ===>" + sparqlService.makeFinal("aaa @{now+10, second, mmss}", new String[] { "" }));
+			System.out.println("result ===>" + sparqlService.makeFinal("aaa @{now+50, minute, HHmm}", new String[] { "" }));
 
 		} catch (Exception e) {
 			e.printStackTrace();

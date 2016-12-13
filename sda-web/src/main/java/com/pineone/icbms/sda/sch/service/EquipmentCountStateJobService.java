@@ -20,7 +20,8 @@ import com.pineone.icbms.sda.comm.sch.dto.AggrDTO;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sch.comm.SchedulerJobComm;
 import com.pineone.icbms.sda.sch.dao.AggrDAO;
-import com.pineone.icbms.sda.sf.SparqlService;
+import com.pineone.icbms.sda.sf.QueryService;
+import com.pineone.icbms.sda.sf.SparqlQuery;
 
 @Service
 public class EquipmentCountStateJobService extends SchedulerJobComm implements Job {
@@ -33,7 +34,6 @@ public class EquipmentCountStateJobService extends SchedulerJobComm implements J
 		// 중복방지
 		start_time = start_time + "S"+String.format("%010d", ai.getAndIncrement());
 
-		String finish_time = Utils.dateFormat.format(new Date());
 		AggrDAO aggrDAO;
 		StringBuffer msg = new StringBuffer();
 
@@ -60,11 +60,13 @@ public class EquipmentCountStateJobService extends SchedulerJobComm implements J
 			insertSchHist(jec, aggrList.size(), start_time, Utils.dateFormat.format(new Date()));
 			
 			// aggr테이블의 aggr_id에 설정된 개수만큼 아래를 수행한다.(1개만 있다..)
-			SparqlService sparqlService = new SparqlService();
+			//SparqlService sparqlService = new SparqlService();
+			QueryService sparqlService= new QueryService(new SparqlQuery());
+			
 			List<Map<String, String>> argsResultList;		// 대상목록
 //			List<Map<String, String>> aggrResultList;
 			// argsql로 대상및 값을 구함
-			argsResultList = sparqlService.runSparql(aggrList.get(0).getArgsql());
+			argsResultList = sparqlService.runQuery(aggrList.get(0).getArgsql());
 			
 			//test
 			for(Map<String, String> map : argsResultList) {
@@ -96,7 +98,7 @@ public class EquipmentCountStateJobService extends SchedulerJobComm implements J
 				msg.append("No Result !");
 			}
 
-			finish_time = Utils.dateFormat.format(new Date());
+			String finish_time = Utils.dateFormat.format(new Date());
 			updateFinishTime(jec, start_time, finish_time, msg.toString() , Utils.NoTripleFile, Utils.NotCheck);
 
 			// finish_time값을 sch테이블의 last_work_time에 update
