@@ -24,7 +24,8 @@ import com.pineone.icbms.sda.itf.cm.dto.CmCiDTO;
 import com.pineone.icbms.sda.itf.cm.service.CmService;
 import com.pineone.icbms.sda.kb.dto.OneM2MContainerDTO;
 import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MSubscribeUriMapper;
-import com.pineone.icbms.sda.sf.SparqlService;
+import com.pineone.icbms.sda.sf.QueryService;
+import com.pineone.icbms.sda.sf.SparqlQuery;
 import com.pineone.icbms.sda.sf.TripleService;
 import com.pineone.icbms.sda.subscribe.dao.CallbackDAO;
 import com.pineone.icbms.sda.subscribe.dao.CallbackNoticeDAO;
@@ -146,7 +147,8 @@ public class SubscribeServiceImpl implements SubscribeService {
 		String user = this.getClass().getName();
 		int callback_seq = 0;
 		TripleService tripleService = new TripleService();
-		SparqlService sparqlService = new SparqlService();
+		//SparqlService sparqlService = new SparqlService();
+		QueryService sparqlService= new QueryService(new SparqlQuery());
 		Map<String, Object> commandMap;
 
 		log.info("callback process begin================>");
@@ -261,7 +263,7 @@ synchronized(this) {
 					sparqlList.add(cmCiDTO.getSparql());
 				}
 
-				returnList = sparqlService.runSparqlUniqueResult(sparqlList);
+				returnList = sparqlService.runQuery(sparqlList);
 
 				// callback_notice테이블에 insert한다. 시작
 				CallbackNoticeDTO callbackNoticeDTO = new CallbackNoticeDTO();

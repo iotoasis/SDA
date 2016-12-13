@@ -9,20 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-/*import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.FileBasedConfiguration;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
-import org.apache.commons.configuration2.builder.fluent.Parameters;
-*/
-
-
-
-
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
-
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,11 +19,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.apache.jena.atlas.web.HttpException;
 import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.DatasetAccessorFactory;
 import org.apache.jena.query.QueryExecution;
@@ -44,11 +29,11 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
-
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.exception.RemoteSIException;
 import com.pineone.icbms.sda.comm.exception.RemoteSOException;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
+import com.pineone.icbms.sda.comm.util.Utils;
 
 public class Utils {
 	private static final Log log = LogFactory.getLog(Utils.class);
@@ -74,8 +59,16 @@ public class Utils {
 		COL_ONEM2M,
 		COL_RDBMS,
 		
-		CMD_REQUEST,				// ÀÛ¾÷¿äÃ»
-		CMD_RESULT						// ¿äÃ»°á°ú
+		CMD_REQUEST,				// ì‘ì—…ìš”ì²­
+		CMD_RESULT						// ìš”ì²­ê²°ê³¼
+	}
+	
+	// ì‹¤í–‰êµ¬ë¶„
+	public static enum QUERY_GUBUN {
+		MONGODB,
+		MARIADB,
+		SPARQL,
+		SHELL
 	}
 	
 	// kafka broker
@@ -86,7 +79,7 @@ public class Utils {
 	
 	// zookeeper
 	
-	// ³¯Â¥ Çü½Ä
+	// ë‚ ì§œí˜•ì‹
 	public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 	//public static final SimpleDateFormat milDateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss.SSS");
 	public static final SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");	
@@ -118,7 +111,7 @@ public class Utils {
 	public static final String NotSupportingType = "Not Supporting Type";
 	public static final String SchNotInit= "Scheduler is not initiated....";
 	
-	// ¼öÁı±¸ºĞ
+	// ìˆ˜ì§‘êµ¬ë¶„
 	public static final String COL_SI_STATUS_DATA = "COL-SI-STATUS-DATA";
 	public static final String COL_SI_ZONE_DATA = "COL-SI-ZONE-DATA";
 	public static final String COL_SI_DATA = "COL-SI-DATA";
@@ -132,15 +125,15 @@ public class Utils {
 	
 	
 	
-	// SO °á°ú ¸®ÅÏ ±¸ºĞ(emergency)
+	// SO ê²°ê³¼ ë¦¬í„´ êµ¬ë¶„(emergency)
 	public static final String CALLBACK_EMERGENCY = "occ-emergency";
-	// SO °á°ú ¸®ÅÏ ±¸ºĞ(schedule)
+	// SO ê²°ê³¼ ë¦¬í„´ êµ¬ë¶„(schedule)
 	public static final String CALLBACK_SCHEDULE = "occ-schedule";
 	
 	public static final String CMD = "query";
 	public static final String CMD_TEST = "query-test";
 	
-	//test¿ë
+	//testìš©
 	public static final String CALLBACK_TEST = "occ";
 	
 	// response
@@ -155,16 +148,18 @@ public class Utils {
 	public static final String ENDODING_UTF8 = "UTF-8";
 
 	public static final String NEW_LINE = "\n";
-	// Á¤»óÄÚµå
+	public static final String SPLIT_STR = "~#";
+	
+	// ì •ìƒì½”ë“œ
 	public static final int OK_CODE = 200;
 	public static final String OK_MSG = "OK";
 	public static final String PREF= "http://www.iotoasis.org/herit-in/herit-cse/"; 
 
-	// ³»ºÎ¿À·ù
+	// ë‚´ë¶€ì˜¤ë¥˜
 	public static final int INTERNAL_SERVER_ERROR_CODE = 500;
 	public static final String INTERNAL_SERVER_ERROR_MSG = "Internal Server Error";
 	
-	// ÇÚµé¸µµÇÁö ¾ÊÀº Exception
+	// í•¸ë“¤ë§ë˜ì§€ ì•Šì€ Exception
 	public static final int UNKNOWNEXCEPTION_CODE = 400;
 	public static final String UNKNOWNEXCEPTION_MSG = "UnknownException !";
 
@@ -173,7 +168,7 @@ public class Utils {
 		
 		log.debug("e.getCause() : "+e.getCause());
 
-		// ¿ø°İÁö ¿À·ù´Â ¿ø°İÁö¿¡¼­ º¸³»ÁØ ¸Ş¼¼Áö¸¦ ±×´ë·Î º¸¿©ÁØ´Ù.
+		// ì›ê²©ì§€ ì˜¤ë¥˜ëŠ” ì›ê²©ì§€ì—ì„œ ë³´ë‚´ì¤€ ë©”ì„¸ì§€ë¥¼ ê·¸ëŒ€ë¡œ ë³´ì—¬ì¤€ë‹¤.
 		if (e instanceof RemoteSOException) {
 			resultMsg.setCode(((RemoteSOException) e).getCode());
 			resultMsg.setMessage(((RemoteSOException) e).getMsg());
@@ -354,7 +349,7 @@ public class Utils {
 	 */
 	
 	/*
-	 // commons-configuration2¿ë
+	 // commons-configuration2ìš©
 	public static String getSdaProperty(String envName) {
 		String getValue = "";
 
@@ -378,7 +373,7 @@ public class Utils {
 	 */
 	
 	/* */
-	// commons-configuration¿ë
+	// commons-configurationìš©
 	public static String getSdaProperty(String envName) {
 		String getValue = "";
 
@@ -406,7 +401,7 @@ public class Utils {
 	/* */
 
 
-	// POST·Î ¿äÃ»
+	// POSTë¡œ ìš”ì²­
 	public static final ResponseMessage requestData(String uri, String data) throws Exception {
 		HttpResponse response = null;
 		ResponseMessage responseMessage = new ResponseMessage();
@@ -443,7 +438,7 @@ public class Utils {
 		return responseMessage;
 	}
 
-	// GETÀ¸·Î ¿äÃ»
+	// GETìœ¼ë¡œ ìš”ì²­
 	public static final ResponseMessage requestData(String uri) throws Exception {
 		HttpResponse response = null;
 		ResponseMessage responseMessage = new ResponseMessage();
@@ -478,7 +473,7 @@ public class Utils {
 		return responseMessage;
 	}
 
-	// uri·ÎºÎÅÍ ºÎ¸ğ °´Ã¼¸¦ ½Äº°
+	// urië¡œ ë¶€í„° ë¶€ëª¨ ê°ì±„ë¥¼ ì‹ë³„ 
 	public static final String getParentURI(String inputUri) {
 		if (inputUri.contains("/")) {
 			return inputUri.substring(0,inputUri.lastIndexOf("/"));
@@ -493,7 +488,7 @@ public class Utils {
 		//String[] args = { "ps","aux", "|", "grep", "-i", "fuseki-server", "|", "awk", "{'print $2'}", "|", "head","-1", "|","xargs", "kill", "-9"};
 		String[] args = { "ps","aux", "|", "grep", "-i", "fuseki-server", "|", "awk", "{'print $2'}", "|", "head","-1", "|","xargs", "kill"};
 
-		// conf°ªÀ» È®ÀÎÇØ¼­ Àç¼³Á¤ÇÔ
+		// confê°’ì„ í™•ì¸í•´ì„œ ì¬ì„¤ì •í•¨
 		/*
 		String result_path = Utils.getSdaProperty("com.pineone.icbms.sda.riot.result.save_path");
 		args[0] = Utils.getSdaProperty("com.pineone.icbms.sda.riot.bin");
@@ -510,7 +505,7 @@ public class Utils {
 			sb.append(" ");
 		}
 	
-		// ½ÇÇà
+		// ì‹¤í–‰
 		result = Utils.runShell(sb);
 		log.debug("resultStr in TripleService.killFuseki() == > "+ Arrays.toString(result));
 		
@@ -524,7 +519,7 @@ public class Utils {
 
 		String[] args = { "/svc/apps/sda/bin/fuseki/run_fuseki.sh"};
 
-		// conf°ªÀ» È®ÀÎÇØ¼­ Àç¼³Á¤ÇÔ
+		// confê°’ì„ í™•ì¸í•´ì„œ ì¬ì„¤ì •í•¨
 		/*
 		String result_path = Utils.getSdaProperty("com.pineone.icbms.sda.riot.result.save_path");
 		args[0] = Utils.getSdaProperty("com.pineone.icbms.sda.riot.bin");
@@ -541,7 +536,7 @@ public class Utils {
 			sb.append(" ");
 		}
 	
-		// ½ÇÇà
+		// ì‹¤í–‰
 		result = Utils.runShell(sb);
 		log.debug("resultStr in TripleService.startFuseki() == > "+ Arrays.toString(result));
 		
@@ -550,7 +545,7 @@ public class Utils {
 		return result;
 	}
 
-	// µ¥ÀÌÅÍ ÃÊ±âÈ­
+	// ë°ì´í„° ì´ˆê¸°í™”
 	public static final void deleteTripleAll() throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
 		DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
@@ -564,7 +559,7 @@ public class Utils {
 			QueryExecution queryExec = QueryExecutionFactory.sparqlService(serviceURI, queryString);
 			ResultSet rs = queryExec.execSelect();
 	
-			// °ªÀ» console¿¡ Ãâ·ÂÇÔ
+			// ê°’ì„ consoleì— ì¶œë ¥í•¨
 			ResultSetFormatter.out(rs);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -603,7 +598,7 @@ public class Utils {
 		ProcessOutputThread stdMsgT=null;
 		ProcessOutputThread errMsgT=null;
 
-		// OS Á¾·ù È®ÀÎ
+		// OSì¢…ë¥˜ í™•ì¸
 		String osName = System.getProperty("os.name");
 
 		try {
@@ -613,21 +608,21 @@ public class Utils {
 			} else {
 				cmd = new String[] { "/bin/sh", "-c", args.toString() };
 			}
-			// ÄÜ¼Ö ¸í·É ½ÇÇà
+			// ëª…ë ¹ ì‹¤í–‰
 			process = Runtime.getRuntime().exec(cmd);
 
-			// ½ÇÇà °á°ú È®ÀÎ (¿¡·¯)
+			// ì‹¤í–‰ê²°ê³¼ í™•ì¸(ì—ëŸ¬)
 			StringBuffer stdMsg = new StringBuffer();
-			// ½º·¹µå·Î inputStream ¹öÆÛ ºñ¿ì±â
+			// ìŠ¤ë ˆë“œë¡œ inputStreamë²„í¼ ë¹„ìš°ê¸°
 			stdMsgT = new ProcessOutputThread(process.getInputStream(), stdMsg);
 			stdMsgT.start();
 
 			StringBuffer errMsg = new StringBuffer();
-			// ½º·¹µå·Î errorStream ¹öÆÛ ºñ¿ì±â
+			// ìŠ¤ë ˆë“œë¡œ errorStream ë²„í¼ ë¹„ìš°ê¸°
 			errMsgT = new ProcessOutputThread(process.getErrorStream(), errMsg);
 			errMsgT.start();
 
-			// ¼öÇàÁ¾·á½Ã±îÁö ´ë±â
+			// ìˆ˜í–‰ì¢…ë£Œì‹œê¹Œì§€ ëŒ€ê¸°
 			while(true) {
 				if(! stdMsgT.isAlive() && ! errMsgT.isAlive()) {
 					notTimeOver = process.waitFor(30L, TimeUnit.MINUTES);
@@ -639,7 +634,7 @@ public class Utils {
 			}
 			log.debug("notTimeOver ==========================>" + notTimeOver);
 
-			// ½ÇÇà°á°ú
+			// ì‹¤í–‰ê²°ê³¼
 			result[0] = stdMsg.toString().trim();
 			result[1] = errMsg.toString().trim();
 		} catch (Exception e) {
@@ -662,7 +657,7 @@ public class Utils {
 		return result;
 	}
 	
-	// Æú´õ¸¦ ¸¸µë(Æú´õ³¡¿¡ ³â¿ùÀÏÀ» ºÙÀÓ)
+	// í´ë”ë¥¼ ë§Œë“¬(í´ë”ëì— ë…„ì›”ì¼ì„ ë¶™ì„)
 	public static final String makeSavePath(String save_path) {
 		save_path = save_path + "/" + Utils.sysdateFormat.format(new Date());
 		File desti = new File(save_path);
@@ -674,7 +669,7 @@ public class Utils {
 		return save_path;
 	}
 	
-	// ³¯Â¥°è»ê(¿À´Ã+- iDay)
+	// ë‚ ì§œê³„ì‚°(ì˜¤ëŠ˜+- iDay)
 	public static final String getDate ( int iDay ) 
 	{
 	    Calendar temp=Calendar.getInstance ( );    
@@ -698,11 +693,11 @@ public class Utils {
 	    return sbDate.toString ( );
 	}
 
-	// Àåºñ Á¤º¸ ¸®ÅÏ 
+	// ì¥ë¹„ ì •ë³´ ë¦¬í„´ 
 	public static String getDeviceInfo(String deviceUri) throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint")+"/sparql";
 		StringWriter out = new StringWriter();
-		// ¿ä±â
+		// ìš”ê¸°
 		String query = getSparQlHeader() + "\n"+ "describe "+ deviceUri;
 	
 		QueryExecution qe = QueryExecutionFactory.sparqlService(serviceURI, query);
@@ -712,8 +707,7 @@ public class Utils {
 		return out.toString();
 	}
 
-
-	// test¼öÇà
+	// testìˆ˜í–‰
 	public static void main(String[] args) throws Exception {
 
 		// Gson gson = new Gson();
@@ -741,5 +735,6 @@ public class Utils {
 		log.debug(test);
 		log.debug(getParentURI(test));
 	}
+
 
 }

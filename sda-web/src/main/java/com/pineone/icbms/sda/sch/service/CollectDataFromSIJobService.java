@@ -259,9 +259,9 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		// 전송시작
 		log.debug("Sending OneM2MData start ......................");		
 		avroOneM2MDataPublish.send(oneM2M);
-		// 전송끝 
 		avroOneM2MDataPublish.close();
-		log.debug("Sending OneM2MData end ......................");		
+		log.debug("Sending OneM2MData end ......................");
+		// 전송끝
 		
 		// mongodb관련 커넥션 닫기
 		if(db != null) {
@@ -287,8 +287,6 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		String finish_time = Utils.dateFormat.format(new Date());
 		updateFinishTime(jec, start_time, finish_time, triple_check_result_file, triple_path_file, triple_check_result);
 		
-//		// endDate값을 sch테이블의 last_work_time에 update
-//		updateLastWorkTime(jec, endDate);
 		log.info("CollectDataFromSIJobService(id : "+jec.getJobDetail().getName()+") end.......................");
 	}
 

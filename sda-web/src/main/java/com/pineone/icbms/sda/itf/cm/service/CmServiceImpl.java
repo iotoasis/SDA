@@ -11,19 +11,15 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.pineone.icbms.sda.comm.dto.RequestDTO;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.itf.ci.dao.CiDAO;
-import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
 import com.pineone.icbms.sda.itf.cm.dao.CmDAO;
 import com.pineone.icbms.sda.itf.cm.dto.CmCiDTO;
-import com.pineone.icbms.sda.sf.SparqlService;
 
 @Service("cmService")
 public class CmServiceImpl implements CmService{ 
 	private Log log = LogFactory.getLog(this.getClass());
-	private SparqlService sparqlService = new SparqlService();
-	
+
 	@Resource(name="cmDAO")
 	private CmDAO cmDAO;
 	
