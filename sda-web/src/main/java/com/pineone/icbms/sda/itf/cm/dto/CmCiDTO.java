@@ -7,6 +7,7 @@ public class CmCiDTO {
 	private String conditions;
 	private String domain;
 	private String sparql;
+	private String ci_gubun;
 	private String cmname;
 	private String ciname;
 	private String ci_remarks;
@@ -14,7 +15,16 @@ public class CmCiDTO {
 	private int ci_arg_cnt;
 	private int cm_arg_cnt;
 
-    public int getCi_arg_cnt() {
+	
+    public String getCi_gubun() {
+		return ci_gubun;
+	}
+
+	public void setCi_gubun(String ci_gubun) {
+		this.ci_gubun = ci_gubun;
+	}
+
+	public int getCi_arg_cnt() {
 		return ci_arg_cnt;
 	}
 
@@ -108,10 +118,13 @@ public class CmCiDTO {
 
 	@Override
 	public String toString() {
-		return "CmCiDTO [tnsda_context_model_cmid=" + tnsda_context_model_cmid + ", tnsda_context_info_ciid="
-				+ tnsda_context_info_ciid + ", conditions=" + conditions + ", domain=" + domain + ", sparql=" + sparql
-				+ ", cmname=" + cmname + ", ciname=" + ciname + ", ci_remarks=" + ci_remarks + ", cm_remarks="
-				+ cm_remarks + ", ci_arg_cnt=" + ci_arg_cnt + ", cm_arg_cnt=" + cm_arg_cnt + "]";
+		return "CmCiDTO [tnsda_context_model_cmid=" + tnsda_context_model_cmid
+				+ ", tnsda_context_info_ciid=" + tnsda_context_info_ciid
+				+ ", conditions=" + conditions + ", domain=" + domain
+				+ ", sparql=" + sparql + ", ci_gubun=" + ci_gubun + ", cmname="
+				+ cmname + ", ciname=" + ciname + ", ci_remarks=" + ci_remarks
+				+ ", cm_remarks=" + cm_remarks + ", ci_arg_cnt=" + ci_arg_cnt
+				+ ", cm_arg_cnt=" + cm_arg_cnt + "]";
 	}
 
 }

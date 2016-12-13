@@ -6,7 +6,7 @@
 		resultType="com.pineone.icbms.sda.itf.cm.dto.CmCiDTO">
 		<![CDATA[
 	 select b.tnsda_context_model_cmid, b.tnsda_context_info_ciid, c.cmname, a.ciname, a.conditions, 
-				a.domain, a.sparql, a.ci_remarks, c.cm_remarks, a.arg_cnt as ci_arg_cnt, c.arg_cnt as cm_arg_cnt
+				a.domain, a.sparql, a.ci_gubun, a.ci_remarks, c.cm_remarks, a.arg_cnt as ci_arg_cnt, c.arg_cnt as cm_arg_cnt
 		from tnsda_context_info a, tnsda_context_model_info b, tnsda_context_model c
 		where a.ciid=b.tnsda_context_info_ciid and b.use_yn='Y' 
 		    and b.tnsda_context_model_cmid = c.cmid			
@@ -18,7 +18,7 @@
 		resultType="com.pineone.icbms.sda.itf.cm.dto.CmCiDTO">
 		<![CDATA[
 	 select b.tnsda_context_model_cmid, b.tnsda_context_info_ciid, c.cmname, a.ciname, a.conditions, 
-				a.domain, a.sparql, a.ci_remarks, c.cm_remarks, a.arg_cnt as ci_arg_cnt, c.arg_cnt as cm_arg_cnt
+				a.domain, a.sparql, a.ci_gubun, a.ci_remarks, c.cm_remarks, a.arg_cnt as ci_arg_cnt, c.arg_cnt as cm_arg_cnt
 		from tnsda_context_info a, tnsda_context_model_info b, tnsda_context_model c
 		where a.use_yn = 'Y' and b.use_yn = 'Y' and c.use_yn = 'Y' and a.ciid=b.tnsda_context_info_ciid 
 		     and b.tnsda_context_model_cmid=#{cmid} and b.tnsda_context_model_cmid = c.cmid			
@@ -29,7 +29,7 @@
 	<select id="selectCmCiList" parameterType="hashmap"
 		resultType="com.pineone.icbms.sda.itf.cm.dto.CmCiDTO">
 		<![CDATA[
-		select b.tnsda_context_model_cmid, b.tnsda_context_info_ciid, a.ciname,  a.conditions, a.domain, a.sparql,  
+		select b.tnsda_context_model_cmid, b.tnsda_context_info_ciid, a.ciname,  a.conditions, a.domain, a.sparql, a.ci_gubun,  
       				a.arg_cnt as ci_arg_cnt, c.arg_cnt as cm_arg_cnt, c.cmname
 			from tnsda_context_info a, tnsda_context_model_info b, tnsda_context_model c 
 		where a.use_yn = 'Y' and b.use_yn = 'Y' and c.use_yn = 'Y'  and a.ciid=b.tnsda_context_info_ciid 
