@@ -3,6 +3,7 @@ package com.pineone.icbms.sda.sf;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Literal;
+
 import com.pineone.icbms.sda.comm.util.Utils;
 public class SparqlQuery extends QueryCommon implements QueryItf {
 	
@@ -81,7 +83,7 @@ public class SparqlQuery extends QueryCommon implements QueryItf {
 		for (; rs.hasNext();) {
 			QuerySolution qs = rs.nextSolution();
 			Iterator<String> itr = qs.varNames();
-			Map<String, String> map = new HashMap<String, String>();
+			Map<String, String> map = new LinkedHashMap<String, String>();
 			int n = 0;
 			while (itr.hasNext()) {
 				vName = (String) itr.next();

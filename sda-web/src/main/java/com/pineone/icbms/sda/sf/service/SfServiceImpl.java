@@ -126,8 +126,8 @@ public class SfServiceImpl implements SfService{
 			throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Not valid argument count ! ");
 		}
 		
-		// 실행할 sparql을 추출하며 인수 개수(cm과 ci의 개수 확인)가 동일한지 확인하고 다르면 exception을 발생시킨다.
-		List<String> sparqlList = new ArrayList<String>();
+		// 실행할 query를 추출하며 인수 개수(cm과 ci의 개수 확인)가 동일한지 확인하고 다르면 exception을 발생시킨다.
+		List<String> queryList = new ArrayList<String>();
 		for(int i = 0; i < list.size(); i++) {
 			CmCiDTO cmCiDTO = list.get(i);
 			if(cmCiDTO.getCm_arg_cnt() == 0 && cmCiDTO.getCi_arg_cnt() == 0) {
@@ -137,16 +137,18 @@ public class SfServiceImpl implements SfService{
 					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Not valid argument count ! ");
 				}
 			}
-			sparqlList.add(cmCiDTO.getSparql());
+			//queryList.add(cmCiDTO.getSparql());
+			//query에 query구분자를 붙여서 넘겨준다.
+			queryList.add(cmCiDTO.getSparql()+Utils.SPLIT_STR+cmCiDTO.getCi_gubun());
 		}
 		
 		// 쿼리 조건을 인자로 받음
 		//List<Map<String, String>> returnList = sparqlService.runSparqlUniqueResult(sparqlList, args.split(","));
-		List<Map<String, String>> returnList = new QueryService(new SparqlQuery()).runQuery(sparqlList, args.split(","));
+		List<Map<String, String>> returnList = new QueryService(new SparqlQuery()).runQuery(queryList, args.split(","));
 		
 		
 		// 쿼리실행결과를 로그로 남김
-		log.debug("sparqlList in getContext by cmid with args =>"+sparqlList);
+		log.debug("queryList in getContext by cmid with args =>"+queryList);
 		log.debug("returnList in getContext by cmid with args =>"+returnList);
 		
 		return returnList;
