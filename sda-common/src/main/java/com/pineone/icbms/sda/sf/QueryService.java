@@ -13,6 +13,9 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
+import org.springframework.http.HttpStatus;
+
+import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 
 public  class QueryService extends QueryCommon {
@@ -35,7 +38,35 @@ public  class QueryService extends QueryCommon {
 
 	// 1개의 쿼리 실행(args있음)
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
-		return queryItf.runQuery(query, idxVals);
+		String queryString;
+		String queryGubun;
+		
+		// 구분에 따른 쿼리를 수행한다.
+		if(query.contains(Utils.SPLIT_STR)) {
+			queryString = query.split(Utils.SPLIT_STR)[0];
+			queryGubun = query.split(Utils.SPLIT_STR)[1];
+			
+			if(queryGubun.equals(Utils.QUERY_GUBUN.MARIADB.toString())){
+				System.out.println("MARIADB");
+				queryItf = new DbQuery();
+				
+			} else if(queryGubun.equals(Utils.QUERY_GUBUN.SPARQL.toString())){
+				System.out.println("SPARQL");
+				queryItf = new SparqlQuery();
+
+				
+			} else if(queryGubun.equals(Utils.QUERY_GUBUN.MONGODB.toString())){
+				//query_result = new MongoDBService.runSparql(sparQlList.get(i), idxVals);
+			} else if(queryGubun.equals(Utils.QUERY_GUBUN.SHELL.toString())){
+				//query_result = new ShellService.runSparql(sparQlList.get(i), idxVals);
+			} else {
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "UNKNOWN query gubun of "+queryGubun);
+			}
+		} else {  //default는 SPARQL로 처리함
+			queryString = query;
+			queryItf = new SparqlQuery();
+		}
+		return queryItf.runQuery(queryString, idxVals);
 		
 	}
 
@@ -61,9 +92,6 @@ public  class QueryService extends QueryCommon {
 
 		boolean haveNullResult = false;
 
-		// return할 최종결과 List
-		List<Map<String, String>> returnList = new ArrayList<Map<String, String>>();
-
 		log.debug("idxVals in getUniqueResultBySameColumn()================>" + Arrays.toString(idxVals));
 
 		// 쿼리를 실행해서 구분자로 분리하여 list에 담는다.
@@ -78,11 +106,14 @@ public  class QueryService extends QueryCommon {
 				break;
 			} else {
 				query_result_list.add(query_result);
-				log.debug("query result added of query_result.size() : " + query_result.size());
+				log.debug("result added of query_result.size() : " + query_result.size());
 			}
 		}
+		
+		// 결과값의 전체 개수
+		int total_query_result_list_count = query_result_list.size();
 
-		log.debug("query_result_list.size() ==>" + query_result_list.size());
+		log.debug("total_query_result_list.size() ==>" + total_query_result_list_count);
 		log.debug("haveNullResult ==>" + haveNullResult);
 
 		// 제일 작은 개수를 찾기위해서 개수및 idx 만으로 이루어진 임시 List를 만듬
@@ -96,9 +127,12 @@ public  class QueryService extends QueryCommon {
 				cntList.add(cnt);
 			}
 		}
+		
+		// return할 최종결과 List
+		List<Map<String, String>> returnList = new ArrayList<Map<String, String>>();
 
 		// 2. 건수가 제일 작은 것을 기준으로 찾아야함.
-		if (haveNullResult == false && query_result_list.size() > 1) {
+		if (haveNullResult == false && total_query_result_list_count > 1) {
 			Collections.sort(cntList, new CntCompare());
 			int idx = cntList.get(0).getIdx(); 			// 개수가 제일 작은것을 찾는다.
 			List<Map<String, String>> stdList = query_result_list.get(idx); // 비교시 기준이 되는 List를 추출한다.
@@ -123,7 +157,9 @@ public  class QueryService extends QueryCommon {
 			}
 			log.debug("matchedColumnCnt========>" + matchedColumnCnt);
 			// 결과값이 one row이면 내부 값을 모두 리턴해줌
-		} else if (haveNullResult == false && query_result_list.size() == 1) {
+		} else if (haveNullResult == false && total_query_result_list_count  == 1) {
+			log.debug("total_query_result_list_count is 1  =========> " + query_result_list.get(0));
+			//returnList = query_result_list.get(0);
 			returnList = query_result_list.get(0);
 		} else {
 			// pass
