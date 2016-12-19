@@ -21,7 +21,7 @@ import com.pineone.icbms.sda.comm.util.Utils;
 public  class QueryService extends QueryCommon {
 	private final Log log = LogFactory.getLog(this.getClass());
 	
-	private QueryItf queryItf;
+	private QueryItf queryItf; 
 	
 	public QueryService() {
 		super();
@@ -48,23 +48,25 @@ public  class QueryService extends QueryCommon {
 			
 			if(queryGubun.equals(Utils.QUERY_GUBUN.MARIADB.toString())){
 				System.out.println("MARIADB");
-				queryItf = new DbQuery();
+				queryItf = new MariaDbQueryImpl();
 				
 			} else if(queryGubun.equals(Utils.QUERY_GUBUN.SPARQL.toString())){
 				System.out.println("SPARQL");
-				queryItf = new SparqlQuery();
-
-				
+				queryItf = new SparqlQueryImpl();
 			} else if(queryGubun.equals(Utils.QUERY_GUBUN.MONGODB.toString())){
-				//query_result = new MongoDBService.runSparql(sparQlList.get(i), idxVals);
+				System.out.println("MONGODB");
+				queryItf = new MongoDbQueryImpl();
+
 			} else if(queryGubun.equals(Utils.QUERY_GUBUN.SHELL.toString())){
-				//query_result = new ShellService.runSparql(sparQlList.get(i), idxVals);
+				System.out.println("SHELL");
+				queryItf = new ShellQueryImpl();
+
 			} else {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "UNKNOWN query gubun of "+queryGubun);
 			}
 		} else {  //default는 SPARQL로 처리함
 			queryString = query;
-			queryItf = new SparqlQuery();
+			queryItf = new SparqlQueryImpl();
 		}
 		return queryItf.runQuery(queryString, idxVals);
 		
