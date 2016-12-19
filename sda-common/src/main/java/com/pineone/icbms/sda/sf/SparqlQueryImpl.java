@@ -16,7 +16,7 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Literal;
 
 import com.pineone.icbms.sda.comm.util.Utils;
-public class SparqlQuery extends QueryCommon implements QueryItf {
+public class SparqlQueryImpl extends QueryCommon implements QueryItf {
 	
 	private final Log log = LogFactory.getLog(this.getClass());
 
@@ -25,7 +25,7 @@ public class SparqlQuery extends QueryCommon implements QueryItf {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
 		String madeQl = "";
 
-		log.info("runQuery start ======================>");
+		log.info("runQuery of sparql start ======================>");
 
 		log.debug("try (first) .................................. ");
 		madeQl = makeFinal(query, idxVals);
@@ -109,7 +109,7 @@ public class SparqlQuery extends QueryCommon implements QueryItf {
 			m++;
 		}
 
-		log.info("runQuery end ======================>");
+		log.info("runQuery of sparql end ======================>");
 		return list;
 	}
 }

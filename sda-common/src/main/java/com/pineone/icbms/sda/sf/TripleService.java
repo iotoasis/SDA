@@ -169,7 +169,7 @@ public class TripleService {
 								+" insert data { <@{arg0}> o:hasLatestContentInstance <@{arg1}> . }" ;
 
 		//SparqlService sparqlService = new SparqlService();
-		QueryService sparqlService= new QueryService(new SparqlQuery());
+		QueryService sparqlService= new QueryService(new SparqlQueryImpl());
 		
 		//log.debug("this.getParentResourceUri() ====> "+this.getParentResourceUri());
 		//log.debug("this.getInstanceUri() =====>"+this.getInstanceUri());

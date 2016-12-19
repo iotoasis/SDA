@@ -63,7 +63,7 @@ public class Utils {
 		CMD_RESULT						// 요청결과
 	}
 	
-	// 실행구분
+	// 쿼리구분
 	public static enum QUERY_GUBUN {
 		MONGODB,
 		MARIADB,
