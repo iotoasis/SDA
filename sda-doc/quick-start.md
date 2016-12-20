@@ -27,11 +27,11 @@ SDA Server 시험은 아래의 순서로 진행할 수 있습니다.
  - [릴리즈 페이지](https://github.com/iotoasis/SDA/releases)에서 SDA 소스 및 설치관련 파일을 다운받는다.
 
 #### (3) MariaDB 기본 셋팅
- - [다운로드](../sda-doc/mariadb_script.txt)에서 다운받은 mariadb 스크립트파일(mariadb_script.txt)를 실행시켜준다.
+ - [다운로드](./sda-doc/mariadb_script.txt)에서 다운받은 mariadb 스크립트파일(mariadb_script.txt)를 실행시켜준다.
 
 #### (4) SDA 빌드
  - [릴리즈 페이지](https://github.com/iotoasis/SDA/releases)에서 다운받은 SDA 소스를 이클립스에서 불러와서 Build한다.(Maven이용함)
- - SO 소스를 빌드하는 방법은 [소스 Build방법](./build_eclipse.md)페이지를 참고한다.
+ - SDA 소스를 빌드하는 방법은 [소스 Build방법](./build_eclipse.md)페이지를 참고한다.
 
 #### (5) SDA 설정 및 실행
  - 다운 받은 소스의 sda-common/resources/system.properties 파일을 오픈하여 SDA 설정을 수정한다.

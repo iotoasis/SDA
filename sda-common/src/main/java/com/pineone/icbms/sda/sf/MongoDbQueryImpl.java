@@ -140,14 +140,15 @@ public class MongoDbQueryImpl extends QueryCommon implements QueryItf {
 	*/		
 	   DBObject searchCastQuery = new BasicDBObject();  //"$match", new BasicDBObject("ct", new BasicDBObject("$gte", "20161213T160000")));
 	   searchCastQuery.put("_uri", new BasicDBObject("$regex", "TicketCount/status/CONTENT_INST"));
-	   //searchCastQuery.put("ct", new BasicDBObject("$regex", "20161213"));
-	   searchCastQuery.put("ct", new BasicDBObject("$regex", Utils.sysdateFormat.format(new Date())));
+	   searchCastQuery.put("ct", new BasicDBObject("$regex", "20161213"));
+	   //searchCastQuery.put("ct", new BasicDBObject("$regex", Utils.sysdateFormat.format(new Date())));
 		
 		DBCursor cursor = table.find(searchCastQuery);
 		while (cursor.hasNext()) {
 			DBObject oldObj = cursor.next();
+			System.out.println("==>"+oldObj);
 			
-			@SuppressWarnings("unchecked")
+/*			@SuppressWarnings("unchecked")
 			Map<String, String> map = makeStringMap(oldObj.toMap());
 			//map.put("_id", new ObjectId(map.get("_id")));
 			
@@ -155,7 +156,7 @@ public class MongoDbQueryImpl extends QueryCommon implements QueryItf {
 			BasicDBObject newObj = new BasicDBObject(map);
 			newObj.append("_id", id);
 			newObj.append("con", Integer.parseInt(map.get("con")));
-			table.update(oldObj, newObj);
+			table.update(oldObj, newObj);*/
 		}
 		
 		

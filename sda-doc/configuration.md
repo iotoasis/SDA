@@ -80,27 +80,3 @@ com.pineone.icbms.sda.mongo.db.server=XXX.XXX.XXX.XXX
 com.pineone.icbms.sda.mongo.db.port=포트번호
 com.pineone.icbms.sda.mongo.db.name=db명
 com.pineone.icbms.sda.mongo.db.collection.name=collection명
- 
- 
-
-
-
-<br>
-<br>
-
-아래는 설정파일 샘플입니다.
-
-```
-spring.data.mongodb.database=so
-spring.data.mongodb.host=101.010.101.01
-spring.data.mongodb.port=10011
-spring.data.mongodb.repositories.enabled=true
-server.context-path=/so
-server.port=10012
-spring.jackson.time-zone=Asia/Seoul
-
-
-```
-
-<br>
-<br>
