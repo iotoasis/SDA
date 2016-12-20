@@ -19,7 +19,7 @@ import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sch.comm.SchedulerJobComm;
 import com.pineone.icbms.sda.sch.dao.AggrDAO;
 import com.pineone.icbms.sda.sf.QueryService;
-import com.pineone.icbms.sda.sf.SparqlQuery;
+import com.pineone.icbms.sda.sf.SparqlQueryImpl;
 
 @Service
 public class ClimateStateJobService extends SchedulerJobComm implements Job {
@@ -58,7 +58,7 @@ public class ClimateStateJobService extends SchedulerJobComm implements Job {
 			insertSchHist(jec, aggrList.size(), start_time, Utils.dateFormat.format(new Date()));
 			
 			// aggr테이블의 aggr_id에 설정된 개수만큼 아래를 수행한다.(1개만 있다..)
-			QueryService sparqlService = new QueryService(new SparqlQuery());
+			QueryService sparqlService = new QueryService(new SparqlQueryImpl());
 			List<Map<String, String>> argsResultList;		// 대상목록
 //			List<Map<String, String>> aggrResultList;
 			// argsql로 대상및 값을 구함

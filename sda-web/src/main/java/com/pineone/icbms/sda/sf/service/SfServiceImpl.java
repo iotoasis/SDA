@@ -23,12 +23,12 @@ import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
 import com.pineone.icbms.sda.itf.cm.dao.CmDAO;
 import com.pineone.icbms.sda.itf.cm.dto.CmCiDTO;
 import com.pineone.icbms.sda.sf.QueryService;
-import com.pineone.icbms.sda.sf.SparqlQuery;
+import com.pineone.icbms.sda.sf.SparqlQueryImpl;
 
 @Service("sfService")
 public class SfServiceImpl implements SfService{ 
 	private final Log log = LogFactory.getLog(this.getClass());
-	private QueryService sparqlService= new QueryService(new SparqlQuery());
+	private QueryService sparqlService= new QueryService(new SparqlQueryImpl());
 	
 	@Resource(name="cmDAO")
 	private CmDAO cmDAO;
@@ -89,7 +89,7 @@ public class SfServiceImpl implements SfService{
 			sparqlList.add(cmCiDTO.getSparql());
 		}
 		
-		List<Map<String, String>> returnList= new QueryService(new SparqlQuery()).runQuery(sparqlList);
+		List<Map<String, String>> returnList= new QueryService(new SparqlQueryImpl()).runQuery(sparqlList);
 		//List<Map<String, String>> returnList = sparqlService.runSparqlUniqueResult(sparqlList);
 		
 		log.debug("sparqlList in getContext by cmid =>"+sparqlList);
@@ -144,7 +144,7 @@ public class SfServiceImpl implements SfService{
 		
 		// 쿼리 조건을 인자로 받음
 		//List<Map<String, String>> returnList = sparqlService.runSparqlUniqueResult(sparqlList, args.split(","));
-		List<Map<String, String>> returnList = new QueryService(new SparqlQuery()).runQuery(queryList, args.split(","));
+		List<Map<String, String>> returnList = new QueryService(new SparqlQueryImpl()).runQuery(queryList, args.split(","));
 		
 		
 		// 쿼리실행결과를 로그로 남김

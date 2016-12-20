@@ -20,9 +20,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.pineone.icbms.sda.comm.util.Utils;
 /*
- * db에 접속하여 쿼리수행
+ * MariaDB에 접속하여 쿼리수행
  */
-public class DbQuery extends QueryCommon implements QueryItf {
+public class MariaDbQueryImpl extends QueryCommon implements QueryItf {
 
 	private final Log log = LogFactory.getLog(this.getClass());
 	
@@ -30,7 +30,7 @@ public class DbQuery extends QueryCommon implements QueryItf {
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
-		log.info("runQuery start ======================>");
+		log.info("runQuery of mariadb start ======================>");
 
 		log.debug("try (first) .................................. ");
 		try {
@@ -71,7 +71,7 @@ public class DbQuery extends QueryCommon implements QueryItf {
 			}
 		}
 
-		log.info("runQuery end ======================>");
+		log.info("runQuery of mariadb end ======================>");
 		return list;
 	}
 	
@@ -96,12 +96,8 @@ public class DbQuery extends QueryCommon implements QueryItf {
 			conn = DriverManager.getConnection("jdbc:mariadb://" + db_server + ":" + db_port + "/" + db_name, db_user,  db_pass);
 			
 			pstmt = conn.prepareStatement(query);
-			int k =  pstmt.executeUpdate("set @rownum:=0;");
 			rs = pstmt.executeQuery();
 
-			//rs.setFetchDirection(ResultSet.FETCH_FORWARD);
-			int cnt = 0;
-	
 			ResultSetMetaData md = rs.getMetaData();
 			int columns = md.getColumnCount();
 			while (rs.next()){
@@ -109,15 +105,9 @@ public class DbQuery extends QueryCommon implements QueryItf {
 			   for(int i=1; i<=columns; i++){           
 				   row.put(md.getColumnName(i), rs.getObject(i).toString());
 			   }
-			   log.debug("row("+(cnt++)+")  ===========>"+row.toString());
 			    list.add(row);
 			}
 			
-			// 정렬
-	        // Collections.sort(list, new MapStringComparator("rest_type"));
-	        //Collections.sort(list, new MapStringComparator("corner_id"));
-	        //Collections.sort(list, new MapFloatComparator("cnt"));
-	        
 			return list;
 		} catch (Exception e) {
 			throw e;
@@ -140,45 +130,4 @@ public class DbQuery extends QueryCommon implements QueryItf {
 			}
 		}
 	}
-	
-	class MapFloatComparator implements Comparator<Map<String, String>> {
-		private final String key;
-		
-		public MapFloatComparator(String key) {
-			this.key = key;
-		}
-		
-		@Override
-		public int compare(Map<String, String> first, Map<String, String> second) {
-			float firstValue = Float.valueOf(first.get(key));
-	         float secondValue = Float.valueOf(second.get(key));
-	         
-			// 내림차순 정렬
-	         if (firstValue > secondValue) {
-	             return -1;
-	         } else if (firstValue < secondValue) {
-	             return 1;
-	         } else /* if (firstValue == secondValue) */ {
-	             return 0;
-	         }
-		}
-	}
-	
-	class MapStringComparator implements Comparator<Map<String, String>> {
-		private final String key;
-		
-		public MapStringComparator(String key) {
-			this.key = key;
-		}
-		
-		@Override
-		public int compare(Map<String, String> first, Map<String, String> second) {
-			String firstValue =first.get(key);
-	        String secondValue = second.get(key);
-	        
-	         // 내림차순 정렬
-             return firstValue.compareTo(secondValue);
-		}
-	}
-
 }
