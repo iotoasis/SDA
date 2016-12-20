@@ -20,17 +20,17 @@
 * 실시간 상황인지를 위한 추론 기능
 
 ## Documents
- - [Quick Start](../sdaf/sda-doc/quick-start.md)
- - [SDA 설정방법](../sdaf/sda-doc/configuration.md)
- - [SDA Build 방법](../sdaf/sda-doc/build_eclipse.md)
+ - [Quick Start](./sda-doc/quick-start.md)
+ - [SDA 설정방법](./sda-doc/configuration.md)
+ - [SDA Build 방법](./sda-doc/build_eclipse.md)
 
 ## Downloads
  - [릴리즈 페이지](https://github.com/iotoasis/SDA/releases)
  
 ## Modules
-- SDA Framework는 세개의 서버 모듈로 구성됩니다. 
--- sda-client :  독립적으로 실행되는 client프로그램을 가지고 있는 모듈
--- sda-common : sda의 core모듈로 공통적인 기능과 core기능을 포함하고 있는 모듈
+- SDA Framework는 세개의 서버 모듈로 구성됩니다.<br> 
+-- sda-client :  독립적으로 실행되는 client프로그램을 가지고 있는 모듈<br>
+-- sda-common : sda의 core모듈로 공통적인 기능과 core기능을 포함하고 있는 모듈<br>
 -- sda-web : RESTFul API및 web서비스등을 제공하기 위한 web 모듈
-
 <br>
+
