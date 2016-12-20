@@ -67,14 +67,14 @@ system.properties
  (현재시간 - 10초) 부터 유효하게 하려면 1000*10값을 지정한다.<br>
 com.pineone.icbms.sda.init.adjust.ms=10000
  
---통계 쿼리를 수행할 db접속정보<br>
+-통계 쿼리를 수행할 db접속정보<br>
  com.pineone.icbms.sda.stat.db.server=XXX.XXX.XXX.XXX 
  com.pineone.icbms.sda.stat.db.port=포트번호 
  com.pineone.icbms.sda.stat.db.name=db명
  com.pineone.icbms.sda.stat.db.user=사용자계정 
  com.pineone.icbms.sda.stat.db.pass=패스워드 
  
- --mongodb정보(통계용)<br>
+ -mongodb정보(통계용)<br>
 com.pineone.icbms.sda.mongo.db.server=XXX.XXX.XXX.XXX
 com.pineone.icbms.sda.mongo.db.port=포트번호
 com.pineone.icbms.sda.mongo.db.name=db명
