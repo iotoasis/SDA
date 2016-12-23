@@ -109,7 +109,6 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 				String start_time =  "";
 				String colFrom =  "";
 				String calcuate_latest_yn =  "";
-				SchComm schComm = new SchComm();
 				 
 				try {
 					 read = specificDatumReader.read(null, binaryDecoder);
@@ -123,7 +122,8 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 					 colFrom = read.getColFrom().toString();
 					 calcuate_latest_yn = read.getCalcuateLatestYn().toString();
 						
-					 String eachTriple;
+					 String eachTriple = "";
+					 int error_count = 0;
 					 
 					 // 작업 진행여부 판단
 					 boolean processing_ok = false;
@@ -133,7 +133,16 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 
 					 if(processing_ok) {
 						 for(int i = 0; i < data.size(); i++) {
-							eachTriple = tripleService.getTriple(data.get(i).toString());
+							 
+							try { 
+								log.debug("raw data : "+data.get(i).toString());
+								
+								eachTriple = tripleService.getTriple(data.get(i).toString());
+							} catch (Exception e) {
+								error_count++;
+								log.debug("data error : "+e.getMessage());
+								log.debug("wrong data : "+data.get(i).toString());
+							}
 							
 							if(calcuate_latest_yn.equals("Y")) {
 								try {
@@ -180,8 +189,9 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 						 log.debug("data.size() is 0, does not send triple ......");
 					 }
 
-					 work_result =  "message " + data.size() + " counts from kafka broker have done ! ";
+					 work_result =  "message " + data.size() + " counts from kafka broker have done with error data of "+error_count+" ! ";
 					 
+					 SchComm schComm = new SchComm();					 
 					 schComm.updateFinishTime(task_group_id, task_id, start_time, finish_time, work_result, triple_path_file, triple_check_result);
 					 
 					 // clear
@@ -191,12 +201,14 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 					 read = null;
 					 data = null;
 				} catch (Exception e) {
+					log.debug("consumer("+this.getClass().getName()+") exception :"+e.getMessage());
+					e.printStackTrace();
 					try {
-						schComm.updateFinishTime(task_group_id, task_id, start_time, Utils.dateFormat.format(new Date()), e.getMessage());
+						SchComm schComm2 = new SchComm();
+						schComm2.updateFinishTime(task_group_id, task_id, start_time, Utils.dateFormat.format(new Date()), e.getMessage());
 					} catch (Exception ex) {
-						// pass
+						log.debug("ex ==>"+ex.getMessage());
 					}
-					log.debug("consumer("+this.getClass().getName()+") exception :"+e.toString());
 				}
 			}
 		}
