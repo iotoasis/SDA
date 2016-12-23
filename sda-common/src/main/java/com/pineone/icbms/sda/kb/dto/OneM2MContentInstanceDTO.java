@@ -18,29 +18,27 @@ import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MContentInstanceMapper;
 import com.pineone.icbms.sda.kb.model.TripleMap;
 
 public class OneM2MContentInstanceDTO implements OneM2MDTO {
-	private Object _id=""; // not standard
-	private String ty=""; // resourceType;
-	private String ri=""; // resourceID;
-	private String rn=""; // resourceName;
-	private String pi=""; // parentID;
-	private String[] lbl={""}; // labels;
+//	private Object _id=""; // not standard  v
+	private id_object _id; // not standard  v
+	private String ty=""; // resourceType;  v
+	private String ri=""; // resourceID; v
+	private String rn=""; // resourceName; v
+	private String pi=""; // parentID; v
+	private String[] lbl={""}; // labels; v
 	private String cr=""; // creator;
 	private String cnf=""; // contentInfo
-	private String cs=""; // contentSize;
-	private String con=""; // content;
+	private String cs=""; // contentSize;  vvvvvvvvv(integer로 들어옴)
+	private String con=""; // content;    v
 	private String _uri=""; // not standard
-	private String ct=""; // creationTime;
-	private String lt=""; // lastModifiedTime;
+	private String ct=""; // creationTime;    v
+	private String lt=""; // lastModifiedTime;   v
 
 	private String or=""; // ontologyRef;
-	private String et=""; // expirationTime;
-	private String st=""; // stateTag;
+	private String et=""; // expirationTime; v
+	private String st=""; // stateTag;    vvvvvvvvv(integer로 들어옴)
 	private String[] at={""}; // announceTo;
 	private String[] aa={""}; // announcedAttribute;
 
-	public Object get_id() {
-		return _id;
-	}
 
 	public String getStringId() {
 		Matcher matcher = Pattern.compile("\"([^\"]*)\"").matcher(_id.toString());
@@ -50,9 +48,16 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 		return "";
 	}
 
-	public void set_id(String _id) {
+
+	public id_object get_id() {
+		return _id;
+	}
+
+
+	public void set_id(id_object _id) {
 		this._id = _id;
 	}
+
 
 	public String getTy() {
 		return ty;
@@ -202,7 +207,7 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 	}
 
 	public String toString() {
-		String result = "********************* ContentInstance **********************" + "\n _id 	: " + this.get_id()
+		String result = "********************* ContentInstance **********************" + "\n _id 	: " 
 				+ "\n ty 	: " + this.getTy() + "\n ri 	: " + this.getRi() + "\n rn 	: " + this.getRn()
 				+ "\n pi 	: " + this.getPi() + "\n lbl 	: " + this.getLbl() + "\n ct 	: " + this.getCt()
 				+ "\n lt 	: " + this.getLt() + "\n cr 	: " + this.getCr() + "\n cnf 	: " + this.getCnf()
@@ -261,4 +266,42 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 		return map;
 
 	}
+}
+
+class id_object {
+	String _time;
+	String _machine;
+	String _inc;
+	String _new;
+	public String get_time() {
+		return _time;
+	}
+	public void set_time(String _time) {
+		this._time = _time;
+	}
+	public String get_machine() {
+		return _machine;
+	}
+	public void set_machine(String _machine) {
+		this._machine = _machine;
+	}
+	public String get_inc() {
+		return _inc;
+	}
+	public void set_inc(String _inc) {
+		this._inc = _inc;
+	}
+	public String get_new() {
+		return _new;
+	}
+	public void set_new(String _new) {
+		this._new = _new;
+	}
+	@Override
+	public String toString() {
+		return "id_object [_time=" + _time + ", _machine=" + _machine
+				+ ", _inc=" + _inc + ", _new=" + _new + "]";
+	}
+	
+	
 }

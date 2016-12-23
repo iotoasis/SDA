@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -112,6 +114,8 @@ public  class QueryService extends QueryCommon {
 			}
 		}
 		
+		log.debug("query_result_list ==>" + query_result_list);
+		
 		// 결과값의 전체 개수
 		int total_query_result_list_count = query_result_list.size();
 
@@ -130,6 +134,8 @@ public  class QueryService extends QueryCommon {
 			}
 		}
 		
+		log.debug("cntList =========> " + cntList);
+		
 		// return할 최종결과 List
 		List<Map<String, String>> returnList = new ArrayList<Map<String, String>>();
 
@@ -141,31 +147,39 @@ public  class QueryService extends QueryCommon {
 			query_result_list.remove(idx); 				// idx에 속하는 List는 제거하여 중복체크되지 않도록 함
 
 			log.debug("stdList =========> " + stdList.toString());
-
+			log.debug("removed query_result_list ==>" + query_result_list);
+			
 			// 제일 작은 개수 List를 기준으로 체크한다.
-			int matchedColumnCnt = 0;
+			int matchedRowCnt = 0;
 			for (int i = 0; i < stdList.size(); i++) {
+				log.debug("stdList.get(" + i + ") :"+stdList.get(i));
 				for (int k = 0; k < query_result_list.size(); k++) {
-					//log.debug("query_result_list.get(" + k + ") :" +query_result_list.get(k));
-					log.debug("stdList.get(" + i + ") :"+stdList.get(i));
+					log.debug("query_result_list.get(" + k + ") :" +query_result_list.get(k));
 					
 					if (query_result_list.get(k).contains(stdList.get(i))) {
-						matchedColumnCnt++;
+						matchedRowCnt++;
 						returnList.add(stdList.get(i));
 						log.debug("query_result_list.get(" + k + ").contains(stdList.get(" + i + ")) == true");
-						break;
 					}
 				} // List 순환 end
 			}
-			log.debug("matchedColumnCnt========>" + matchedColumnCnt);
-			// 결과값이 one row이면 내부 값을 모두 리턴해줌
-		} else if (haveNullResult == false && total_query_result_list_count  == 1) {
+			log.debug("matchedRowCnt========>" + matchedRowCnt);
+			log.debug("(total_query_result_list_count-1) : "+(total_query_result_list_count-1));
+			// 모두 일치하면 returnList를 리턴한다.
+			if((total_query_result_list_count-1) == matchedRowCnt) {
+				log.debug("all rows have matched column !");
+				// pass
+			} else {			// 1개라도 일치하지 않는것이 잇으면 returnList를 비운다.
+				log.debug("some of rows have no matched column !");
+				returnList.clear();
+			}
+		} else if (haveNullResult == false && total_query_result_list_count  == 1) {       			// 결과값이 1개의 row만을 가지고 있으면 내부 값을 모두 리턴해줌
 			log.debug("total_query_result_list_count is 1  =========> " + query_result_list.get(0));
-			//returnList = query_result_list.get(0);
 			returnList = query_result_list.get(0);
 		} else {
 			// pass
 		}
+		
 		return returnList;
 	}
 	
