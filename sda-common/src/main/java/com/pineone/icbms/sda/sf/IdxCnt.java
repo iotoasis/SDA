@@ -4,19 +4,26 @@ public class IdxCnt {
 	int idx;
 	int cnt;
 
-	int getCnt() {
+	public int getCnt() {
 		return cnt;
 	}
 
-	void setCnt(int cnt) {
+	public void setCnt(int cnt) {
 		this.cnt = cnt;
 	}
 
-	int getIdx() {
+	public int getIdx() {
 		return idx;
 	}
 
-	void setIdx(int idx) {
+	public void setIdx(int idx) {
 		this.idx = idx;
 	}
+
+	@Override
+	public String toString() {
+		return "IdxCnt [idx=" + idx + ", cnt=" + cnt + "]";
+	}
+	
+	
 }

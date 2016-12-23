@@ -386,7 +386,7 @@ public  class SparqlService_bak extends QueryCommon {
 
 	public static void main(String[] args) {
 		//SparqlService sparqlService = new SparqlService();
-		QueryService sparqlService= new QueryService(new SparqlQuery());
+		QueryService sparqlService= new QueryService(new SparqlQueryImpl());
 		try {
 			System.out.println("now1 ==>" + new Date());
 			System.out.println("result ===>" + sparqlService.makeFinal("aaa @{now+10, second, mmss}", new String[] { "" }));

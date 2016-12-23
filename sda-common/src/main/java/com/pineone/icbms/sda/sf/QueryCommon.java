@@ -165,11 +165,15 @@ public class QueryCommon {
 		return parseQl.toString();
 	}
 
-	// 숫자 비교용 클래스(내림차순, DESC)
+	// 숫자 비교용 클래스(내림차순, asc)
 	public final class CntCompare implements Comparator<IdxCnt> {
 		@Override
 		public int compare(IdxCnt arg0, IdxCnt arg1) {
-			return arg0.getCnt() > arg1.getCnt() ? -1 : arg0.getCnt() < arg1.getCnt() ? 1 : 0;
+			//desc
+			//return arg0.getCnt() > arg1.getCnt() ? -1 : arg0.getCnt() < arg1.getCnt() ? 1 : 0;
+			
+			//asc
+			return arg0.getCnt() < arg1.getCnt() ? -1 : arg0.getCnt() > arg1.getCnt() ? 1 : 0;
 		}
 	}
 
