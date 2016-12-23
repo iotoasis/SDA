@@ -1,6 +1,7 @@
 package com.pineone.icbms.sda.sf.mongo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 
+import com.google.gson.Gson;
 import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -27,7 +29,7 @@ public class PopularMenuImpl implements MongoQueryItf {
 
     public List<Map<String, String>> runMongoQueryByClass () throws Exception {
 	    final String working_uri = "TicketCount/status/CONTENT_INST";
-	    final String working_ty = "4";
+	    final int working_ty = 4;
 
 		final String db_server = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.server");
 		final String db_port = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.port");
@@ -77,7 +79,18 @@ public class PopularMenuImpl implements MongoQueryItf {
 			ObjectId id = new ObjectId(map.get("_id"));
 			BasicDBObject newObj = new BasicDBObject(map);
 			newObj.append("_id", id);
+			
 			newObj.append("con", Integer.parseInt(map.get("con")));
+			newObj.append("ty", Integer.parseInt(map.get("ty")));
+			newObj.append("st", Integer.parseInt(map.get("st")));
+			newObj.append("cs", Integer.parseInt(map.get("cs")));
+			
+			String lbl_tmp = map.get("lbl");
+			Gson gson = new Gson();
+			String[] lbl_json = gson.fromJson(lbl_tmp ,String[].class);
+			
+			newObj.append("lbl", lbl_json);
+			
 			table.update(oldObj, newObj);
 		}
 		
