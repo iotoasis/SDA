@@ -135,21 +135,24 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 						 for(int i = 0; i < data.size(); i++) {
 							 
 							try { 
-								log.debug("raw data : "+data.get(i).toString());
+								//log.debug("raw data : "+data.get(i).toString());
 								
 								eachTriple = tripleService.getTriple(data.get(i).toString());
 							} catch (Exception e) {
 								error_count++;
-								log.debug("data error : "+e.getMessage());
-								log.debug("wrong data : "+data.get(i).toString());
+								log.debug("malformed data exception : "+e.getMessage());
+								log.debug("malformed data : "+data.get(i).toString());
 							}
 							
 							if(calcuate_latest_yn.equals("Y")) {
+								//log.debug("calcuate_latest_yn is Y =gooper==>"+eachTriple);
 								try {
 									tripleService.addLatestContentInstance();
 								} catch (Exception e) { 
 									log.debug("tripleService.addLatestContentInstance() exception : "+e.getMessage());
 								}
+							} else {
+								//log.debug("calcuate_latest_yn is N =gooper==>"+eachTriple);
 							}
 							sb.append(eachTriple);
 						 }
