@@ -1,9 +1,13 @@
 package com.pineone.icbms.sda.subscribe.controller;
 
+import java.net.InetAddress;
+
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
@@ -38,6 +44,8 @@ public class SubscribeController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 
 		log.info("subscribe regist begin================>");
+		printClientIp();
+		
 		try {
 			// 등록(subscription)
 			subscribeService.regist(cmid);
@@ -65,6 +73,8 @@ public class SubscribeController {
 		ResponseMessage resultMsg = new ResponseMessage();
 
 		log.info("callback process begin================>");
+		printClientIp();
+		
 		try {
 			// callback처리
 			subscribeService.callback(requestBody);
@@ -97,6 +107,7 @@ public class SubscribeController {
 		TripleService tripleService = new TripleService();
 
 		log.info("init jena data begin================>");
+		printClientIp();
 		
 		try {
 			
@@ -133,5 +144,23 @@ public class SubscribeController {
 		}
 		log.info("init jena data end================>");
 		return entity;
+	}
+	
+	private void printClientIp() {
+		// 호출한 쪽의  ip를 찍어본다.
+		try { 
+			InetAddress Address = InetAddress.getLocalHost();
+			System.out.println("로컬 컴퓨터의 이름 : "+Address.getHostName());
+			System.out.println("로컬 컴퓨터의 IP 주소 : "+Address.getHostAddress());
+			
+			HttpServletRequest req = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
+	        String ip = req.getHeader("X-FORWARDED-FOR");
+	        if (ip == null)
+	            ip = req.getRemoteAddr();
+	         
+	        System.out.println("client ip : "+ ip);
+		} catch (Exception e) {
+			log.debug("/ctx/ call exception : " + e.getMessage());
+		}
 	}
 }

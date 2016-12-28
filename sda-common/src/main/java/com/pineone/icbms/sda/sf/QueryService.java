@@ -102,13 +102,17 @@ public  class QueryService extends QueryCommon {
 		// 1. 모든 줄에 있는 값을 찾아야 하므로 쿼리결과가 값이 없는 row가 있으면 다음 쿼리는 수행하지 않음
 		for (int i = 0; i < queryList.size(); i++) {
 			query_result = runQuery(queryList.get(i), idxVals);
-			
 			log.debug("query result[" + i + "]  =========> \n" + query_result.toString());
+
 			if (query_result.size() == 0) {
 				haveNullResult = true;
 				log.debug("this query result has null, so i will break out loop without running rest query .............");
 				break;
 			} else {
+				// 중복제거
+				query_result = distinctList(query_result);
+				log.debug("distinct query result[" + i + "]  =========> \n" + query_result.toString());
+				
 				query_result_list.add(query_result);
 				log.debug("result added of query_result.size() : " + query_result.size());
 			}
@@ -138,7 +142,7 @@ public  class QueryService extends QueryCommon {
 		
 		// return할 최종결과 List
 		List<Map<String, String>> returnList = new ArrayList<Map<String, String>>();
-
+		int matchedRowCnt = 0;
 		// 2. 건수가 제일 작은 것을 기준으로 찾아야함.
 		if (haveNullResult == false && total_query_result_list_count > 1) {
 			Collections.sort(cntList, new CntCompare());
@@ -151,15 +155,20 @@ public  class QueryService extends QueryCommon {
 			
 			// 제일 작은 개수 List를 기준으로 체크한다.
 			for (int i = 0; i < stdList.size(); i++) {
+				matchedRowCnt = 0;
 				log.debug("stdList.get(" + i + ") :"+stdList.get(i));
 				for (int k = 0; k < query_result_list.size(); k++) {
 					log.debug("query_result_list.get(" + k + ") :" +query_result_list.get(k));
 					
 					if (query_result_list.get(k).contains(stdList.get(i))) {
-						returnList.add(stdList.get(i));
+						matchedRowCnt++;
 						log.debug("query_result_list.get(" + k + ").contains(stdList.get(" + i + ")) == true");
 					}
-				} // List 순환 end
+				} // 내부 순환 end
+				log.debug("matchedRowCnt of "+stdList.get(i)+" ===> "+matchedRowCnt);
+				if(matchedRowCnt == (total_query_result_list_count-1)) {
+					returnList.add(stdList.get(i));
+				}
 			}
 		} else if (haveNullResult == false && total_query_result_list_count  == 1) {       			// 결과값이 1개의 row만을 가지고 있으면 내부 값을 모두 리턴해줌
 			log.debug("total_query_result_list_count is 1  =========> " + query_result_list.get(0));
@@ -168,9 +177,13 @@ public  class QueryService extends QueryCommon {
 			// pass
 		}
 		
+		return distinctList(returnList);
+	}
+	
+	private List<Map<String, String>> distinctList(List<Map<String, String>> list) {
 		//중복 제거
-		// HashSet 데이터 형태로 생성되면서 중복 제거됨(기준이 되는 배열에 중복이 있으면 중복이 발생함)
-		HashSet<Map<String,String>> hs = new HashSet<Map<String, String>>(returnList);
+		// HashSet 데이터 형태로 생성되면서 중복 제거됨
+		HashSet<Map<String,String>> hs = new HashSet<Map<String, String>>(list);
 
 		// ArrayList 형태로 다시 생성
 		ArrayList<Map<String, String>> returnList2 = new ArrayList<Map<String, String>>(hs);

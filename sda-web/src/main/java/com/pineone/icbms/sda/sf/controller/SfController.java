@@ -1,5 +1,6 @@
 package com.pineone.icbms.sda.sf.controller;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +29,9 @@ import com.pineone.icbms.sda.comm.dto.ResponseMessageOk;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sf.service.SfService;
+
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RestController
 public class SfController {
@@ -87,8 +92,10 @@ public class SfController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		
 		List<Map<String, String>> returnMsg  = new ArrayList<Map<String, String>>();
+				
 
 		log.info("/ctx/{cmid} GET getContext start================>");
+		printClientIp();
 		
 		ResponseMessageOk ok = new ResponseMessageOk();
 		ok.setCmd(Utils.CMD);
@@ -135,6 +142,7 @@ public class SfController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 
 		log.info("/deviceinfo/{cmid} GET getDeviceInfo start================>");
+		printClientIp();
 
 		List<Map<String, String>> returnMsg = new ArrayList<Map<String, String>>();
 		
@@ -194,6 +202,7 @@ public class SfController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 
 		log.info("/resourceinfo/{cmid} GET getResourceInfo start================>");
+		printClientIp();
 
 		List<Map<String, String>> returnMsg = new ArrayList<Map<String, String>>();
 		
@@ -298,6 +307,7 @@ public class SfController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 
 		log.info("/ctx3/{cmid} GET getContext3 start================>");
+		printClientIp();
 		
 		ResponseMessageOk ok = new ResponseMessageOk();
 		ok.setCmd(Utils.CMD_TEST);
@@ -372,5 +382,23 @@ public class SfController {
 			}
 		}
 		return exChanged;
+	}
+	
+	private void printClientIp() {
+		// 호출한 쪽의  ip를 찍어본다.
+		try { 
+			InetAddress Address = InetAddress.getLocalHost();
+			System.out.println("로컬 컴퓨터의 이름 : "+Address.getHostName());
+			System.out.println("로컬 컴퓨터의 IP 주소 : "+Address.getHostAddress());
+			
+			HttpServletRequest req = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
+	        String ip = req.getHeader("X-FORWARDED-FOR");
+	        if (ip == null)
+	            ip = req.getRemoteAddr();
+	         
+	        System.out.println("client ip : "+ ip);
+		} catch (Exception e) {
+			log.debug("/ctx/ call exception : " + e.getMessage());
+		}
 	}
 }
