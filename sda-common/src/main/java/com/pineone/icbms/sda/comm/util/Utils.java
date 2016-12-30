@@ -2,12 +2,15 @@ package com.pineone.icbms.sda.comm.util;
 
 import java.io.File;
 import java.io.StringWriter;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
@@ -29,6 +32,9 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.exception.RemoteSIException;
 import com.pineone.icbms.sda.comm.exception.RemoteSOException;
@@ -37,9 +43,11 @@ import com.pineone.icbms.sda.comm.util.Utils;
 
 public class Utils {
 	private static final Log log = LogFactory.getLog(Utils.class);
-	//private static Configuration conf  = null;
+
+	private Utils() {
+	}
 	
-	private static PropertiesConfiguration conf ;
+	private volatile static PropertiesConfiguration conf ;
 	
 	// topic 
 	public static enum KafkaTopics {
@@ -374,7 +382,7 @@ public class Utils {
 	
 	/* */
 	// commons-configuration용
-	public static String getSdaProperty(String envName) {
+	public static synchronized String getSdaProperty(String envName) {
 		String getValue = "";
 
 		if(conf == null) {
@@ -382,11 +390,12 @@ public class Utils {
 			
 			try {
 			    // load the configuration
-			    conf = new PropertiesConfiguration("system.properties");
-				//FileChangedReloadingStrategy strategy = new FileChangedReloadingStrategy(); 
-			    //strategy.setRefreshDelay(500);
-			    //conf.setReloadingStrategy(strategy);
-			    conf.load();
+				synchronized(Utils.class) {
+					if(conf == null) {
+					    conf = new PropertiesConfiguration("system.properties");
+					    conf.load();
+					}
+				}
 			} catch (Exception e) {
 				log.debug("configuration file reading exception .......:"+e.getMessage());
 				getValue = null;
@@ -736,5 +745,17 @@ public class Utils {
 		log.debug(getParentURI(test));
 	}
 
-
+	public static boolean checkPass(String args) {
+		String pass = Utils.sysdateFormat.format(new Date());
+		
+		log.debug("args==>"+args);
+		log.debug("pass=>"+pass);
+		
+		if(args.equals(pass)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 }

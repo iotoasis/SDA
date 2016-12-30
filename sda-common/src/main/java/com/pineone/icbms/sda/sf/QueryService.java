@@ -207,6 +207,14 @@ public  class QueryService extends QueryCommon {
 		log.debug("delete->insert sparql end............................");		
 	}
 
+	// update(delete, insert를 한트랜잭션에서 처리) - 해당 uri가 존재하지 않으면 작동하지 않음
+	public synchronized void updateSparql2(String deleteinsertql, String[] idxVals) throws Exception {
+		log.debug("delete+insert sparql start............................");
+		// delete+insert
+		runModifySparql(deleteinsertql, idxVals);
+		log.debug("delete+insert sparql end............................");		
+	}
+
 	// delete(sparql만 해당됨)
 	public void deleteSparql(String deleteql, String[] idxVals) throws Exception {
 		runModifySparql(deleteql, idxVals);

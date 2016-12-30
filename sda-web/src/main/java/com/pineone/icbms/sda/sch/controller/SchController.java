@@ -37,9 +37,9 @@ public class SchController {
 	private SchService schService;
 
 	// 스케쥴러 기동
-	// http://localhost:8080/sda/sch/init
+	// http://localhost:8080/sda/sch/init?p=XXXX
 	@RequestMapping(value = "/init", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> inittSch() {
+	public @ResponseBody ResponseEntity<ResponseMessage> inittSch(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -48,6 +48,11 @@ public class SchController {
 
 		log.info("init sch begin================>");
 		try {
+			if( ! Utils.checkPass(args)) {
+				log.debug("p("+args+") is not valid... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+
 			// init
 			thm = new SchedulerMainService();
 			thm.JobInit();
@@ -77,10 +82,9 @@ public class SchController {
 	}
 
 	// 스케쥴러 종료
-	// http://localhost:8080/sda/sch/shutdown?=xxxx
-	@RequestMapping(value = "/{cmid}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> shutdownSch(@PathVariable String cmid, @RequestParam(value="p")  String args) {
-		log.debug("requested parameter(cmid) for shutdownSch ==>" + cmid);
+	// http://localhost:8080/sda/sch/shutdown?p=xxxx
+	@RequestMapping(value = "/shutdown", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<ResponseMessage> shutdownSch(@RequestParam(value="p")  String args) {
 		log.debug("requested parameter(p) for shutdownSch ==>" + args);
 		
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -92,13 +96,7 @@ public class SchController {
 		log.info("shutdown sch begin================>");
 	
 		try {
-			
-			if(! cmid.equals("shutdown")) {
-				log.debug("cmid("+cmid+") is not valid..");
-				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
-			}
-			
-			if(! args.equals("1234p1234")) {
+			if( ! Utils.checkPass(args)) {
 				log.debug("p("+args+") is not valid... ");
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
 			}
@@ -136,9 +134,9 @@ public class SchController {
 	}
 
 	// pause(pause후 resume을 실행하면 미실행된 부분은 수행하지 않음)
-	// http://localhost:8080/sda/sch/pause
+	// http://localhost:8080/sda/sch/pause?p=xxxx
 	@RequestMapping(value = "/pause", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> pauseSch() {
+	public @ResponseBody ResponseEntity<ResponseMessage> pauseSch(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -147,6 +145,11 @@ public class SchController {
 
 		log.info("pause sch begin================>");
 		try {
+			if( ! Utils.checkPass(args)) {
+				log.debug("p("+args+") is not valid... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+
 			checkScheduerMainService();
 			thm.pauseSch();
 			msg = thm.getStatusList();
@@ -182,9 +185,9 @@ public class SchController {
 	}
 
 	// resume(pause후 resume을 실행하면 미실행된 부분은 수행하지 않음)
-	// http://localhost:8080/sda/sch/resume
+	// http://localhost:8080/sda/sch/resume?=xxxx
 	@RequestMapping(value = "/resume", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> resumeSch() {
+	public @ResponseBody ResponseEntity<ResponseMessage> resumeSch(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -193,6 +196,11 @@ public class SchController {
 
 		log.info("resume sch begin================>");
 		try {
+			if( ! Utils.checkPass(args)) {
+				log.debug("p("+args+") is not valid... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+
 			checkScheduerMainService();
 			thm.resumeSch();
 			msg = thm.getStatusList();
@@ -228,9 +236,9 @@ public class SchController {
 	}
 
 	// standby(standby후 start를 실행하면 미실행된 부분은 동시에 실행됨)
-	// http://localhost:8080/sda/sch/standby
+	// http://localhost:8080/sda/sch/standby?p=xxxx
 	@RequestMapping(value = "/standby", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> standbySch() {
+	public @ResponseBody ResponseEntity<ResponseMessage> standbySch(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -239,6 +247,11 @@ public class SchController {
 
 		log.info("standby sch begin================>");
 		try {
+			if( ! Utils.checkPass(args)) {
+				log.debug("p("+args+") is not valid... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+
 			checkScheduerMainService();
 			thm.standbySch();
 			msg = thm.getStatusList();
@@ -273,9 +286,9 @@ public class SchController {
 	}
 
 	// star(standby후 start를 실행하면 미실행된 부분은 동시에 실행됨)
-	// http://localhost:8080/sda/sch/start
+	// http://localhost:8080/sda/sch/start?p=xxxx
 	@RequestMapping(value = "/start", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> startSch() {
+	public @ResponseBody ResponseEntity<ResponseMessage> startSch(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -284,6 +297,11 @@ public class SchController {
 
 		log.info("start sch begin================>");
 		try {
+			if( ! Utils.checkPass(args)) {
+				log.debug("p("+args+") is not valid... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+
 			checkScheduerMainService();
 			thm.startSch();
 			msg = thm.getStatusList();
@@ -321,7 +339,7 @@ public class SchController {
 	// 스케줄러 상태
 	// http://localhost:8080/sda/sch/status
 	@RequestMapping(value = "/status", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> statusSchList() {
+	public @ResponseBody ResponseEntity<ResponseMessage> statusSchList(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -330,6 +348,11 @@ public class SchController {
 
 		log.info("status sch begin================>");
 		try {
+			if( ! Utils.checkPass(args)) {
+				log.debug("p("+args+") is not valid... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+
 			checkScheduerMainService();
 			thm.statusSchList();
 			msg = thm.getStatusList();
