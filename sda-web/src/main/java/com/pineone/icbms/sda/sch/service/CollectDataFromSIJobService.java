@@ -165,28 +165,37 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 			}
 		}
 		
-		// 초기화하는 경우 최초에 startDate가 ""이다.
-		if(! startDate.equals("")) {
-			// latestContentInstance계산여부 판단
-			long startDate_tmp = Utils.dateFormat.parse(startDate).getTime();
-			long endDate_tmp = Utils.dateFormat.parse(endDate).getTime();
-			long splitDate_tmp = Utils.dateFormat.parse(splitDate).getTime();
-			
-			// endDate가 splitDate를 넘어가는 경우는 최근인스턴스를 구함
-			if(splitDate_tmp <= startDate_tmp) {
-				haveToMakeLatestContentInstance = true;
-			} else {
-				if(endDate_tmp > splitDate_tmp) {
-					haveToMakeLatestContentInstance = true;
-				} else {
-					haveToMakeLatestContentInstance = false;
-				}
-			}
+		// latestContentInstance계산여부 판단
+		long startDate_tmp = 0L;
+		long endDate_tmp = Utils.dateFormat.parse(endDate).getTime();
+		long splitDate_tmp = Utils.dateFormat.parse(splitDate).getTime();
+		
+		// 초기화하는 경우 최초에 startDate가 ""이므로 splitDate값으로 설정한다.
+		if(startDate.equals("")) {
+			startDate_tmp = splitDate_tmp;
+		} else {
+			startDate_tmp = Utils.dateFormat.parse(startDate).getTime();
 		}
 		
+		// endDate가 splitDate를 넘어가는 경우는 최근인스턴스를 구함
+		if(splitDate_tmp <= startDate_tmp) {
+			haveToMakeLatestContentInstance = true;
+		} else {
+			if(endDate_tmp > splitDate_tmp) {
+				haveToMakeLatestContentInstance = true;
+			} else {
+				haveToMakeLatestContentInstance = false;
+			}
+		}
+
 		log.debug("startDate : " + startDate);
 		log.debug("endDate : " + endDate);
 		log.debug("splitDate : " + splitDate);
+		
+		log.debug("startDate_tmp : " + startDate_tmp);
+		log.debug("endDate_tmp : " + endDate_tmp);
+		log.debug("splitDate_tmp : " + splitDate_tmp);
+		
 		log.debug("haveToMakeLatestContentInstance : " + haveToMakeLatestContentInstance);
 
 		// triple생성 대상 범위의 데이타 가져오기
