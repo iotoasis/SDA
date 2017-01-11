@@ -95,10 +95,9 @@ public class SubscribeController {
 	}
 
 	// jena 데이타 초기화
-	// http://localhost:8080/sda/subscribe/init-jena
-	@RequestMapping(value = "/{cmid}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> initJena(@PathVariable String cmid, @RequestParam(value="p")  String args) {
-		log.debug("requested parameter(cmid) for initJena ==>" + cmid);
+	// http://localhost:8080/sda/subscribe/init-jena?p=xxxx
+	@RequestMapping(value = "/init-jena", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<ResponseMessage> initJena(@RequestParam(value="p")  String args) {
 		log.debug("requested parameter(p) for initJena ==>" + args);
 	
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -110,13 +109,7 @@ public class SubscribeController {
 		printClientIp();
 		
 		try {
-			
-			if(! cmid.equals("init-jena")) {
-				log.debug("cmid("+cmid+") is not valid..");
-				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
-			}
-			
-			if(! args.equals("1234p1234")) {
+			if( ! Utils.checkPass(args)) {
 				log.debug("p("+args+") is not valid... ");
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
 			}
@@ -163,4 +156,5 @@ public class SubscribeController {
 			log.debug("/ctx/ call exception : " + e.getMessage());
 		}
 	}
+	
 }

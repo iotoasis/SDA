@@ -47,7 +47,7 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 	private final String m = "/status/";
 	private final int maxLimit = Integer.parseInt(Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.read_limit"));
 	
-	public void collect(String ip, int port, String dbname, String save_path, JobExecutionContext jec) throws Exception {
+	public void collect(String ip, int port, String dbname, String save_path, JobExecutionContext jec, String user_name, String password) throws Exception {
 		String start_time = Utils.dateFormat.format(new Date());
 		// 중복방지
 		start_time = start_time + "S"+String.format("%010d", ai.getAndIncrement());
@@ -67,9 +67,11 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		try {
 			mongoClient = new MongoClient(new ServerAddress(ip, port));
 			db = mongoClient.getDB(dbname);
+			//boolean auth = db.authenticate(user_name, password.toCharArray());
 			table = db.getCollection("resource");
 		} catch (Exception ex) {
 			log.debug("MongoDB connection error : "+ex.getMessage());
+
 			if(db != null) {
 				db.cleanCursors(true);
 				db = null;				
@@ -159,34 +161,39 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 				mongoClient.close();
 			}
 			throw e;
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
 		}
 		
-		// 초기화하는 경우 최초에 startDate가 ""이다.
-		if(! startDate.equals("")) {
-			// latestContentInstance계산여부 판단
-			long startDate_tmp = Utils.dateFormat.parse(startDate).getTime();
-			long endDate_tmp = Utils.dateFormat.parse(endDate).getTime();
-			long splitDate_tmp = Utils.dateFormat.parse(splitDate).getTime();
-			
-			// endDate가 splitDate를 넘어가는 경우는 최근인스턴스를 구함
-			if(splitDate_tmp <= startDate_tmp) {
+		// latestContentInstance계산여부 판단
+		long startDate_tmp = 0L;
+		long endDate_tmp = Utils.dateFormat.parse(endDate).getTime();
+		long splitDate_tmp = Utils.dateFormat.parse(splitDate).getTime();
+		
+		// 초기화하는 경우 최초에 startDate가 ""이므로 splitDate값으로 설정한다.
+		if(startDate.equals("")) {
+			startDate_tmp = splitDate_tmp;
+		} else {
+			startDate_tmp = Utils.dateFormat.parse(startDate).getTime();
+		}
+		
+		// endDate가 splitDate를 넘어가는 경우는 최근인스턴스를 구함
+		if(splitDate_tmp <= startDate_tmp) {
+			haveToMakeLatestContentInstance = true;
+		} else {
+			if(endDate_tmp > splitDate_tmp) {
 				haveToMakeLatestContentInstance = true;
 			} else {
-				if(endDate_tmp > splitDate_tmp) {
-					haveToMakeLatestContentInstance = true;
-				} else {
-					haveToMakeLatestContentInstance = false;
-				}
+				haveToMakeLatestContentInstance = false;
 			}
 		}
-		
+
 		log.debug("startDate : " + startDate);
 		log.debug("endDate : " + endDate);
 		log.debug("splitDate : " + splitDate);
+		
+		log.debug("startDate_tmp : " + startDate_tmp);
+		log.debug("endDate_tmp : " + endDate_tmp);
+		log.debug("splitDate_tmp : " + splitDate_tmp);
+		
 		log.debug("haveToMakeLatestContentInstance : " + haveToMakeLatestContentInstance);
 
 		// triple생성 대상 범위의 데이타 가져오기
@@ -223,19 +230,18 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		} catch (Exception e) {
 			e.printStackTrace();
 			updateFinishTime(jec, start_time, Utils.dateFormat.format(new Date()), e.getMessage());
+
+			if (cursor2 != null) cursor2.close();
+			
 			if(db != null) {
 				db.cleanCursors(true);
-				table = null;
 				db = null;				
 			}
+			if(table != null) table = null;
 			if(mongoClient != null ) {
 				mongoClient.close();
-			}
+			}		
 			throw e;
-		} finally {
-			if (cursor2 != null) {
-				cursor2.close();
-			}
 		} 
 		
 		// kafka 전송
@@ -263,12 +269,12 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		log.debug("Sending OneM2MData end ......................");
 		// 전송끝
 		
-		// mongodb관련 커넥션 닫기
+		// mongodb관련 커넥션 닫기(최종)
 		if(db != null) {
 			db.cleanCursors(true);
-			table = null;
 			db = null;				
 		}
+		if(table != null) table = null;
 		if(mongoClient != null ) {
 			mongoClient.close();
 		}
@@ -295,17 +301,21 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		int mongodb_port;
 		String mongodb_db;
 		String save_path;
-
+		String user_name;
+		String password;
+		
 		mongodb_server = Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.server");
 		mongodb_port = Integer.parseInt(Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.port"));
 		mongodb_db = Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.db");
 		save_path = Utils.getSdaProperty("com.pineone.icbms.sda.triple.save_path");
+		user_name = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.user_name");
+		password = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.password");
 
 		// 폴더가 없으면 생성
 		save_path = Utils.makeSavePath(save_path);
 
 		try {
-			collect(mongodb_server, mongodb_port, mongodb_db, save_path, arg0);
+			collect(mongodb_server, mongodb_port, mongodb_db, save_path, arg0, user_name, password);
 			//collect("120.0.0.1", mongodb_port, mongodb_db, save_path, arg0);
 		} catch (Exception e) {
 			e.printStackTrace();

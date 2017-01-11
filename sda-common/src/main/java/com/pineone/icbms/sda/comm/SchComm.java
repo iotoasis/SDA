@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.mongodb.MongoClient;
 import com.pineone.icbms.sda.comm.sch.dto.SchDTO;
 import com.pineone.icbms.sda.comm.sch.dto.SchHistDTO; 
 import com.pineone.icbms.sda.comm.service.Sch2Service;
@@ -15,7 +14,6 @@ import com.pineone.icbms.sda.comm.service.Sch2ServiceImpl;
 import com.pineone.icbms.sda.comm.util.Utils;
 
 public class SchComm {
-	MongoClient mongoClient;
 	SchDTO schDTO = null;
 	
 	private final Sch2Service sch2Service = new Sch2ServiceImpl();
@@ -46,11 +44,11 @@ public class SchComm {
 		schHistDTO.setUuser(user_id);
 
 		List<SchHistDTO> list = new ArrayList<SchHistDTO>(); 
-		Map<String, List<SchHistDTO>> updateSchHistMap = new HashMap<String, List<SchHistDTO>>();
+		Map<String, List<SchHistDTO>> insertSchHistMap = new HashMap<String, List<SchHistDTO>>();
 		list.add(schHistDTO);
-		updateSchHistMap.put("list", list);
+		insertSchHistMap.put("list", list);
 		try {
-			updateCnt = sch2Service.insertSchHist(updateSchHistMap);
+			updateCnt = sch2Service.insertSchHist(insertSchHistMap);
 		} catch (Exception e) {
 			throw e;
 		}

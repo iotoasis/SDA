@@ -12,25 +12,18 @@ import kafka.consumer.ConsumerConfig;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.message.MessageAndMetadata;
-import kafka.utils.threadsafe;
-
 import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.comm.SchComm;
 import com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M;
 import com.pineone.icbms.sda.sf.TripleService;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-//import java.util.concurrent.atomic.AtomicInteger;
 
 // thread로 돌리는 경우
 public class AvroOneM2MDataSubscribe implements Serializable  {

@@ -24,7 +24,7 @@ import com.pineone.icbms.sda.sf.QueryService;
 import com.pineone.icbms.sda.sf.SparqlQueryImpl;
 
 @Service
-public class ProjectorStateJobService extends SchedulerJobComm implements Job {
+public class BeamProjectorStateJobService extends SchedulerJobComm implements Job {
 	private final Log log = LogFactory.getLog(this.getClass());
 	private static AtomicInteger ai = new AtomicInteger();	
 	
@@ -37,7 +37,7 @@ public class ProjectorStateJobService extends SchedulerJobComm implements Job {
 		AggrDAO aggrDAO;
 		StringBuffer msg = new StringBuffer();
 
-		log.info("ProjectorStateJobService(id : "+jec.getJobDetail().getName()+") start.......................");
+		log.info("BeamProjectorStateJobService(id : "+jec.getJobDetail().getName()+") start.......................");
 		
 		try {
 			// AggrDTO정보
@@ -102,7 +102,7 @@ public class ProjectorStateJobService extends SchedulerJobComm implements Job {
 
 			// finish_time값을 sch테이블의 last_work_time에 update
 			updateLastWorkTime(jec, finish_time);
-			log.info("ProjectorStateJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
+			log.info("BeamProjectorStateJobService(id : "+jec.getJobDetail().getName()+") end.......................");			
 		} catch (Exception e) {
 			updateFinishTime(jec, start_time, Utils.dateFormat.format(new Date()), e.getMessage());
 			throw e;

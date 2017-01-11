@@ -167,7 +167,7 @@ public class SfController {
 			Map<String, String > msgMap = new HashMap<String, String>();
 			
 			// BlankNode Id 移섑솚
-			rtnStr = exchangeBlankNodeId(rtnStr);
+			rtnStr = replaceBlankNodeId(rtnStr);
 			msgMap.put("device_information", rtnStr);
 			returnMsg.add(msgMap);
 			
@@ -227,7 +227,7 @@ public class SfController {
 			Map<String, String > msgMap = new HashMap<String, String>();
 			
 			// BlankNode Id 변환
-			rtnStr = exchangeBlankNodeId(rtnStr);
+			rtnStr = replaceBlankNodeId(rtnStr);
 			msgMap.put("resource_information", rtnStr);
 			returnMsg.add(msgMap);
 			
@@ -294,6 +294,7 @@ public class SfController {
 	
 	
 	// http://sda1:20080/sda/ctx3/info?p=aaa
+	/*
 	@RequestMapping(value = "/ctx3/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<Object> getContext3(@PathVariable String cmid, @RequestParam(value="p")  String args){
 		log.debug("requested parameter(cmid) for getContext3 ==>" + cmid);
@@ -360,8 +361,9 @@ public class SfController {
 		log.info("/ctx3/{cmid} GET getContext3 end================>");
 		return entity;
 	}	
+	*/
 	
-	private String exchangeBlankNodeId(String str) {
+	private String replaceBlankNodeId(String str) {
 		UUID uid;
 		String exChanged = str;
 		String matchStr;
