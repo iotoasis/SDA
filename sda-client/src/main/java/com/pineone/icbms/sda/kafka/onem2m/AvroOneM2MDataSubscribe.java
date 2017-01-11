@@ -1,7 +1,6 @@
 package com.pineone.icbms.sda.kafka.onem2m;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,28 +12,18 @@ import kafka.consumer.ConsumerConfig;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.message.MessageAndMetadata;
-import kafka.utils.threadsafe;
-
 import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.SparkSession;
-
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.comm.SchComm;
 import com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M;
 import com.pineone.icbms.sda.sf.TripleService;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-//import java.util.concurrent.atomic.AtomicInteger;
 
 // thread로 돌리는 경우
 public class AvroOneM2MDataSubscribe implements Serializable  {

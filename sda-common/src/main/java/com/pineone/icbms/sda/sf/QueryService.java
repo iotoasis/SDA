@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,9 +20,19 @@ import org.springframework.http.HttpStatus;
 
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
+import com.pineone.icbms.sda.sf.dto.AwareHistDTO;
+import com.pineone.icbms.sda.sf.service.AwareService;
+import com.pineone.icbms.sda.sf.service.AwareServiceImpl;
 
 public  class QueryService extends QueryCommon {
 	private final Log log = LogFactory.getLog(this.getClass());
+	
+	// 사용자id(나중에 적절한 값으로 변경해야함)
+	private final String user_id =this.getClass().getName();
+	private String cmid;
+	private String ciid;
+	
+	private static AtomicInteger ai = new AtomicInteger();
 	
 	private QueryItf queryItf; 
 	
@@ -45,26 +56,30 @@ public  class QueryService extends QueryCommon {
 		
 		// 구분에 따른 쿼리를 수행한다.
 		if(query.contains(Utils.SPLIT_STR)) {
-			queryString = query.split(Utils.SPLIT_STR)[0];
-			queryGubun = query.split(Utils.SPLIT_STR)[1];
+			String[] splitStr = query.split(Utils.SPLIT_STR);
+			
+			queryString = splitStr[0];
+			queryGubun = splitStr[1];
+//			cmid = splitStr[2];
+//			ciid = splitStr[3];
 			
 			if(queryGubun.equals(Utils.QUERY_GUBUN.MARIADB.toString())){
-				System.out.println("MARIADB");
+				System.out.println(Utils.QUERY_GUBUN.MARIADB.toString());
 				queryItf = new MariaDbQueryImpl();
 				
 			} else if(queryGubun.equals(Utils.QUERY_GUBUN.SPARQL.toString())){
-				System.out.println("SPARQL");
+				System.out.println(Utils.QUERY_GUBUN.SPARQL.toString());
 				queryItf = new SparqlQueryImpl();
 			} else if(queryGubun.equals(Utils.QUERY_GUBUN.MONGODB.toString())){
-				System.out.println("MONGODB");
+				System.out.println(Utils.QUERY_GUBUN.MONGODB.toString());
 				queryItf = new MongoDbQueryImpl();
 
 			} else if(queryGubun.equals(Utils.QUERY_GUBUN.SHELL.toString())){
-				System.out.println("SHELL");
+				System.out.println(Utils.QUERY_GUBUN.SHELL.toString());
 				queryItf = new ShellQueryImpl();
 
 			} else {
-				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "UNKNOWN query gubun of "+queryGubun);
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Unknown query gubun of "+queryGubun);
 			}
 		} else {  //default는 SPARQL로 처리함
 			queryString = query;
@@ -95,6 +110,9 @@ public  class QueryService extends QueryCommon {
 		List<Map<String, String>> query_result;
 
 		boolean haveNullResult = false;
+		
+		//String result_str = "";
+		//String aware_group_id = Utils.dateFormat.format(new Date()) + "S"+String.format("%010d", ai.getAndIncrement());
 
 		log.debug("idxVals in getUniqueResultBySameColumn()================>" + Arrays.toString(idxVals));
 
@@ -103,12 +121,20 @@ public  class QueryService extends QueryCommon {
 		for (int i = 0; i < queryList.size(); i++) {
 			query_result = runQuery(queryList.get(i), idxVals);
 			log.debug("query result[" + i + "]  =========> \n" + query_result.toString());
+			
+			// aware수행을 thsda_context_aware_hist에 insert(runQuery전에 insert하지 말것)
+			//String start_time  = Utils.dateFormat.format(new Date());
+			//insertAwareHist(aware_group_id, this.cmid, this.ciid, start_time);
 
+			//result_str = (i+1)+"/"+queryList.size() + " : ";
 			if (query_result.size() == 0) {
 				haveNullResult = true;
-				log.debug("this query result has null, so i will break out loop without running rest query .............");
+				log.debug("this query result has null, so it will break out loop without running rest query .............");
+				//result_str += " this query result has null, so it will break out loop without running rest query .............";
 				break;
 			} else {
+				//result_str += query_result.toString();
+				
 				// 중복제거
 				query_result = distinctList(query_result);
 				log.debug("distinct query result[" + i + "]  =========> \n" + query_result.toString());
@@ -116,6 +142,9 @@ public  class QueryService extends QueryCommon {
 				query_result_list.add(query_result);
 				log.debug("result added of query_result.size() : " + query_result.size());
 			}
+			
+			// aware수행 결과를 thsda_context_aware_hist에 update
+			//updateFinishTime(aware_group_id, this.cmid, this.ciid, start_time, Utils.dateFormat.format(new Date()), result_str);
 		}
 		
 		log.debug("query_result_list ==>" + query_result_list);
@@ -289,5 +318,65 @@ public  class QueryService extends QueryCommon {
 			e.printStackTrace();
 		}
 	}
+	
+	// AwareHist에 finish time, work_result, triple_file_name, triple_check_result를 update
+	public int updateFinishTime(String cmid, String ciid, String start_time, String finish_time, String work_result) throws Exception {
+		log.debug("updateFinishTime of AwareHist start.....");
+		
+		int updateCnt = 0;
+		AwareHistDTO awareHistDTO = new AwareHistDTO();
+		
+		awareHistDTO.setCmid(cmid);
+		awareHistDTO.setCiid(ciid);
 
+		awareHistDTO.setStart_time(start_time);
+		awareHistDTO.setFinish_time(finish_time);
+		awareHistDTO.setWork_result(work_result);
+		
+		awareHistDTO.setUuser(user_id);
+
+		List<AwareHistDTO> list = new ArrayList<AwareHistDTO>();
+		Map<String, Object> updateMap = new HashMap<String, Object>();
+		list.add(awareHistDTO);
+		updateMap.put("list", list);
+		try {
+			AwareService awareService = new AwareServiceImpl();			
+			updateCnt = awareService.updateFinishTime(updateMap);
+		} catch (Exception e) {
+			throw e;
+		}
+		
+		log.debug("updateFinishTime of AwareHist end.....");
+		return updateCnt;
+	}
+	
+	// awareHist테이블에 데이타 insert
+	public int insertAwareHist(String cmid, String ciid, String start_time) throws Exception {
+		log.debug("insertAwareHist start....");
+		int updateCnt = 0;
+		
+		AwareHistDTO awareHistDTO = new AwareHistDTO();
+		
+		awareHistDTO.setCmid(cmid);
+		awareHistDTO.setCiid(ciid);
+		
+		awareHistDTO.setStart_time(start_time);
+
+		awareHistDTO.setCuser(user_id);
+		awareHistDTO.setUuser(user_id);
+
+		List<AwareHistDTO> list = new ArrayList<AwareHistDTO>(); 
+		Map<String, List<AwareHistDTO>> insertAwareHistMap = new HashMap<String, List<AwareHistDTO>>();
+		list.add(awareHistDTO);
+		insertAwareHistMap.put("list", list);
+		try {
+			AwareService awareService = new AwareServiceImpl();
+			updateCnt = awareService.insertAwareHist(insertAwareHistMap);
+		} catch (Exception e) {
+			throw e;
+		}
+		
+		log.debug("insertAwareHist  end.....");		
+		return updateCnt;
+	}
 }
