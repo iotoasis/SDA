@@ -95,12 +95,13 @@ public class PopularMenuImpl implements MongoQueryItf {
 				
 				newObj.append("lbl", lbl_json);
 				
-//				table.update(oldObj, newObj);
+				table.update(oldObj, newObj);
 				
-				BasicDBObject updateObj = new BasicDBObject();
+				// 아래와 같이 하면 안되네....???
+/*				BasicDBObject updateObj = new BasicDBObject();
 				updateObj.put("$set", newObj);
 				table.update(oldObj, updateObj);			
-			}
+*/			}
 			
 			// update결과 확인
 			DBCursor cursor2 = table.find(searchCastQuery);

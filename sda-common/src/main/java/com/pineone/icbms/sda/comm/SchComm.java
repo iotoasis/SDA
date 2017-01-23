@@ -25,7 +25,7 @@ public class SchComm {
 	
 	// schHist테이블에 데이타 insert
 	public int insertSchHist(String task_group_id, String task_id, String start_time, int work_cnt, String end_time) throws Exception {
-		log.debug("insertSchHist in SchComm start....");
+		log.debug("insertSchHist in SchComm start...."); 
 		int updateCnt = 0;
 		
 		SchHistDTO schHistDTO = new SchHistDTO();
