@@ -186,5 +186,14 @@ public class OneM2MAEDTO implements OneM2MDTO{
 		
 		//스트링 변환부분
 		RDFDataMgr.write(System.out, model, RDFFormat.NTRIPLES);
+		
+		// gooper
+		if(! model.isClosed()) {
+			model.close();
+		}
+		if(model != null) {
+			model = null;
+		}
+
 	}
 }

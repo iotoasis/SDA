@@ -317,6 +317,14 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		RDFDataMgr.write(System.out, model, RDFFormat.NTRIPLES);
 		// System.out.println(mapper.getTypedContent("2k42kk"));
 		// mapper.getTypedContent("2.4");
+		
+		// gooper
+		if(! model.isClosed()) {
+			model.close();
+		}
+		if(model != null) {
+			model = null;
+		}
 
 	}
 

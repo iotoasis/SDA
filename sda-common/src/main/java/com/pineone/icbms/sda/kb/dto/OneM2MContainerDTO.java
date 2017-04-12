@@ -269,6 +269,15 @@ public class OneM2MContainerDTO implements OneM2MDTO {
 		
 //		model = DatasetAccessorFactory.createHTTP(serviceURI).getModel();
 //		System.out.println(model.size());
+		
+		// gooper
+		if(! model.isClosed()) {
+			model.close();
+		}
+		if(model != null) {
+			model = null;
+		}
+
 
 	}
 
