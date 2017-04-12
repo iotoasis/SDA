@@ -1,5 +1,6 @@
 package com.pineone.icbms.sda.sf;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,10 +64,12 @@ public  class QueryService extends QueryCommon {
 //			cmid = splitStr[2];
 //			ciid = splitStr[3];
 			
-			if(queryGubun.equals(Utils.QUERY_GUBUN.MARIADB.toString())){
-				System.out.println(Utils.QUERY_GUBUN.MARIADB.toString());
-				queryItf = new MariaDbQueryImpl();
-				
+			if(queryGubun.equals(Utils.QUERY_GUBUN.MARIADBOFGRIB.toString())){
+				System.out.println(Utils.QUERY_GUBUN.MARIADBOFGRIB.toString());
+				queryItf = new MariaDbOfGribQueryImpl();
+			} else if(queryGubun.equals(Utils.QUERY_GUBUN.MARIADBOFSDA.toString())){
+				System.out.println(Utils.QUERY_GUBUN.MARIADBOFSDA.toString());
+				queryItf = new MariaDbOfSdaQueryImpl();
 			} else if(queryGubun.equals(Utils.QUERY_GUBUN.SPARQL.toString())){
 				System.out.println(Utils.QUERY_GUBUN.SPARQL.toString());
 				queryItf = new SparqlQueryImpl();
@@ -267,7 +270,7 @@ public  class QueryService extends QueryCommon {
 			up = UpdateExecutionFactory.createRemote(ur, updateService);
 			up.execute();
 		} catch (Exception e) {
-			int waitTime = 5*1000;
+			int waitTime = 15*1000;
 			log.debug("Exception message in runModifySparql() =====> "+e.getMessage());  // HTTP 500 error making the query: java.lang.StackOverflowError or...
 			
 			try {
@@ -280,7 +283,7 @@ public  class QueryService extends QueryCommon {
 				up.execute();
 			} catch (Exception ee) {
 				log.debug("Exception 1====>"+ee.getMessage());
-
+				waitTime = 30*1000;
 				if(ee.getMessage().contains("Service Unavailable") || ee.getMessage().contains("java.net.ConnectException")			
 						 // || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error") 
 						 ) {
@@ -307,6 +310,36 @@ public  class QueryService extends QueryCommon {
 		}
 	}
 
+	// gooper
+	/*
+	private String[] flushLog_() {
+		// /svc/apps/sda/bin/jena/bin/tdbquery --loc=/svc/apps/sda/bin/fuseki/mydb 'ASK{}'
+		String[] result = new String[]{"",""};
+		
+		String[] args = { "/svc/apps/sda/bin/jena/bin/tdbquery",
+						"--loc=/svc/apps/sda/bin/fuseki/mydb", "'ASK{}'"};
+
+		StringBuilder sb = new StringBuilder();		
+		log.debug("flushLog =========start=================>");
+
+		for (String str : args) {
+			sb.append(str);  
+			sb.append(" ");
+		}
+
+		try { 
+			result = Utils.runShell(sb);
+		} catch (Exception e) {
+			log.debug("error while jena flushing log........"+e.getMessage());
+			log.debug("result msg........"+Arrays.toString(result));
+		}
+		log.debug("flushLog =========end=================>");
+		return result;
+	}
+	*/
+	
+
+	
 	public static void main(String[] args) {
 		QueryService sparqlService = new QueryService();
 		try {

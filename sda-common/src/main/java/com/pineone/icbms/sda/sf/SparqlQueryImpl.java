@@ -26,6 +26,9 @@ public class SparqlQueryImpl extends QueryCommon implements QueryItf {
 		String madeQl = "";
 
 		log.info("runQuery of sparql start ======================>");
+		
+		// 가용 메모리를 확인해서  상태를 체크해서 fuseki서버를 재기동해줌
+		//Utils.checkMem();
 
 		log.debug("try (first) .................................. ");
 		madeQl = makeFinal(query, idxVals);
@@ -40,7 +43,7 @@ public class SparqlQueryImpl extends QueryCommon implements QueryItf {
 			queryExec = QueryExecutionFactory.sparqlService(serviceURI, query);
 			rs = queryExec.execSelect();
 		} catch (Exception e) {
-			int waitTime = 5*1000;
+			int waitTime = 15*1000;
 			log.debug("Exception message in runSparql() =====> "+e.getMessage());  
 			
 			try {
@@ -53,6 +56,7 @@ public class SparqlQueryImpl extends QueryCommon implements QueryItf {
 				rs = queryExec.execSelect();
 			} catch (Exception ee) {
 				log.debug("Exception 1====>"+ee.getMessage());
+				waitTime = 30*1000;
 				if(ee.getMessage().contains("Service Unavailable")|| ee.getMessage().contains("java.net.ConnectException")
 						// || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error")
 						) {					
