@@ -96,7 +96,7 @@ public class AvroRdbmsTimeTableWattageSubscribe implements Serializable  {
 							 read = specificDatumReader.read(null, binaryDecoder);
 							 
 							 List<java.lang.CharSequence> data= read.getData();
-							 log.debug("count data from kafka broker : "+data.size());
+							 log.debug("The number of from kafka broker : "+data.size());
 							 
 							 String task_group_id = read.getTaskGroupId().toString();
 							 String task_id = read.getTaskId().toString();

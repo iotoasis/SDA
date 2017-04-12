@@ -52,10 +52,10 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 		//class name을 user_id, grup_id로 사용함
 		properties.put("zookeeper.connect",Utils.ZOOKEEPER_LIST);
 		properties.put("group.id",group_id);
-		properties.put("zookeeper.session.timeout.ms", "500");
-		properties.put("zookeeper.sync.time.ms", "250");
+		properties.put("zookeeper.session.timeout.ms", "6000");
+		properties.put("zookeeper.sync.time.ms", "2000");
 		properties.put("auto.commit.enable", "true");
-		properties.put("auto.commit.interval.ms", "60000");
+		properties.put("auto.commit.interval.ms", "5000");
 		properties.put("fetch.message.max.bytes", "31457280");		// 30MB		
 		properties.put("auto.offset.reset", "smallest");
 		//properties.put("auto.offset.reset", "largest");
@@ -73,9 +73,16 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 		
 		ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
 		
-		for (final KafkaStream<byte[], byte[]> stream : streams) {
-			executor.execute(new ConsumerT(stream));
+		log.debug("NUM_THREADS : "+NUM_THREADS);
+		
+		//for (final KafkaStream<byte[], byte[]> stream : streams) {
+		//	executor.execute(new ConsumerT(stream));
+		//}
+		
+		for (int m = 0; m < NUM_THREADS; m++) {
+			executor.execute(new ConsumerT(streams.get(m)));
 		}
+		
 	}
 	
 	public class ConsumerT implements Runnable {
@@ -88,7 +95,7 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 		}
 		
 		@Override
-		public void run() {
+		public void run(){
 			for(MessageAndMetadata<byte[], byte[]> messageAndMetadata : stream) {
 				
 				StringBuffer sb = new StringBuffer();
@@ -201,7 +208,7 @@ public class AvroOneM2MDataSubscribe implements Serializable  {
 					e.printStackTrace();
 					try {
 						SchComm schComm2 = new SchComm();
-						schComm2.updateFinishTime(task_group_id, task_id, start_time, Utils.dateFormat.format(new Date()), e.getMessage());
+						schComm2.updateFinishTime(task_group_id, task_id, start_time, Utils.dateFormat.format(new Date()), "#2"+e.getMessage());
 					} catch (Exception ex) {
 						log.debug("ex ==>"+ex.getMessage());
 					}

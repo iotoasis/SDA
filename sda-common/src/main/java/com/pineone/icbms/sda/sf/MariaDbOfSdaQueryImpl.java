@@ -1,18 +1,28 @@
 package com.pineone.icbms.sda.sf;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.pineone.icbms.sda.comm.util.Utils;
 /*
- * MongoDB에 접속하여 쿼리수행
+ * MariaDB of SDA에 접속하여 쿼리수행
  */
-public class ShellQueryImpl extends QueryCommon implements QueryItf {
+public class MariaDbOfSdaQueryImpl extends QueryCommon implements QueryItf {
 
 	private final Log log = LogFactory.getLog(this.getClass());
 	
@@ -20,7 +30,7 @@ public class ShellQueryImpl extends QueryCommon implements QueryItf {
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
-		log.info("runQuery of shell start ======================>");
+		log.info("runQuery of mariadb of SDA start ======================>");
 
 		log.debug("try (first) .................................. ");
 		try {
@@ -62,55 +72,63 @@ public class ShellQueryImpl extends QueryCommon implements QueryItf {
 			}
 		}
 
-		log.info("runQuery of shell end ======================>");
+		log.info("runQuery of mariadb of SDA end ======================>");
 		return list;
 	}
 	
 	private final List<Map<String, String>> getResult (String query, String[] idxVals) throws Exception {
-		// 변수치환(예, , python3 /svc/apps/sda/ml/predict_.py @{arg0} @{arg1})
+		String db_server = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.sda.server");
+		String db_port = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.sda.port");
+		String db_name = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.sda.name");
+		String db_user = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.sda.user");
+		String db_pass = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.sda.pass");
+
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		// 변수치환
 		query = makeFinal(query, idxVals);
 	
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 		
-		String[] result = new String[]{""};
+		try {
+			Class.forName("org.mariadb.jdbc.Driver");
+			conn = DriverManager.getConnection("jdbc:mariadb://" + db_server + ":" + db_port + "/" + db_name, db_user,  db_pass);
+			
+			pstmt = conn.prepareStatement(query);
+			rs = pstmt.executeQuery();
 
-		// query문자열 에서 필요한 실행에 필요한 부분 추출(예, python3 /svc/apps/sda/ml/predict_.py @{arg0} @{arg1})
-		//	String[] args = { "python3","/svc/apps/sda/ml/predict_.py", "0000000003", "dinner"};
-		String[] args = query.split("\\s+");
-		
-		StringBuilder sb = new StringBuilder();
-
-		for (String str : args) {
-			sb.append(str);
-			sb.append(" ");
+			ResultSetMetaData md = rs.getMetaData();
+			int columns = md.getColumnCount();
+			while (rs.next()){
+			   HashMap<String,String> row = new HashMap<String, String>(columns);
+			   for(int i=1; i<=columns; i++){           
+				   row.put(md.getColumnName(i), rs.getObject(i).toString());
+			   }
+			    list.add(row);
+			}
+			
+			return list;
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			if (rs != null)
+				try {
+					rs.close();
+				} catch (SQLException sqle) {
+				}
+			if (pstmt != null)
+				try {
+					pstmt.close();
+				} catch (SQLException sqle) {
+				}
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException sqle) {
+				}
+			}
 		}
-	
-		// 실행
-		result = Utils.runShell(sb);
-		System.out.println("resultStr in runPredict() == > "+ Arrays.toString(result));
-		
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("result", result[0].toString());
-	    list.add(map);
-		return list;
-	}		
-	
-	
-/*	public Map<String,String> makeStringMap(Map<String, String> map) {
-		Map<String, String> newMap = new HashMap<String, String>();
-		
-    	Set<String> entry = map.keySet();
-    	Iterator<String> itr = entry.iterator();
-    	
-    	while(itr.hasNext()) {
-    		String key = String.valueOf(itr.next());
-    		//System.out.println("key : "+key);
-    		String value = String.valueOf(map.get(key));
-    		//System.out.println("value : "+value);
-    		
-    		newMap.put(key, value);
-    	}
-    	
-	    return newMap;
-	}		*/
+	}
 }

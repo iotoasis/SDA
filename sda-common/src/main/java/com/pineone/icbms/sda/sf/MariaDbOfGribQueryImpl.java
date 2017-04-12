@@ -20,9 +20,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.pineone.icbms.sda.comm.util.Utils;
 /*
- * MariaDB에 접속하여 쿼리수행
+ * MariaDB of Grib에 접속하여 쿼리수행
  */
-public class MariaDbQueryImpl extends QueryCommon implements QueryItf {
+public class MariaDbOfGribQueryImpl extends QueryCommon implements QueryItf {
 
 	private final Log log = LogFactory.getLog(this.getClass());
 	
@@ -30,13 +30,13 @@ public class MariaDbQueryImpl extends QueryCommon implements QueryItf {
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
-		log.info("runQuery of mariadb start ======================>");
+		log.info("runQuery of mariadb of Grib start ======================>");
 
 		log.debug("try (first) .................................. ");
 		try {
 			list = getResult(query, idxVals);
 		} catch (Exception e) {
-			int waitTime = 5*1000;
+			int waitTime = 15*1000;
 			log.debug("Exception message in runQuery() =====> "+e.getMessage());  
 			
 			try {
@@ -48,6 +48,7 @@ public class MariaDbQueryImpl extends QueryCommon implements QueryItf {
 				list = getResult(query, idxVals);
 			} catch (Exception ee) {
 				log.debug("Exception 1====>"+ee.getMessage());
+				waitTime = 30*1000;
 				if(ee.getMessage().contains("Service Unavailable")|| ee.getMessage().contains("java.net.ConnectException")
 						// || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error")
 						) {					
@@ -71,16 +72,16 @@ public class MariaDbQueryImpl extends QueryCommon implements QueryItf {
 			}
 		}
 
-		log.info("runQuery of mariadb end ======================>");
+		log.info("runQuery of mariadb of Grib end ======================>");
 		return list;
 	}
 	
 	private final List<Map<String, String>> getResult (String query, String[] idxVals) throws Exception {
-		String db_server = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.server");
-		String db_port = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.port");
-		String db_name = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.name");
-		String db_user = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.user");
-		String db_pass = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.pass");
+		String db_server = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.grib.server");
+		String db_port = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.grib.port");
+		String db_name = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.grib.name");
+		String db_user = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.grib.user");
+		String db_pass = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.grib.pass");
 
 		Connection conn = null;
 		PreparedStatement pstmt = null;

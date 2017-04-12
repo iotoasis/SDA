@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -74,7 +75,8 @@ public class Utils {
 	// 쿼리구분
 	public static enum QUERY_GUBUN {
 		MONGODB,
-		MARIADB,
+		MARIADBOFGRIB,
+		MARIADBOFSDA,
 		SPARQL,
 		SHELL
 	}
@@ -589,6 +591,44 @@ public class Utils {
 		log.debug("fuseki-server restart end ...................");
 	}
 	
+	// gooper
+	public static void checkMem_() {
+		Runtime r = Runtime.getRuntime();
+		
+		// MB단위의 가용메모리
+		//long freeMem = r.freeMemory()/1024/1024;
+		//long maxMem = r.maxMemory()/1024/1024;
+		
+		// dead line : 500MB
+		long deadLine = 1024*1024*500;
+		
+		DecimalFormat format = new DecimalFormat("###,###,###.##");
+        
+        //JVM이 현재 시스템에 요구 가능한 최대 메모리량, 이 값을 넘으면 OutOfMemory 오류가 발생 합니다.               
+        long max = r.maxMemory();
+       
+        //JVM이 현재 시스템에 얻어 쓴 메모리의 총량
+        long total = r.totalMemory();
+       
+        //JVM이 현재 시스템에 청구하여 사용중인 최대 메모리(total)중에서 사용 가능한 메모리
+        long free = r.freeMemory();
+        
+        
+		log.debug("max memory ==>"+format.format(max));
+		log.debug("total memory ==>"+format.format(total));
+		log.debug("free memory ==>"+format.format(free));
+		log.debug("deadline memory ==>"+format.format(deadLine));
+		
+		if((free/2014/1024) <= deadLine) {
+			// restart fuseki
+			try {
+				log.debug("fuseki restart because free memory is below than deadline memory !!!!!");
+				Utils.restartFuseki();
+			} catch (Exception e) {
+				log.debug("Fuseki Restart Exception ====>"+e.getMessage());
+			}
+		}
+	}
 	
 	public static final void getTripleAll_() throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");

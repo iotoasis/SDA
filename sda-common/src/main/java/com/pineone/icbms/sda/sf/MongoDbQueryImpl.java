@@ -24,7 +24,7 @@ public class MongoDbQueryImpl extends QueryCommon implements QueryItf {
 		try {
 			list = getResult(query, idxVals);
 		} catch (Exception e) {
-			int waitTime = 5*1000;
+			int waitTime = 15*1000;
 			log.debug("Exception message in runQuery() =====> "+e.getMessage());  
 			
 			try {
@@ -36,6 +36,7 @@ public class MongoDbQueryImpl extends QueryCommon implements QueryItf {
 				list = getResult(query, idxVals);
 			} catch (Exception ee) {
 				log.debug("Exception 1====>"+ee.getMessage());
+				waitTime = 30*1000;
 				if(ee.getMessage().contains("Service Unavailable")|| ee.getMessage().contains("java.net.ConnectException")
 						// || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error")
 						) {					
