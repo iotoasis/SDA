@@ -98,6 +98,20 @@ public class TripleService {
 
 			returnStr = sw.toString();
 			sw.flush();
+			
+			// gooper
+			if(! model.isClosed()) {
+				model.close();
+			}
+			if(model != null) {
+				model = null;
+			}
+			if(mapper != null) {
+				mapper = null;
+			}
+			if(doc != null) {
+				doc = null;
+			}
 		} else if (ty == 3) {
 			log.debug("=== ri: "+ri+",  ty : "+ty+" ====>exclude");			
 			sw.flush();
@@ -118,6 +132,22 @@ public class TripleService {
 			 * "value from mongo ====3(sw)====>" + sw.toString());
 			 * 
 			 * returnStr = sw.toString(); sw.flush();
+			 * 
+			 * 					
+			// gooper
+			if(! model.isClosed()) {
+				model.close();
+			}
+			if(model != null) {
+			    model = null;
+		    }
+
+			if(mapper != null) {
+				mapper = null;
+			}
+			if(doc != null) {
+				doc = null;
+			}
 			 */
 		} else if (ty == 2) {
 			log.debug("=== ri : "+ri+",  ty : "+ty+" ====>exclude");			
@@ -140,6 +170,22 @@ public class TripleService {
 			 * "value from mongo ====2(sw)====>" + sw.toString());
 			 * 
 			 * returnStr = sw.toString(); sw.flush();
+			 * 
+			// gooper
+			if(! model.isClosed()) {
+				model.close();
+			}
+			if(model != null) {
+				model = null;
+			}
+
+			if(mapper != null) {
+				mapper = null;
+			}
+			if(doc != null) {
+				doc = null;
+			}
+
 			 */
 		} else if (ty == 1) {
 			log.debug("=== ri : "+ri+",  ty : "+ty+" ====>exclude");			
@@ -255,7 +301,7 @@ public class TripleService {
 		
 		if(result[1] == null || ! result[1].trim().equals("")) {
 			log.debug("result[1](error message) in TripleService.sendTripleFile() == > "+ result[1]);
-			int waitTime = 5*1000;
+			int waitTime = 15*1000;
 			// fuseki재기동 (에러 메세지 : 500 Server Error http://166.104.112.43:23030/icbms?default)
 			if(result[1].contains("500 Server Error") || result[1].contains("java.net.ConnectException")  || result[1].contains("Service Unavailable") ) {
 				
@@ -268,6 +314,7 @@ public class TripleService {
 				
 				log.debug("sleep (final)...........................");
 				// 일정시간을 대기 한다.(2차)
+				waitTime = 30*1000;
 				Thread.sleep(waitTime);
 				
 				// 실행(2차)
@@ -339,7 +386,7 @@ public class TripleService {
 		
 		if(result[1] == null || ! result[1].trim().equals("")) {
 			log.debug("result[1](error message) in TripleService.checkTripleFile() == > "+ result[1]);
-			int waitTime = 5*1000;
+			int waitTime = 15*1000;
 			// fuseki재기동 (에러 메세지 : 500 Server Error http://166.104.112.43:23030/icbms?default)
 			if(result[1].contains("500 Server Error") || result[1].contains("java.net.ConnectException")  || result[1].contains("Service Unavailable") ) {
 				log.debug("sleep (first)...........................");
@@ -351,6 +398,7 @@ public class TripleService {
 				
 				log.debug("sleep (final)...........................");
 				// 일정시간을 대기 한다.(2차)
+				waitTime = 30*1000;
 				Thread.sleep(waitTime);
 				
 				// 실행(2차)

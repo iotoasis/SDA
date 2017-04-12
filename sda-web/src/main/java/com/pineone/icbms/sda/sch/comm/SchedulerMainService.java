@@ -58,7 +58,7 @@ public class SchedulerMainService implements ApplicationContextAware {
 	}
 
 	public void JobRegist() throws Exception {
-		Class c = null;
+		Class<?> c = null;
 		// 등록할 스케줄 정보 설정
 		setSchList();
 
