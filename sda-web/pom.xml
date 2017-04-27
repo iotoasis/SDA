@@ -43,7 +43,7 @@
   
     <repository>      <id>central</id>      <name>Maven Repository</name>      <url>https://repo1.maven.org/maven2</url></repository>
     
-  	<!-- repository>		 <id>icbms-project</id>			<url>C:\\dev\\workspace\\sdaf\\sda-common\\target</url>   <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository -->
+  	<repository>		 <id>icbms-project</id>			<url>C:\\dev\\workspace\\sdaf\\sda-common\\target</url>   <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>
   
   	<!--  
     <repository>      <id>central</id>      <name>Maven Repository</name>      <url>https://repo1.maven.org/maven2</url>   <releases>        <enabled>false</enabled><updatePolicy>always</updatePolicy>      </releases></repository>  
