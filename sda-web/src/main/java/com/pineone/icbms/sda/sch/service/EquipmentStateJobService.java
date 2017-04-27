@@ -100,7 +100,7 @@ public class EquipmentStateJobService extends SchedulerJobComm implements Job {
 				}
 			}
 				
-			log.debug("lowList.size()====================gooper===========>"+lowList.size());			
+			//log.debug("lowList.size()====================gooper===========>"+lowList.size());			
 			// low로 설정된 장소에 대한 설정(notFullyEquipped)
 			for(int m = 0; m < lowList.size(); m++) {
 				String location = lowList.get(m);
@@ -119,7 +119,7 @@ public class EquipmentStateJobService extends SchedulerJobComm implements Job {
 
 			}
 		
-			log.debug("argsResultList.size()====================gooper===========>"+argsResultList.size());
+			//log.debug("argsResultList.size()====================gooper===========>"+argsResultList.size());
 			// low로 설정되지 않은 장소에 대한 설정(fullyEquipped)
 			for(int m = 0; m < argsResultList.size(); m++) {
 				String location = argsResultList.get(m).get("loc");
