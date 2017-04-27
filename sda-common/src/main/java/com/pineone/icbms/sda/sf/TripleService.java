@@ -2,6 +2,7 @@ package com.pineone.icbms.sda.sf;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.Arrays;
 
@@ -22,7 +23,8 @@ import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.kb.dto.OneM2MContentInstanceDTO;
 import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MContentInstanceMapper;
 
-public class TripleService {
+public class TripleService implements Serializable{
+	private static final long serialVersionUID = 5936292391250544152L;
 	private final Log log = LogFactory.getLog(this.getClass());
 	private String parentResourceUri;
 	private String instanceUri;
@@ -194,7 +196,7 @@ public class TripleService {
 			log.debug("=== ri : "+ri+",  ty : "+ty+" ====>exclude");			
 			sw.flush();
 		} else {
-			log.debug("unknown ty("+ty+") value ====>exclude ");
+			log.debug("Unknown ty("+ty+") value ====>exclude ");
 		}
 		
 		return returnStr;

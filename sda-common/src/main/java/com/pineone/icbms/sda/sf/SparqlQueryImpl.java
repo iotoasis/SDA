@@ -38,7 +38,7 @@ public class SparqlQueryImpl extends QueryCommon implements QueryItf {
 		log.debug("final query==========>\n" + query);
 
 		QueryExecution queryExec;
-		ResultSet rs;
+		ResultSet rs = null;
 		try {
 			queryExec = QueryExecutionFactory.sparqlService(serviceURI, query);
 			rs = queryExec.execSelect();

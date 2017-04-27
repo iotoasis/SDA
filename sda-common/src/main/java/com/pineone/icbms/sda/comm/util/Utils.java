@@ -33,6 +33,7 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -406,7 +407,8 @@ public class Utils {
 			log.info("configuration file reading end ...........");
 		}
 			
-		getValue = conf.getString(envName); 
+		getValue = conf.getString(envName);
+		
 		return getValue;
 	}
 	/* */
@@ -515,9 +517,15 @@ public class Utils {
 			sb.append(str);
 			sb.append(" ");
 		}
-	
+
 		// 실행
-		result = Utils.runShell(sb);
+		try {
+			result = Utils.runShell(sb);
+		} catch (Exception ee) {
+			// 로그출력하고 무시함
+			log.debug("runShell exception : "+ee.getMessage());
+		}
+
 		log.debug("resultStr in TripleService.killFuseki() == > "+ Arrays.toString(result));
 		
 		log.info("killFuseki end==========================>");
@@ -548,7 +556,12 @@ public class Utils {
 		}
 	
 		// 실행
-		result = Utils.runShell(sb);
+		try {
+			result = Utils.runShell(sb);
+		} catch (Exception ee) {
+			// 로그출력하고 무시함
+			log.debug("runShell exception : "+ee.getMessage());
+		}
 		log.debug("resultStr in TripleService.startFuseki() == > "+ Arrays.toString(result));
 		
 		log.info("startFuseki end==========================>");
@@ -586,8 +599,10 @@ public class Utils {
 	// restart fuseki-server
 	public static final void restartFuseki() throws Exception {
 		log.debug("fuseki-server restart start ...................");
-		Utils.killFuseki();
-		Utils.startFuseki();
+		String[] rst = Utils.killFuseki();
+		if(rst[0].trim().equals("")) {
+			Utils.startFuseki();
+		}
 		log.debug("fuseki-server restart end ...................");
 	}
 	
@@ -785,7 +800,7 @@ public class Utils {
 		log.debug(getParentURI(test));
 	}
 
-	public static boolean checkPass(String args) {
+	public static boolean checkPass(String args) throws Exception {
 		String pass = Utils.sysdateFormat.format(new Date());
 		
 		log.debug("args==>"+args);
@@ -796,6 +811,12 @@ public class Utils {
 		} else {
 			return false;
 		}
+	}
+	
+	public static String getHostName() throws Exception {
+		//log.debug("sda.dw value : '"+Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw")+"'");
+		//log.debug("host name : '"+InetAddress.getLocalHost().getHostName().trim().toLowerCase()+"'");
+		return InetAddress.getLocalHost().getHostName().trim().toLowerCase();
 	}
 	
 }
