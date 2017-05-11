@@ -110,7 +110,7 @@ public class SubscribeController {
 		try {
 			// dm인지 dw인지 확인(init-jena는 dw에서만 가능함)
 			if(! Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
-				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only DatawareHouse server ! ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only Data Warehouse server ! ");
 			}
 
 			if( ! Utils.checkPass(args)) {
