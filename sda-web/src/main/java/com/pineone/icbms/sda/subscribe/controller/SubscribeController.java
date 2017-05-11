@@ -44,7 +44,6 @@ public class SubscribeController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 
 		log.info("subscribe regist begin================>");
-		printClientIp();
 		
 		try {
 			// 등록(subscription)
@@ -73,7 +72,6 @@ public class SubscribeController {
 		ResponseMessage resultMsg = new ResponseMessage();
 
 		log.info("callback process begin================>");
-		printClientIp();
 		
 		try {
 			// callback처리
@@ -106,7 +104,6 @@ public class SubscribeController {
 		TripleService tripleService = new TripleService();
 
 		log.info("init jena data begin================>");
-		printClientIp();
 		
 		try {
 			if( ! Utils.checkPass(args)) {
@@ -124,6 +121,9 @@ public class SubscribeController {
 			// 등록하기
 			tripleService.sendTripleFile(save_path_file);
 			
+			// data mart서버 초기화하기
+			initJena2(args);
+			
 			resultMsg.setCode(Utils.OK_CODE);
 			resultMsg.setMessage(Utils.OK_MSG);
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
@@ -139,7 +139,55 @@ public class SubscribeController {
 		return entity;
 	}
 	
-	private void printClientIp() {
+	// data mart쪽 서버의 데이타를 초기화한다.
+	private ResponseEntity<ResponseMessage> initJena2(String args) throws Exception {
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		//TripleService tripleService = new TripleService();
+
+		log.info("init2 jena data begin================>");
+		
+		try {
+			// data mart서버의 url호출 
+			resultMsg = Utils.requestData(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.ip")+":"+Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.port")+"/sda/subscribe/init-jena?p="+args);
+			
+			//resultMsg.setCode(Utils.OK_CODE);
+			//resultMsg.setMessage(Utils.OK_MSG);
+			
+			/*
+			 * if (returnList.size() > 0) { // SO전송함
+					if (responseMessage.getCode() == 200) {
+						if (triple_check_result_file.equals("")) {
+							triple_check_result_file = Utils.None;
+						}
+						callbackNoticeDTO.setWork_result("triple_check_result_file : " + triple_check_result_file);
+					} else {
+						callbackNoticeDTO
+								.setWork_result(responseMessage.getCode() + " " + responseMessage.getMessage());
+					}
+				} else { // SO전송안함
+					if (triple_check_result_file.equals("")) {
+						triple_check_result_file = Utils.None;
+					}
+					callbackNoticeDTO.setWork_result("triple_check_result_file : " + triple_check_result_file);
+				}
+			 */
+			
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+		} catch (Exception e) {
+			resultMsg = Utils.makeResponseBody(e);
+			log.debug("Exception : "+resultMsg.getMessage());			
+			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
+			responseHeaders.add("ExceptionClass", resultMsg.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("init2 jena data end================>");
+		return entity;
+	}
+	
+	private void printClientIp__() {
 		// 호출한 쪽의  ip를 찍어본다.
 		try { 
 			InetAddress Address = InetAddress.getLocalHost();
