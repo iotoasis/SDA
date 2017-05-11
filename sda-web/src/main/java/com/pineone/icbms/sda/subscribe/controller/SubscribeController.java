@@ -92,10 +92,75 @@ public class SubscribeController {
 		return entity;
 	}
 
-	// jena 데이타 초기화
+	// jena 데이타 초기화(DW를 초기화)
 	// http://localhost:8080/sda/subscribe/init-jena?p=xxxx
 	@RequestMapping(value = "/init-jena", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> initJena(@RequestParam(value="p")  String args) {
+		log.debug("requested parameter(p) for initJena ==>" + args);
+	
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> resultMsgFromInit2 = null;
+		
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		TripleService tripleService = new TripleService();
+
+		log.info("init jena data begin================>");
+		
+		try {
+			// dm인지 dw인지 확인(init-jena는 dw에서만 가능함)
+			if(! Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only DatawareHouse server ! ");
+			}
+
+			if( ! Utils.checkPass(args)) {
+				log.debug("p("+args+") is not valid... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+			
+			String save_path_file = "/home/pineone/svc/apps/sda/init-jena-data/icbms_basic_triple.ttl";
+			
+			// 지우기
+			log.debug("init jena data delete begin================>");
+			//Utils.deleteTripleAll();
+			log.debug("init jena data delete end================>");
+			
+			// 현재 서버 데이타 초기화
+			log.debug("init jena sendTripleFile begin================>");
+			//tripleService.sendTripleFile(save_path_file);
+			log.debug("init jena sendTripleFile end================>");
+		
+			// data mart서버 초기화하기
+			resultMsgFromInit2 = initJena2(args);
+			
+			if(resultMsgFromInit2.getBody().getCode() == 200) {
+				resultMsg.setCode(Utils.OK_CODE);
+				resultMsg.setMessage(Utils.OK_MSG);
+				entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+			} else {
+				resultMsg.setCode(resultMsgFromInit2.getBody().getCode());
+				resultMsg.setMessage(resultMsgFromInit2.getBody().getMessage());
+
+				responseHeaders.add("ExceptionCause", resultMsg.getMessage());
+				responseHeaders.add("ExceptionClass", resultMsg.getClass().getName());
+				entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+						HttpStatus.valueOf(resultMsg.getCode()));
+			}
+		} catch (Exception e) {
+			resultMsg = Utils.makeResponseBody(e);
+			log.debug("Exception 1 : "+resultMsg.getMessage());			
+			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
+			responseHeaders.add("ExceptionClass", resultMsg.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("init jena data end================>");
+		return entity;
+	}
+	
+	// jena 데이타 초기화(DM서버쪽 초기화에 사용됨, 내부적으로만 호출됨)
+	@RequestMapping(value = "/init-jena2", method = RequestMethod.GET)
+	private @ResponseBody ResponseEntity<ResponseMessage> runInitJenaDM(@RequestParam(value="p")  String args) {
 		log.debug("requested parameter(p) for initJena ==>" + args);
 	
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -103,7 +168,7 @@ public class SubscribeController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		TripleService tripleService = new TripleService();
 
-		log.info("init jena data begin================>");
+		log.info("init jena2 data begin================>");
 		
 		try {
 			if( ! Utils.checkPass(args)) {
@@ -112,30 +177,29 @@ public class SubscribeController {
 			}
 			
 			String save_path_file = "/home/pineone/svc/apps/sda/init-jena-data/icbms_basic_triple.ttl";
-			//String save_path_file = "/home/pineone/svc/apps/sda/init-jena-data/icbms_basic_triple.rdf";
+
 			// 지우기
-			log.debug("init jena data delete begin================>");
-			Utils.deleteTripleAll();
-			log.debug("init jena data delete end================>");
+			log.debug("init jena2 data delete begin================>");
+			//Utils.deleteTripleAll();
+			log.debug("init jena2 data delete end================>");
 			
-			// 등록하기
-			tripleService.sendTripleFile(save_path_file);
-			
-			// data mart서버 초기화하기
-			initJena2(args);
-			
+			// 현재 서버 데이타 초기화
+			log.debug("init jena2 sendTripleFile begin================>");
+			//tripleService.sendTripleFile(save_path_file);
+			log.debug("init jena2 sendTripleFile end================>");
+
 			resultMsg.setCode(Utils.OK_CODE);
 			resultMsg.setMessage(Utils.OK_MSG);
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
 		} catch (Exception e) {
 			resultMsg = Utils.makeResponseBody(e);
-			log.debug("Exception : "+resultMsg.getMessage());			
+			log.debug("Exception 2: "+resultMsg.getMessage());			
 			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
 			responseHeaders.add("ExceptionClass", resultMsg.getClass().getName());
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("init jena data end================>");
+		log.info("init jena2 data end================>");
 		return entity;
 	}
 	
@@ -150,34 +214,25 @@ public class SubscribeController {
 		
 		try {
 			// data mart서버의 url호출 
-			resultMsg = Utils.requestData(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.ip")+":"+Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.port")+"/sda/subscribe/init-jena?p="+args);
+			resultMsg = Utils.requestData("http://"+Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.ip")+":"+Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.port")+"/sda/subscribe/init-jena2?p="+args);
+			log.debug("InitJena2 result  : "+resultMsg.getMessage());
 			
-			//resultMsg.setCode(Utils.OK_CODE);
-			//resultMsg.setMessage(Utils.OK_MSG);
+			if (resultMsg.getCode() == 200) {
+				resultMsg.setCode(Utils.OK_CODE);
+				resultMsg.setMessage(Utils.OK_MSG);
+				entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+			} else {
+				//resultMsg = resultMsg.getMessage();
+				responseHeaders.add("ExceptionCause", resultMsg.getMessage());
+				responseHeaders.add("ExceptionClass", resultMsg.getClass().getName());
+				entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+						HttpStatus.valueOf(resultMsg.getCode()));
+			}
 			
-			/*
-			 * if (returnList.size() > 0) { // SO전송함
-					if (responseMessage.getCode() == 200) {
-						if (triple_check_result_file.equals("")) {
-							triple_check_result_file = Utils.None;
-						}
-						callbackNoticeDTO.setWork_result("triple_check_result_file : " + triple_check_result_file);
-					} else {
-						callbackNoticeDTO
-								.setWork_result(responseMessage.getCode() + " " + responseMessage.getMessage());
-					}
-				} else { // SO전송안함
-					if (triple_check_result_file.equals("")) {
-						triple_check_result_file = Utils.None;
-					}
-					callbackNoticeDTO.setWork_result("triple_check_result_file : " + triple_check_result_file);
-				}
-			 */
-			
-			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
 		} catch (Exception e) {
 			resultMsg = Utils.makeResponseBody(e);
-			log.debug("Exception : "+resultMsg.getMessage());			
+			
+			log.debug("Exception 3: "+resultMsg.getMessage());			
 			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
 			responseHeaders.add("ExceptionClass", resultMsg.getClass().getName());
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
@@ -185,24 +240,6 @@ public class SubscribeController {
 		}
 		log.info("init2 jena data end================>");
 		return entity;
-	}
-	
-	private void printClientIp__() {
-		// 호출한 쪽의  ip를 찍어본다.
-		try { 
-			InetAddress Address = InetAddress.getLocalHost();
-			System.out.println("로컬 컴퓨터의 이름 : "+Address.getHostName());
-			System.out.println("로컬 컴퓨터의 IP 주소 : "+Address.getHostAddress());
-			
-			HttpServletRequest req = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
-	        String ip = req.getHeader("X-FORWARDED-FOR");
-	        if (ip == null)
-	            ip = req.getRemoteAddr();
-	         
-	        System.out.println("client ip : "+ ip);
-		} catch (Exception e) {
-			log.debug("/ctx/ call exception : " + e.getMessage());
-		}
 	}
 	
 }
