@@ -115,7 +115,7 @@ public class OneM2MSubscribeUriMapper {
 	public List<String> getSubscribeUri() {
 		List<String> result = new ArrayList<String>();
 		String query = this.makeQueryString();
-		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
+		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint");
 		String baseuri = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.uri");
 		QueryExecution queryExec = QueryExecutionFactory.sparqlService(serviceURI, query);
 		ResultSet rs = queryExec.execSelect();

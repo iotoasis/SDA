@@ -266,8 +266,8 @@ public class TripleService implements Serializable{
 		}
 	}
 	
-	// triple파일 전송
-	public String[] sendTripleFile(String triple_path_file) throws Exception {
+	// triple파일을 DW로 전송
+	public String[] sendTripleFileToDW(String triple_path_file) throws Exception {
 		String[] result = new String[]{"",""};
 		
 		String[] args = { "/home/pineone/svc/apps/sda/bin/apache-jena-fuseki-2.3.0/bin/s-post",
@@ -275,11 +275,11 @@ public class TripleService implements Serializable{
 
 		// conf값을 확인해서 재설정함
 		args[0] = Utils.getSdaProperty("com.pineone.icbms.sda.triple.regist.bin");
-		args[1] = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
+		args[1] = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint");
 		args[2] = "default";
 		args[3] = triple_path_file;
 
-		log.info("sendTripleFile start==========================>");
+		log.info("sendTripleFile to DW start==========================>");
 		log.debug("sendTripleFile ==============triple_path_file============>" + triple_path_file);
 		
 		// 개수확인(before)
@@ -299,10 +299,10 @@ public class TripleService implements Serializable{
 		log.debug("try (first).......................");
 		result = Utils.runShell(sb);
 		
-		log.debug("resultStr in TripleService.sendTripleFile() == > "+ Arrays.toString(result));
+		log.debug("resultStr in TripleService.sendTripleFileToDW() == > "+ Arrays.toString(result));
 		
 		if(result[1] == null || ! result[1].trim().equals("")) {
-			log.debug("result[1](error message) in TripleService.sendTripleFile() == > "+ result[1]);
+			log.debug("result[1](error message) in TripleService.sendTripleFileToDW() == > "+ result[1]);
 			int waitTime = 15*1000;
 			// fuseki재기동 (에러 메세지 : 500 Server Error http://166.104.112.43:23030/icbms?default)
 			if(result[1].contains("500 Server Error") || result[1].contains("java.net.ConnectException")  || result[1].contains("Service Unavailable") ) {
@@ -330,15 +330,49 @@ public class TripleService implements Serializable{
 			}
 		}
 		
-		log.info("sendTripleFile end==========================>");
-
-		// 개수확인(after)
-		//log.debug("after count ====>\n");
-		//Utils.getTripleCount();
-
+		log.info("sendTripleFile to DW  end==========================>");
 		return result;
 	}
 	
+	
+	// triple파일을 DM로 전송
+	public String[] sendTripleFileToDM(String triple_path_file) throws Exception {
+		String[] result = new String[]{"",""};
+		
+		String[] args = { "/home/pineone/svc/apps/sda/bin/apache-jena-fuseki-2.3.0/bin/s-post",
+						"http://192.168.1.1:3030/icbms", "default", "/tmp/test.nt" };
+
+		// conf값을 확인해서 재설정함
+		args[0] = Utils.getSdaProperty("com.pineone.icbms.sda.triple.regist.bin");
+		args[1] = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint");
+		args[2] = "default";
+		args[3] = triple_path_file;
+
+		log.info("sendTripleFile to DM start==========================>");
+		StringBuilder sb = new StringBuilder();
+
+		for (String str : args) {
+			sb.append(str);
+			sb.append(" ");
+		}
+
+		log.debug("sendTripleFile  to DM ==============args============>" + sb.toString());
+	
+		// 전송 실행
+		result = Utils.runShell(sb);
+		
+		if(result[1] == null || ! result[1].trim().equals("")) {
+			log.debug("result[1](error message) in TripleService.sendTripleFileToDM() == > "+ result[1]);
+			if(result[1].contains("500 Server Error") || result[1].contains("java.net.ConnectException")  || result[1].contains("Service Unavailable") ) {
+				throw new UserDefinedException(HttpStatus.GONE,  result[1].toString());
+			}
+		} else {
+			throw new UserDefinedException(HttpStatus.CONTINUE,  result[1].toString());
+		}
+		
+		log.info("sendTripleFile to DM  end==========================>");
+		return result;
+	}
 
 	
 	// triple파일 체크

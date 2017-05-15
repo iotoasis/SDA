@@ -222,7 +222,7 @@ public class AvroRdbmsDeviceInfoSubscribe implements Serializable  {
 			}
 			// 파일 전송
 			log.info("Sending triples in "+user_id+" start.......................");
-			tripleService.sendTripleFile(triple_path_file);
+			tripleService.sendTripleFileToDW(triple_path_file);
 			log.info("Sending triples in "+user_id+" end.......................");
 		}
 

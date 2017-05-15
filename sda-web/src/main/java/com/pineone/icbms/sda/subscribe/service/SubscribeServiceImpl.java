@@ -195,6 +195,9 @@ synchronized(this) {
 			// callback메세지를 triple로 변환
 			tripleStr = tripleService.getTriple(bodyStr);
 			sb.append(tripleStr);
+			
+			// 최근값 저장(DW, DM모두 수행됨)
+			tripleService.addLatestContentInstance();
 
 			// 스트링 버퍼에 있는 값을 파일에 기록한다.
 			String file_name = "Callback_"+String.format("%010d", callback_seq)+"_WRK" + start_time + "_BT" + start_time;
@@ -220,8 +223,11 @@ synchronized(this) {
 						}
 					}
 				}
-				// triple파일 전송
-				tripleService.sendTripleFile(triple_path_file);
+				// subscription data triple파일을 DW에 전송
+				tripleService.sendTripleFileToDW(triple_path_file);
+				
+				// subscription data triple파일을 DM에 전송
+				tripleService.sendTripleFileToDM(triple_path_file);
 			}
 
 			// callback_uri를 기준으로 subscribe테이블과 context_info테이블에서 query할

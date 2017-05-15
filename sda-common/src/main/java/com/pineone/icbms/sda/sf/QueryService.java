@@ -259,7 +259,7 @@ public  class QueryService extends QueryCommon {
 
 	// update쿼리수행(sparql만 해당됨)
 	private void runModifySparql(String sparql, String[] idxVals) throws Exception {
-		String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint") + "/update";
+		String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint") + "/update";
 
 		String madeQl = makeFinal(sparql, idxVals);
 		UpdateRequest ur = UpdateFactory.create(madeQl);
@@ -306,8 +306,15 @@ public  class QueryService extends QueryCommon {
 					}
 				}
 				throw ee;
-			}
-		}
+			} // 두번째 try
+		} // 첫번째 try
+		
+		//동일한(delete or insert) sparql를 DM서버에도 수행함(최근값 혹은 추론결과, subscription값등을 등록한다.)
+		log.debug("DM서버에서 runModifySparql()를 수행 시작.................................. ");
+		updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint") + "/update";
+		up = UpdateExecutionFactory.createRemote(ur, updateService);
+		up.execute();
+		log.debug("DM서버에서 runModifySparql()를 수행 끝.................................. ");
 	}
 
 	// gooper

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -569,15 +570,23 @@ public class Utils {
 		return result;
 	}
 
-	// 데이터 초기화
-	public static final void deleteTripleAll() throws Exception {
-		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
+	// DW데이터 초기화
+	public static final void deleteDWTripleAll() throws Exception {
+		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint");
 		DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
 		accessor.deleteDefault();
 	}
 
+	// DM데이터 초기화
+	public static final void deleteDMTripleAll() throws Exception {
+		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint");
+		DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
+		accessor.deleteDefault();
+	}
+
+/*	
 	public static final void getTripleCount_XX() throws Exception {
-		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
+		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint");
 		String queryString = "select  (count(?s) as ?count) where {?s ?p ?o }";
 		try {
 			QueryExecution queryExec = QueryExecutionFactory.sparqlService(serviceURI, queryString);
@@ -595,7 +604,8 @@ public class Utils {
 			throw e;
 		}
 	}
-
+*/
+	
 	// restart fuseki-server
 	public static final void restartFuseki() throws Exception {
 		log.debug("fuseki-server restart start ...................");
@@ -645,8 +655,9 @@ public class Utils {
 		}
 	}
 	
+/*	
 	public static final void getTripleAll_() throws Exception {
-		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
+		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint");
 
 		String queryString = "select ?s ?p ?o {?s ?p ?o}";
 		QueryExecution queryExec = QueryExecutionFactory.sparqlService(serviceURI, queryString);
@@ -654,7 +665,8 @@ public class Utils {
 		ResultSet rs = queryExec.execSelect();
 		ResultSetFormatter.out(rs);
 	}
-
+*/
+	
 	public static final String[] runShell(StringBuilder args) throws Exception {
 		Process process = null;
 		boolean notTimeOver = true;
@@ -759,7 +771,7 @@ public class Utils {
 
 	// 장비 정보 리턴 
 	public static String getDeviceInfo(String deviceUri) throws Exception {
-		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint")+"/sparql";
+		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint")+"/sparql";
 		StringWriter out = new StringWriter();
 		// 요기
 		String query = getSparQlHeader() + "\n"+ "describe "+ deviceUri;
@@ -809,7 +821,7 @@ public class Utils {
 		if(args.equals(pass)) {
 			return true;
 		} else {
-			return false;
+			return false;   
 		}
 	}
 	

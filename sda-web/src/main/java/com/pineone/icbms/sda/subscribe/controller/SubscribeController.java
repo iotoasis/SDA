@@ -120,14 +120,14 @@ public class SubscribeController {
 			
 			String save_path_file = "/home/pineone/svc/apps/sda/init-jena-data/icbms_basic_triple.ttl";
 			
-			// 지우기
+			// triple데이타 지우기
 			log.debug("init jena data delete begin================>");
-			//Utils.deleteTripleAll();
+			Utils.deleteDWTripleAll();
 			log.debug("init jena data delete end================>");
 			
-			// 현재 서버 데이타 초기화
+			// 서버 데이타 초기화
 			log.debug("init jena sendTripleFile begin================>");
-			//tripleService.sendTripleFile(save_path_file);
+			tripleService.sendTripleFileToDW(save_path_file);
 			log.debug("init jena sendTripleFile end================>");
 		
 			// data mart서버 초기화하기
@@ -178,14 +178,14 @@ public class SubscribeController {
 			
 			String save_path_file = "/home/pineone/svc/apps/sda/init-jena-data/icbms_basic_triple.ttl";
 
-			// 지우기
+			// triple데이타 모두 지우기
 			log.debug("init jena2 data delete begin================>");
-			//Utils.deleteTripleAll();
+			Utils.deleteDMTripleAll();
 			log.debug("init jena2 data delete end================>");
 			
-			// 현재 서버 데이타 초기화
+			// 서버 데이타 초기화
 			log.debug("init jena2 sendTripleFile begin================>");
-			//tripleService.sendTripleFile(save_path_file);
+			tripleService.sendTripleFileToDM(save_path_file);
 			log.debug("init jena2 sendTripleFile end================>");
 
 			resultMsg.setCode(Utils.OK_CODE);

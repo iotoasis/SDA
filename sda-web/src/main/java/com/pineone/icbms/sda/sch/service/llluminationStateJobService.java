@@ -95,6 +95,7 @@ public class llluminationStateJobService extends SchedulerJobComm implements Job
 					msg.append(" updated.");
 
 					log.debug(msg.toString());
+
 			}
 			
 			if(argsResultList.size() == 0) {

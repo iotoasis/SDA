@@ -382,6 +382,7 @@ public class SfController {
 		return exChanged;
 	}
 	
+	/*
 	private void printClientIp_bak() {
 		// 호출한 쪽의  ip를 찍어본다.
 		try { 
@@ -399,4 +400,5 @@ public class SfController {
 			log.debug("/ctx/ call exception : " + e.getMessage());
 		}
 	}
+	*/
 }

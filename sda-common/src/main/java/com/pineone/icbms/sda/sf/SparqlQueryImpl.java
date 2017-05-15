@@ -22,7 +22,7 @@ public class SparqlQueryImpl extends QueryCommon implements QueryItf {
 
 	@Override
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
-		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
+		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint");
 		String madeQl = "";
 
 		log.info("runQuery of sparql start ======================>");

@@ -31,7 +31,7 @@ public class SDADatasetAccessor implements DatasetAccessor {
 	// DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
 	// accessor.putModel(makeModel());
 	//
-	// System.out.println(Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.host.port"));
+	// System.out.println(Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.host.port"));
 	//
 	// }
 
