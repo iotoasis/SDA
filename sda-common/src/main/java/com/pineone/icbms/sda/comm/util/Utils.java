@@ -27,6 +27,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.DatasetAccessorFactory;
 import org.apache.jena.query.QueryExecution;
@@ -34,6 +35,7 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.tdb.TDBFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -81,6 +83,13 @@ public class Utils {
 		MARIADBOFSDA,
 		SPARQL,
 		SHELL
+	}
+	
+	// 쿼리 수행 목적지
+	public static enum QUERY_DEST {
+		DM,
+		DW,
+		ALL
 	}
 	
 	// kafka broker
@@ -575,6 +584,19 @@ public class Utils {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint");
 		DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
 		accessor.deleteDefault();
+	}
+	
+	
+	public static final void deleteDWTripleAll2() throws Exception {
+		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint");
+
+		String queryString = "delete data where {?s ?p ?o }";
+		QueryExecution queryExec = QueryExecutionFactory.sparqlService(serviceURI, queryString);
+
+		ResultSet rs = queryExec.execSelect();
+
+		// 값을 console에 출력함
+		ResultSetFormatter.out(rs);
 	}
 
 	// DM데이터 초기화

@@ -75,10 +75,10 @@ public class RunPython3OfStrSubService extends SchedulerJobComm implements Job {
 					log.debug("RunPython3Service start ......................");
 							
 					// 낮시간 update
-					sparqlService.updateSparql(day_delete_query, Utils.getSparQlHeader()+day_insert_query, new String[]{split_str[3]});
+					sparqlService.updateSparql(day_delete_query, Utils.getSparQlHeader()+day_insert_query, new String[]{split_str[3]}, Utils.QUERY_DEST.ALL.toString());
 					
 					// 밤시간 update
-					sparqlService.updateSparql(night_delete_query, Utils.getSparQlHeader()+night_insert_query, new String[]{split_str[4]});
+					sparqlService.updateSparql(night_delete_query, Utils.getSparQlHeader()+night_insert_query, new String[]{split_str[4]}, Utils.QUERY_DEST.ALL.toString());
 					
 					// fuseki등록 종료
 					log.debug("RunPython3Service  end ......................");		

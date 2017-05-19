@@ -28,6 +28,7 @@ public class TripleService implements Serializable{
 	private final Log log = LogFactory.getLog(this.getClass());
 	private String parentResourceUri;
 	private String instanceUri;
+	private String instanceValue;
 	
 	public String getParentResourceUri() {
 		return parentResourceUri;
@@ -43,6 +44,14 @@ public class TripleService implements Serializable{
 
 	public void setInstanceUri(String instanceUri) {
 		this.instanceUri = instanceUri;
+	}
+
+	public String getInstanceValue() {
+		return instanceValue;
+	}
+
+	public void setInstanceValue(String instanceValue) {
+		this.instanceValue = instanceValue;
 	}
 
 	// DBObject나 String값을 triple로 변환
@@ -85,6 +94,7 @@ public class TripleService implements Serializable{
 			
 			this.setParentResourceUri(mapper.getParentResourceUri());
 			this.setInstanceUri(mapper.getInstanceUri());
+			this.setInstanceValue(mapper.getContent());
 			
 			// container별로 최근의 contentinstance를 가지도록 함... 시작 
 			//log.debug("delete->insert o:hasLatestContentInstance start....................");
@@ -204,26 +214,89 @@ public class TripleService implements Serializable{
 	
 	//public void addLatestContentInstance(String parentResourceUri,  String instanceUri) throws Exception {
 	public void addLatestContentInstance() throws Exception {
-		// delete
-		// <mapper.getParentResourceUri(), "o:hasLatestContentInstance",?>
-		// insert 
-		// <mapper.getParentResourceUri(), "o:hasLatestContentInstance",mapper.getInstanceUri()>
-		
-		String deleteql =  " prefix o: <http://www.iotoasis.org/ontology/> "
+		// this.getParentResourceUri() 	: http://www.iotoasis.org/herit-in/herit-cse/CAMPUS_HUB01/hub/status
+		// this.getInstanceUri()     			: http://www.iotoasis.org/herit-in/herit-cse/CAMPUS_HUB01/hub/status/CONTENT_INST_1103475
+		// his.getInstanceValue()  			: 35
+
+		// hasLatestContentInstance
+		String deleteql =  ""
+				                +" prefix o: <http://www.iotoasis.org/ontology/> "
+								+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
 								+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 								+" delete  { <@{arg0}> o:hasLatestContentInstance ?o . } "
 								+" WHERE   { <@{arg0}> o:hasLatestContentInstance  ?o  .} "   ;
 		
-		String insertql =   " prefix o: <http://www.iotoasis.org/ontology/> "
+		String insertql =   ""
+				                +" prefix o: <http://www.iotoasis.org/ontology/> "
+								+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
 								+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 								+" insert data { <@{arg0}> o:hasLatestContentInstance <@{arg1}> . }" ;
-
-		//SparqlService sparqlService = new SparqlService();
-		QueryService sparqlService= new QueryService(new SparqlQueryImpl());
 		
-		//log.debug("this.getParentResourceUri() ====> "+this.getParentResourceUri());
-		//log.debug("this.getInstanceUri() =====>"+this.getInstanceUri());
-		sparqlService.updateSparql(deleteql, insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()});
+		/*
+		// ContentInstance
+		String delete_ci_ql =  " prefix o: <http://www.iotoasis.org/ontology/> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" delete  { <@{arg0}> o:hasContentInstance ?o . } "
+				+" WHERE   { <@{arg0}> o:hasContentInstance  ?o  .} "   ;
+		String insert_ci_ql =   " prefix o: <http://www.iotoasis.org/ontology/> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" insert data { <@{arg0}> o:hasContentInstance <@{arg1}> . }" ;
+
+		// ContentInstance
+		String delete_ci_ql =  " prefix o: <http://www.iotoasis.org/ontology/> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" delete  { <@{arg0}> o:hasContentInstance ?o . } "
+				+" WHERE   { <@{arg0}> o:hasContentInstance  ?o  .} "   ;
+		String insert_ci_ql =   " prefix o: <http://www.iotoasis.org/ontology/> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" insert data { <@{arg0}> o:hasContentInstance <@{arg1}> . }" ;
+		*/
+
+		
+		// isContentInstanceOf (	 ?ci   o:isContentInstanceOf ?con2 .)
+		String delete_ici_ql =  ""
+				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
+				+" delete  { <@{arg0}> o:isContentInstanceOf ?o . } "
+				+" WHERE   { <@{arg0}> o:isContentInstanceOf  ?o  .} "   ;
+		String insert_ici_ql =   ""
+				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" insert data { <@{arg0}> o:isContentInstanceOf <@{arg1}> . }" ;
+
+		
+		//  hasContentValue
+		String delete_val_ql =  ""
+				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "  
+				+" delete  { <@{arg0}> o:hasContentValue ?o . } "
+				+" WHERE   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
+		String insert_val_ql =   ""
+				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" insert data { <@{arg0}> o:hasContentValue <@{arg1}> . }" ;
+
+		QueryService sparqlService= new QueryService(new SparqlQueryImpl());
+
+		log.debug("this.getParentResourceUri() ====> "+this.getParentResourceUri());
+		log.debug("this.getInstanceUri() =====>"+this.getInstanceUri());
+		log.debug("this.getInstanceValue() =====>"+this.getInstanceValue());
+		
+		// hasLatestContentInstance 생성(DW, DM)
+		sparqlService.updateSparql(deleteql, insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.ALL.toString());
+	
+		// DM에 hasContentInstance를 생성(DM)
+		//sparqlService.updateSparql(delete_ci_ql, insert_ci_ql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.DM.toString());
+		
+		// DM에 isContentInstanceOf를 생성(DM)
+		sparqlService.updateSparql(delete_ici_ql, insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.DM.toString());
+
+		// DM에 hasContentValue 생성(DM)
+		sparqlService.updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), "\""+this.getInstanceValue()+"\"^^xsd:string"}, Utils.QUERY_DEST.DM.toString());
 	}
 
 	// triple파일 생성(작업시간과 생성시간을 엮어서 만듬)
@@ -326,7 +399,7 @@ public class TripleService implements Serializable{
 					throw new UserDefinedException(HttpStatus.GONE,  result[1].toString());
 				}
 			} else {
-				throw new UserDefinedException(HttpStatus.CONTINUE,  result[1].toString());
+				// pass
 			}
 		}
 		
@@ -367,7 +440,7 @@ public class TripleService implements Serializable{
 				throw new UserDefinedException(HttpStatus.GONE,  result[1].toString());
 			}
 		} else {
-			throw new UserDefinedException(HttpStatus.CONTINUE,  result[1].toString());
+			// pass
 		}
 		
 		log.info("sendTripleFile to DM  end==========================>");

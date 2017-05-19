@@ -130,7 +130,8 @@ public class SubscribeController {
 			tripleService.sendTripleFileToDW(save_path_file);
 			log.debug("init jena sendTripleFile end================>");
 		
-			// data mart서버 초기화하기
+			/* */
+			//DM서버 초기화하기
 			resultMsgFromInit2 = initJena2(args);
 			
 			if(resultMsgFromInit2.getBody().getCode() == 200) {
@@ -146,7 +147,15 @@ public class SubscribeController {
 				entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 						HttpStatus.valueOf(resultMsg.getCode()));
 			}
+			/* */
+			
+			/*
+			resultMsg.setCode(Utils.OK_CODE);
+			resultMsg.setMessage(Utils.OK_MSG);
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+			*/
 		} catch (Exception e) {
+			e.printStackTrace();
 			resultMsg = Utils.makeResponseBody(e);
 			log.debug("Exception 1 : "+resultMsg.getMessage());			
 			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
@@ -158,9 +167,9 @@ public class SubscribeController {
 		return entity;
 	}
 	
-	// jena 데이타 초기화(DM서버쪽 초기화에 사용됨, 내부적으로만 호출됨)
+	// jena 데이타 초기화(DM서버쪽 초기화에 사용됨)
 	@RequestMapping(value = "/init-jena2", method = RequestMethod.GET)
-	private @ResponseBody ResponseEntity<ResponseMessage> runInitJenaDM(@RequestParam(value="p")  String args) {
+	public @ResponseBody ResponseEntity<ResponseMessage> runInitJenaDM(@RequestParam(value="p")  String args) {
 		log.debug("requested parameter(p) for initJena ==>" + args);
 	
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -192,6 +201,7 @@ public class SubscribeController {
 			resultMsg.setMessage(Utils.OK_MSG);
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			resultMsg = Utils.makeResponseBody(e);
 			log.debug("Exception 2: "+resultMsg.getMessage());			
 			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
