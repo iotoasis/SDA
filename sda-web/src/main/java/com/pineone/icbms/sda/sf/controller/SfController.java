@@ -95,7 +95,6 @@ public class SfController {
 				
 
 		log.info("/ctx/{cmid} GET getContext start================>");
-		printClientIp();
 		
 		ResponseMessageOk ok = new ResponseMessageOk();
 		ok.setCmd(Utils.CMD);
@@ -142,8 +141,6 @@ public class SfController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 
 		log.info("/deviceinfo/{cmid} GET getDeviceInfo start================>");
-		printClientIp();
-
 		List<Map<String, String>> returnMsg = new ArrayList<Map<String, String>>();
 		
 		ResponseMessageOk ok = new ResponseMessageOk();
@@ -202,7 +199,6 @@ public class SfController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 
 		log.info("/resourceinfo/{cmid} GET getResourceInfo start================>");
-		printClientIp();
 
 		List<Map<String, String>> returnMsg = new ArrayList<Map<String, String>>();
 		
@@ -386,7 +382,8 @@ public class SfController {
 		return exChanged;
 	}
 	
-	private void printClientIp() {
+	/*
+	private void printClientIp_bak() {
 		// 호출한 쪽의  ip를 찍어본다.
 		try { 
 			InetAddress Address = InetAddress.getLocalHost();
@@ -403,4 +400,5 @@ public class SfController {
 			log.debug("/ctx/ call exception : " + e.getMessage());
 		}
 	}
+	*/
 }

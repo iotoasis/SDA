@@ -82,7 +82,7 @@ public class BeamProjectorStateJobService extends SchedulerJobComm implements Jo
 				//sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{location, context_cond});
 				
 				//delete->insert
-				sparqlService.updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{location, condition});
+				sparqlService.updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{location, condition}, Utils.QUERY_DEST.ALL.toString());
 					msg.append(Utils.NEW_LINE);				
 					msg.append("location["+m+"] ==>  ");
 					msg.append(location);

@@ -223,43 +223,43 @@ public  class QueryService extends QueryCommon {
 	}
 	
 	// update(sparql만 해당됨)
-	public void updateSparql(String updateql, String[] idxVals) throws Exception {
+	public void updateSparql(String updateql, String[] idxVals, String dest) throws Exception {
 		log.debug("update sparql start............................");
-		runModifySparql(updateql, idxVals);
+		runModifySparql(updateql, idxVals, dest);
 		log.debug("update sparql end............................");
 	}
 
 	// update(delete->insert)(sparql만 해당됨)
-	public synchronized void updateSparql(String deleteql, String insertql, String[] idxVals) throws Exception {
+	public synchronized void updateSparql(String deleteql, String insertql, String[] idxVals, String dest) throws Exception {
 		log.debug("delete->insert sparql start............................");
 		// delete
-		runModifySparql(deleteql, idxVals);
+		runModifySparql(deleteql, idxVals, dest);
 		// insert
-		runModifySparql(insertql, idxVals);
+		runModifySparql(insertql, idxVals, dest);
 		log.debug("delete->insert sparql end............................");		
 	}
 
 	// update(delete, insert를 한트랜잭션에서 처리) - 해당 uri가 존재하지 않으면 작동하지 않음
-	public synchronized void updateSparql2(String deleteinsertql, String[] idxVals) throws Exception {
+	public synchronized void updateSparql2(String deleteinsertql, String[] idxVals, String dest) throws Exception {
 		log.debug("delete+insert sparql start............................");
 		// delete+insert
-		runModifySparql(deleteinsertql, idxVals);
+		runModifySparql(deleteinsertql, idxVals, dest);
 		log.debug("delete+insert sparql end............................");		
 	}
 
 	// delete(sparql만 해당됨)
-	public void deleteSparql(String deleteql, String[] idxVals) throws Exception {
-		runModifySparql(deleteql, idxVals);
+	public void deleteSparql(String deleteql, String[] idxVals, String dest) throws Exception {
+		runModifySparql(deleteql, idxVals, dest);
 	}
 
 	// insert(sparql만 해당됨)
-	public void insertSparql(String insertql, String[] idxVals) throws Exception {
-		runModifySparql(insertql, idxVals);
+	public void insertSparql(String insertql, String[] idxVals, String dest) throws Exception {
+		runModifySparql(insertql, idxVals, dest);
 	}
 
 	// update쿼리수행(sparql만 해당됨)
-	private void runModifySparql(String sparql, String[] idxVals) throws Exception {
-		String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint") + "/update";
+	private void  runModifySparql(String sparql, String[] idxVals, String dest) throws Exception {
+		String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint") + "/update";
 
 		String madeQl = makeFinal(sparql, idxVals);
 		UpdateRequest ur = UpdateFactory.create(madeQl);
@@ -288,7 +288,6 @@ public  class QueryService extends QueryCommon {
 						 // || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error") 
 						 ) {
 					try {
-
 						// restart fuseki
 						Utils.restartFuseki();
 						
@@ -306,7 +305,22 @@ public  class QueryService extends QueryCommon {
 					}
 				}
 				throw ee;
-			}
+			} // 두번째 try
+		} // 첫번째 try
+		
+		if(dest.equals("DM") || dest.equals("ALL")) {
+			//동일한(delete or insert) sparql를 DM서버에도 수행함(최근값 혹은 추론결과, subscription값등을 등록한다.)
+			log.debug("runModifySparql() on DM server start.................................. ");
+			String madeQl2 = makeFinal(sparql, idxVals);
+			String updateService2 = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint") + "/update";
+			UpdateRequest ur2 = UpdateFactory.create(madeQl2);
+			
+			//log.debug("madeQl2  ============>"+ madeQl2);
+			//log.debug("query  ============>"+ ur2.toString());
+			
+			UpdateProcessor up2 = UpdateExecutionFactory.createRemote(ur2, updateService2);
+			up2.execute();
+			log.debug("runModifySparql() on DM server end.................................. ");
 		}
 	}
 
