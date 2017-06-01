@@ -216,7 +216,7 @@ public class TripleService implements Serializable{
 	public void addLatestContentInstance() throws Exception {
 		// this.getParentResourceUri() 	: http://www.iotoasis.org/herit-in/herit-cse/CAMPUS_HUB01/hub/status
 		// this.getInstanceUri()     			: http://www.iotoasis.org/herit-in/herit-cse/CAMPUS_HUB01/hub/status/CONTENT_INST_1103475
-		// his.getInstanceValue()  			: 35
+		// his.getInstanceValue()  			: 35 or ONSB_Alcohol01_001(00:15:83:00:96:0E), ONSB_Butane01_001(00:15:83:00:43:33)
 
 		// hasLatestContentInstance
 		String deleteql =  ""
@@ -278,13 +278,13 @@ public class TripleService implements Serializable{
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
 				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
 				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" insert data { <@{arg0}> o:hasContentValue <@{arg1}> . }" ;
+				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:double . }" ;
 
 		QueryService sparqlService= new QueryService(new SparqlQueryImpl());
 
-		log.debug("this.getParentResourceUri() ====> "+this.getParentResourceUri());
-		log.debug("this.getInstanceUri() =====>"+this.getInstanceUri());
-		log.debug("this.getInstanceValue() =====>"+this.getInstanceValue());
+		//log.debug("this.getParentResourceUri() ====> "+this.getParentResourceUri());
+		//log.debug("this.getInstanceUri() =====>"+this.getInstanceUri());
+		//log.debug("this.getInstanceValue() =====>"+this.getInstanceValue());
 		
 		// hasLatestContentInstance 생성(DW, DM)
 		sparqlService.updateSparql(deleteql, insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.ALL.toString());
@@ -296,7 +296,13 @@ public class TripleService implements Serializable{
 		sparqlService.updateSparql(delete_ici_ql, insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.DM.toString());
 
 		// DM에 hasContentValue 생성(DM)
-		sparqlService.updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), "\""+this.getInstanceValue()+"\"^^xsd:string"}, Utils.QUERY_DEST.DM.toString());
+		// con에 숫자도 있지만 문자열도 있으므로 숫자 값만 처리함
+		try {
+			Double.parseDouble(this.getInstanceValue());
+			sparqlService.updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
+		} catch (NumberFormatException e) {
+		    // pass
+		}
 	}
 
 	// triple파일 생성(작업시간과 생성시간을 엮어서 만듬)
@@ -304,7 +310,7 @@ public class TripleService implements Serializable{
 		FileWriter fw = null;
 		BufferedWriter bw = null;
 		log.info("makeTripleFile start==========================>");
-		log.debug("makeTripleFile ========triple_path_file=================>" + triple_path_file);
+		log.debug("makeTripleFile ========triple_path_file=================>" + triple_path_file); 
 		try {
 			fw = new FileWriter(triple_path_file);
 			bw = new BufferedWriter(fw);
