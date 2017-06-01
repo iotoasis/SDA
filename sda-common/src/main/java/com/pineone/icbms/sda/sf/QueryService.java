@@ -356,6 +356,36 @@ public  class QueryService extends QueryCommon {
 	
 	public static void main(String[] args) {
 		QueryService sparqlService = new QueryService();
+		
+		
+		//  hasContentValue
+		String delete_val_ql =  ""
+				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "  
+				+" delete  { <@{arg0}> o:hasContentValue ?o . } "
+				+" WHERE   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
+		String insert_val_ql =   ""
+				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" insert data { <@{arg0}> o:hasContentValue @{arg1} . }" ;
+
+		// DM에 hasContentValue 생성(DM)
+		String val = "[HUB_VER: 161205_ONE_M2M_v2.0], [HUB_ID : T1ENG_605_HUB04], [HUB_IP : 192.168.0.33]";
+		//sparqlService.updateSparql(delete_val_ql, insert_val_ql, new String[]{"http://www.aaa.com/aaa", "\""+val+"\"^^xsd:string"}, Utils.QUERY_DEST.DM.toString());
+		
+		
+		String madeQl = "";
+		try { 
+		   madeQl = sparqlService.makeFinal(insert_val_ql, new String[]{"http://www.aaa.com/aaa", "\""+val+"\"^^xsd:string"});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println(madeQl);
+		
+		/*
 		try {
 			System.out.println("now1 ==>" + new Date());
 			System.out.println("result ===>" + sparqlService.makeFinal("aaa @{now+10, second, mmss}", new String[] { "" }));
@@ -364,6 +394,7 @@ public  class QueryService extends QueryCommon {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		*/
 	}
 	
 	// AwareHist에 finish time, work_result, triple_file_name, triple_check_result를 update
