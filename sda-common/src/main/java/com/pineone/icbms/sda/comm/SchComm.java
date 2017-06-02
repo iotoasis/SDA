@@ -20,7 +20,7 @@ public class SchComm {
 
 	private final Log log = LogFactory.getLog(this.getClass());
 
-	// 사용자id(나중에 적절한 값으로 변경해야함)
+	// 사용자id(나중에 적절한 값으로 변경해야합니다.)
 	private final String user_id =this.getClass().getName();
 	
 	// schHist테이블에 데이타 insert
