@@ -154,7 +154,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 					 for(int i = 0; i < data.size(); i++) {
 						 
 						try { 
-							log.debug("raw data : "+data.get(i).toString());
+							//log.debug("raw data : "+data.get(i).toString());
 							
 							eachTriple = tripleService.getTriple(data.get(i).toString());
 						} catch (Exception e) {

@@ -290,6 +290,10 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		return baseuri + this.dto.get_uri();
 	}
 	
+	public String getContent() {
+		return this.content;
+	}
+	
 	public String getParentResourceUri(){
 		
 		return baseuri + Utils.getParentURI(dto.get_uri());
