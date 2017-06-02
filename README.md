@@ -34,9 +34,4 @@
 -- sda-web : RESTFul API및 web서비스등을 제공하기 위한 web 모듈
 <br>
 
-<<<<<<< HEAD
 ## TEST
-=======
-## 싱크 테스트 by 현화
->>>>>>> 1eb5acd181864f5859ec04ec65d41c8de77ce653
-
