@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sf.aware_hist">
+	<insert id="insert" parameterType="com.pineone.icbms.sda.sf.dto.AwareHistDTO">
+		<![CDATA[
+			insert into thsda_context_aware_hist(aware_group_id, cmid, ciid, start_time, work_result, cuser)
+			 values (#{aware_group_id}, #{cmid}, #{ciid}, #{start_time}, #{work_result}, #{cuser})
+		]]>
+	</insert>
+
+
+	<select id="updateFinishTime" parameterType="com.pineone.icbms.sda.sf.dto.AwareHistDTO">
+		<![CDATA[
+			update thsda_context_aware_hist set aware_group_id=#{aware_group_id}, finish_time=#{finish_time}, work_result=#{work_result}, uuser  = #{uuser}, udate = now()
+			 where cmid = #{cmid} and ciid = #{ciid} and start_time = #{start_time}
+		]]>
+	</select>
+</mapper>
+
