@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.itf.cm.dto.CmCiDTO;
+import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 import com.pineone.icbms.sda.itf.cm.service.CmService;
 
 @RestController
@@ -31,6 +32,40 @@ public class CmController {
 
 	@Resource(name = "cmService")
 	private CmService cmService;
+	
+	
+	// http://localhost:8080/sda/itf/CMALL
+	@RequestMapping(value = "/CMALL", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<ResponseMessage> selectCMList(Map<String, Object> commandMap) {
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		Gson gson = new Gson();
+		String contents;
+
+		List<CmDTO> list = new ArrayList<CmDTO>();
+		log.info("/CMALL GET start================>");
+		try {
+			list = cmService.selectCMList(commandMap);
+
+			contents = gson.toJson(list);
+
+			resultMsg.setCode(Utils.OK_CODE);
+			resultMsg.setMessage(Utils.OK_MSG);
+			resultMsg.setContents(contents);
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+
+			responseHeaders.add("ExceptionCause", e.getMessage());
+			responseHeaders.add("ExceptionClass", e.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("/CMALL GET end================>");
+		return entity;
+	}
 
 	// 목록 조회
 	// http://localhost:8080/sda/itf/cm

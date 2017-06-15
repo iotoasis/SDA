@@ -14,5 +14,6 @@ public interface CiService {
 	int update(CiDTO[] ciDTO) throws Exception;
 	int delete(String idx) throws Exception;
 	int delete(CiDTO[] ciDTO) throws Exception;
+	List<CiDTO> selectCIList(Map<String, Object> commandMap) throws Exception;
 
 }

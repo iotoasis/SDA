@@ -13,6 +13,13 @@
 		  order by cmid desc
 		]]>
 	</select>
+	
+	<select id="selectCMList" parameterType="hashmap" resultType="com.pineone.icbms.sda.itf.cm.dto.CmDTO">
+		<![CDATA[
+		SELECT cmid, cmname, execution_type, ifnull(schedule, "NULL") as schedule, ifnull(cm_remarks, "NULL") as cm_remarks, arg_cnt, use_yn, cuser, cdate, uuser, udate, ifnull(create_string, "NULL") as create_string
+FROM tnsda_context_model
+		]]>
+	</select>
 
 	<select id="selectOne" parameterType="hashmap"
 		resultType="com.pineone.icbms.sda.itf.cm.dto.CmCiDTO">

@@ -15,6 +15,7 @@ import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.itf.ci.dao.CiDAO;
 import com.pineone.icbms.sda.itf.cm.dao.CmDAO;
 import com.pineone.icbms.sda.itf.cm.dto.CmCiDTO;
+import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 
 @Service("cmService")
 public class CmServiceImpl implements CmService{ 
@@ -25,6 +26,18 @@ public class CmServiceImpl implements CmService{
 	
 	@Resource(name="ciDAO")
 	private CiDAO ciDAO;
+	
+	public List<CmDTO> selectCMList(Map<String, Object> commandMap) throws Exception {
+		List<CmDTO> list = new ArrayList<CmDTO>();
+		list = cmDAO.selectCMList(commandMap);
+
+		// 데이타가 없으면 오류발생시킴
+		if (list == null || list.size() == 0) {
+			throw new UserDefinedException(HttpStatus.NOT_FOUND);
+		}
+
+		return list ;
+	}
 	
 	// 목록조회
 	public List<CmCiDTO> selectList(Map<String, Object> commandMap) throws Exception {

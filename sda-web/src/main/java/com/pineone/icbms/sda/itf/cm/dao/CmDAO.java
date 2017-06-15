@@ -56,5 +56,10 @@ public class CmDAO extends AbstractDAO{
 		cnt = Integer.parseInt(insert("itf.cm.delete", list).toString());
 		return cnt;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CmDTO> selectCMList(Map<String, Object> commandMap) throws Exception {
+		return (List<CmDTO>)selectList("itf.cm.selectCMList", commandMap);
+	}
 
 }

@@ -1,5 +1,6 @@
 package com.pineone.icbms.sda.itf.ci.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -7,10 +8,13 @@ import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.itf.ci.dao.CiDAO;
 import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
+import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 
 @Service("ciService")
 public class CiServiceImpl implements CiService{ 
@@ -53,6 +57,18 @@ public class CiServiceImpl implements CiService{
 	// 삭제(여러건)
 	public int delete(CiDTO[] ciDTO) throws Exception{
 		return Integer.parseInt(ciDAO.delete("deleteMany", ciDTO).toString());
+	}
+	
+	// CIALL
+	public List<CiDTO> selectCIList(Map<String, Object> commandMap) throws Exception {
+		List<CiDTO> list = new ArrayList<CiDTO>();
+		list = ciDAO.selectCIList(commandMap);
+
+		if (list == null || list.size() == 0) {
+			throw new UserDefinedException(HttpStatus.NOT_FOUND);
+		}
+
+		return list ;
 	}
 
 }
