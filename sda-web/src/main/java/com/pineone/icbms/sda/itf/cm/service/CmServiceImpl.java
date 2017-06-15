@@ -27,11 +27,11 @@ public class CmServiceImpl implements CmService{
 	@Resource(name="ciDAO")
 	private CiDAO ciDAO;
 	
+	// CMALL
 	public List<CmDTO> selectCMList(Map<String, Object> commandMap) throws Exception {
 		List<CmDTO> list = new ArrayList<CmDTO>();
 		list = cmDAO.selectCMList(commandMap);
 
-		// 데이타가 없으면 오류발생시킴
 		if (list == null || list.size() == 0) {
 			throw new UserDefinedException(HttpStatus.NOT_FOUND);
 		}
