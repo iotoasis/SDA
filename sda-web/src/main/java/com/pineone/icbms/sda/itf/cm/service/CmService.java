@@ -9,7 +9,7 @@ import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 
 public interface CmService { 
 
-	public List<CmCiDTO> selectList(Map<String, Object> commandMap) throws Exception;
+	public List<CmCiDTO> selectCmCmiCiList(Map<String, Object> commandMap) throws Exception;
 	public CmCiDTO selectOne(Map<String, Object> commandMap) throws Exception;
 	
 		

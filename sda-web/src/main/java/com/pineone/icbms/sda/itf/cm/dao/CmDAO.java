@@ -13,8 +13,8 @@ import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 @Repository("cmDAO")
 public class CmDAO extends AbstractDAO{
 	@SuppressWarnings("unchecked")
-	public List<CmCiDTO> selectList(Map<String, Object> commandMap) throws Exception{
-		return (List<CmCiDTO>) selectList("itf.cm.selectList", commandMap);
+	public List<CmCiDTO> selectCmCmiCiList(Map<String, Object> commandMap) throws Exception{
+		return (List<CmCiDTO>) selectList("itf.cm.selectCmCmiCiList", commandMap);
 	}
 
 	public CmCiDTO selectOne(Map<String, Object> commandMap) throws Exception{
@@ -25,8 +25,7 @@ public class CmDAO extends AbstractDAO{
 	public List<Map<String, Object>> select(Map<String, Object> commandMap) throws Exception{
 		return (List<Map<String, Object>>)selectList("itf.cm.select",  commandMap);
 	}
-
-	// SO �뒪耳�伊댁뿉�꽌 �궗�슜�맖
+ 
 	@SuppressWarnings("unchecked")
 	public List<CmCiDTO> selectCmCiList(Map<String, Object> commandMap) throws Exception{
 		return (List<CmCiDTO>)selectList("itf.cm.selectCmCiList",  commandMap);

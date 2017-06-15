@@ -40,9 +40,9 @@ public class CmServiceImpl implements CmService{
 	}
 	
 	// 목록조회
-	public List<CmCiDTO> selectList(Map<String, Object> commandMap) throws Exception {
+	public List<CmCiDTO> selectCmCmiCiList(Map<String, Object> commandMap) throws Exception {
 		List<CmCiDTO> list = new ArrayList<CmCiDTO>();
-		list = cmDAO.selectList(commandMap);
+		list = cmDAO.selectCmCmiCiList(commandMap);
 
 		// 데이타가 없으면 오류발생시킴
 		if (list == null || list.size() == 0) {

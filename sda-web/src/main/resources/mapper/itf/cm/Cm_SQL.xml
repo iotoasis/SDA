@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="itf.cm">
-	<select id="selectList" parameterType="hashmap"
+	<select id="selectCmCmiCiList" parameterType="hashmap"
 		resultType="com.pineone.icbms.sda.itf.cm.dto.CmCiDTO">
 		<![CDATA[
 	 select b.tnsda_context_model_cmid, b.tnsda_context_info_ciid, c.cmname, a.ciname, a.conditions, 

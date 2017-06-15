@@ -67,9 +67,9 @@ public class CmController {
 		return entity;
 	}
 
-	// 목록 조회
-	// http://localhost:8080/sda/itf/cm
-	@RequestMapping(value = "/cm", method = RequestMethod.GET)
+	
+	// http://localhost:8080/sda/itf/cmcmici
+	@RequestMapping(value = "/cmcmici", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
@@ -78,9 +78,9 @@ public class CmController {
 		String contents;
 
 		List<CmCiDTO> list = new ArrayList<CmCiDTO>();
-		log.info("/cm GET start================>");
+		log.info("/cmcmici GET start================>");
 		try {
-			list = cmService.selectList(commandMap);
+			list = cmService.selectCmCmiCiList(commandMap);
 
 			contents = gson.toJson(list);
 
@@ -97,7 +97,7 @@ public class CmController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/cm GET end================>");
+		log.info("/cmcmici GET end================>");
 		return entity;
 	}
 
