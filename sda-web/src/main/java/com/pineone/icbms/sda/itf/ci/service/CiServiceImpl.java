@@ -72,5 +72,19 @@ public class CiServiceImpl implements CiService{
 
 		return list ;
 	}
+	
+	// /ci/{ciid}
+		public CiDTO selectOne(Map<String, Object> commandMap) throws Exception{
+			CiDTO ciDTO = new CiDTO();
+			ciDTO = ciDAO.selectOne(commandMap);
+			
+			// 데이타가 없으면 오류발생시킴
+			if (ciDTO == null || ciDTO.getCiid() == null) {
+				throw new UserDefinedException(HttpStatus.NOT_FOUND);
+			}
+
+			return ciDTO ;
+			
+		}
 
 }

@@ -21,4 +21,12 @@
 		FROM tnsda_context_info
 		]]>
 	</select>
+	
+	<select id="selectOne" parameterType="hashmap" resultType="com.pineone.icbms.sda.itf.ci.dto.CiDTO">
+		<![CDATA[
+		SELECT ciid, ciname, ifnull(conditions, "NULL") as conditions, ifnull(domain, "NULL") as domain, sparql, ci_remarks, arg_cnt, use_yn, cuser, cdate, uuser, udate
+		FROM tnsda_context_info
+		WHERE ciid=#{ciid}
+		]]>
+	</select>
 </mapper>

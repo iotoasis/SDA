@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
+import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 
 public interface CiService {
 
@@ -15,5 +16,7 @@ public interface CiService {
 	int delete(String idx) throws Exception;
 	int delete(CiDTO[] ciDTO) throws Exception;
 	List<CiDTO> selectList(Map<String, Object> commandMap) throws Exception;
+	public CiDTO selectOne(Map<String, Object> commandMap) throws Exception;
+
 
 }

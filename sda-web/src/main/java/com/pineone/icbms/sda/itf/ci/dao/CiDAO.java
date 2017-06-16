@@ -28,4 +28,8 @@ public class CiDAO extends AbstractDAO{
 		return (List<CiDTO>)selectList("itf.ci.selectList", commandMap);
 	}
 	
+	public CiDTO selectOne(Map<String, Object> commandMap) throws Exception{
+		return (CiDTO)selectOne("itf.ci.selectOne", commandMap);
+	}
+	
 }
