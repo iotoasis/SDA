@@ -17,8 +17,8 @@ public class CmDAO extends AbstractDAO{
 		return (List<CmCiDTO>) selectList("itf.cm.selectCmCmiCiList", commandMap);
 	}
 
-	public CmCiDTO selectOne(Map<String, Object> commandMap) throws Exception{
-		return (CmCiDTO)selectOne("itf.cm.selectOne", commandMap);
+	public CmCiDTO selectCmCmiCiOne(Map<String, Object> commandMap) throws Exception{
+		return (CmCiDTO)selectOne("itf.cm.selectCmCmiCiOne", commandMap);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -57,8 +57,8 @@ public class CmDAO extends AbstractDAO{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<CmDTO> selectCMList(Map<String, Object> commandMap) throws Exception {
-		return (List<CmDTO>)selectList("itf.cm.selectCMList", commandMap);
+	public List<CmDTO> selectList(Map<String, Object> commandMap) throws Exception {
+		return (List<CmDTO>)selectList("itf.cm.selectList", commandMap);
 	}
 
 }

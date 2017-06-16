@@ -10,11 +10,12 @@ import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 public interface CmService { 
 
 	public List<CmCiDTO> selectCmCmiCiList(Map<String, Object> commandMap) throws Exception;
-	public CmCiDTO selectOne(Map<String, Object> commandMap) throws Exception;
+	public CmCiDTO selectCmCmiCiOne(Map<String, Object> commandMap) throws Exception;
 	
+	public List<CmDTO> selectList(Map<String, Object> commandMap)throws Exception;
 		
 	// SO 스케줄에서 사용됨
 	public List<CmCiDTO> selectCmCiList(Map<String, Object> commandMap) throws Exception;
-	public List<CmDTO> selectCMList(Map<String, Object> commandMap)throws Exception;
+	
 
 }

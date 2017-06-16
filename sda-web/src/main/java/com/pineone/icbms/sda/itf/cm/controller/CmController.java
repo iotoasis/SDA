@@ -34,8 +34,8 @@ public class CmController {
 	private CmService cmService;
 	
 	
-	// http://localhost:8080/sda/itf/CMALL
-	@RequestMapping(value = "/CMALL", method = RequestMethod.GET)
+	// http://localhost:8080/sda/itf/cm/ALL
+	@RequestMapping(value = "/cm/ALL", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectCMList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
@@ -44,9 +44,9 @@ public class CmController {
 		String contents;
 
 		List<CmDTO> list = new ArrayList<CmDTO>();
-		log.info("/CMALL GET start================>");
+		log.info("/cm/ALL GET start================>");
 		try {
-			list = cmService.selectCMList(commandMap);
+			list = cmService.selectList(commandMap);
 
 			contents = gson.toJson(list);
 
@@ -63,14 +63,14 @@ public class CmController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/CMALL GET end================>");
+		log.info("/cm/ALL GET end================>");
 		return entity;
 	}
 
 	
 	// http://localhost:8080/sda/itf/cmcmici
 	@RequestMapping(value = "/cmcmici", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
+	public @ResponseBody ResponseEntity<ResponseMessage> selectCmCmiCiList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -101,9 +101,8 @@ public class CmController {
 		return entity;
 	}
 
-	// 단건 조회
-	// http://localhost:8080/sda/itf/cm/CM-1-1-011
-	@RequestMapping(value = "/cm/{cmid}", method = RequestMethod.GET)
+	// http://localhost:8080/sda/itf/cmcmici/CM-1-1-011
+	@RequestMapping(value = "/cmcmici/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectOne(@PathVariable String cmid) {
 		Map<String, Object> commandMap = new HashMap<String, Object>();
 
@@ -113,12 +112,12 @@ public class CmController {
 		Gson gson = new Gson();
 		String contents;
 
-		log.info("/cm/{cmid} GET start================>");
+		log.info("/cmcmici/{cmid} GET start================>");
 		try {
 			CmCiDTO cmCiDTO = new CmCiDTO();
 			commandMap.put("cmid", cmid);
 
-			cmCiDTO = cmService.selectOne(commandMap);
+			cmCiDTO = cmService.selectCmCmiCiOne(commandMap);
 
 			contents = gson.toJson(cmCiDTO);
 
@@ -135,7 +134,7 @@ public class CmController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/cm/{cmid} GET end================>");
+		log.info("/cmcmici/{cmid} GET end================>");
 		return entity;
 	}
 

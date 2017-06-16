@@ -27,10 +27,10 @@ public class CmServiceImpl implements CmService{
 	@Resource(name="ciDAO")
 	private CiDAO ciDAO;
 	
-	// CMALL
-	public List<CmDTO> selectCMList(Map<String, Object> commandMap) throws Exception {
+	// /cm/ALL
+	public List<CmDTO> selectList(Map<String, Object> commandMap) throws Exception {
 		List<CmDTO> list = new ArrayList<CmDTO>();
-		list = cmDAO.selectCMList(commandMap);
+		list = cmDAO.selectList(commandMap);
 
 		if (list == null || list.size() == 0) {
 			throw new UserDefinedException(HttpStatus.NOT_FOUND);
@@ -53,9 +53,9 @@ public class CmServiceImpl implements CmService{
 	}
 
 	// 한건조회
-	public CmCiDTO selectOne(Map<String, Object> commandMap) throws Exception{
+	public CmCiDTO selectCmCmiCiOne(Map<String, Object> commandMap) throws Exception{
 		CmCiDTO cmCiDTO = new CmCiDTO();
-		cmCiDTO = cmDAO.selectOne(commandMap);
+		cmCiDTO = cmDAO.selectCmCmiCiOne(commandMap);
 		
 		// 데이타가 없으면 오류발생시킴
 		if (cmCiDTO == null || cmCiDTO.getTnsda_context_model_cmid() == null) {
