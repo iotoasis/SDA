@@ -11,6 +11,14 @@
 		FROM tnsda_context_model
 		]]>
 	</select>
+	
+	<select id="selectOne" parameterType="hashmap" resultType="com.pineone.icbms.sda.itf.cm.dto.CmDTO">
+		<![CDATA[
+		SELECT cmid, cmname, execution_type, ifnull(schedule, "NULL") as schedule, ifnull(cm_remarks, "NULL") as cm_remarks, arg_cnt, use_yn, cuser, cdate, uuser, udate
+		FROM tnsda_context_model
+		WHERE cmid=#{cmid}
+		]]>
+	</select>
 
 	<select id="selectCmCmiCiOne" parameterType="hashmap"
 		resultType="com.pineone.icbms.sda.itf.cm.dto.CmCiDTO">

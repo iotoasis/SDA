@@ -60,5 +60,9 @@ public class CmDAO extends AbstractDAO{
 	public List<CmDTO> selectList(Map<String, Object> commandMap) throws Exception {
 		return (List<CmDTO>)selectList("itf.cm.selectList", commandMap);
 	}
+	
+	public CmDTO selectOne(Map<String, Object> commandMap) throws Exception{
+		return (CmDTO)selectOne("itf.cm.selectOne", commandMap);
+	}
 
 }

@@ -39,6 +39,21 @@ public class CmServiceImpl implements CmService{
 		return list ;
 	}
 	
+	// /cm/{cmid}
+	public CmDTO selectOne(Map<String, Object> commandMap) throws Exception{
+		CmDTO cmDTO = new CmDTO();
+		cmDTO = cmDAO.selectOne(commandMap);
+		
+		// 데이타가 없으면 오류발생시킴
+		if (cmDTO == null || cmDTO.getCmid() == null) {
+			throw new UserDefinedException(HttpStatus.NOT_FOUND);
+		}
+
+		return cmDTO ;
+		
+	}
+	
+	
 	// 목록조회
 	public List<CmCiDTO> selectCmCmiCiList(Map<String, Object> commandMap) throws Exception {
 		List<CmCiDTO> list = new ArrayList<CmCiDTO>();

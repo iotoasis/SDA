@@ -36,7 +36,7 @@ public class CmController {
 	
 	// http://localhost:8080/sda/itf/cm/ALL
 	@RequestMapping(value = "/cm/ALL", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> selectCMList(Map<String, Object> commandMap) {
+	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -66,6 +66,45 @@ public class CmController {
 		log.info("/cm/ALL GET end================>");
 		return entity;
 	}
+	
+	// http://localhost:8080/sda/itf/cm/CM-1-1-011
+	@RequestMapping(value = "/cm/{cmid}", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<ResponseMessage> selectOne(@PathVariable String cmid) {
+		Map<String, Object> commandMap = new HashMap<String, Object>();
+
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		Gson gson = new Gson();
+		String contents;
+
+		log.info("/cm/{cmid} GET start================>");
+		try {
+			CmDTO cmDTO = new CmDTO();
+			commandMap.put("cmid", cmid);
+
+			cmDTO = cmService.selectOne(commandMap);
+
+			contents = gson.toJson(cmDTO);
+
+			resultMsg.setCode(Utils.OK_CODE);
+			resultMsg.setMessage(Utils.OK_MSG);
+			resultMsg.setContents(contents);
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+
+			responseHeaders.add("ExceptionCause", e.getMessage());
+			responseHeaders.add("ExceptionClass", e.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("/cm/{cmid} GET end================>");
+		return entity;
+	}
+	
+	
 
 	
 	// http://localhost:8080/sda/itf/cmcmici
@@ -103,7 +142,7 @@ public class CmController {
 
 	// http://localhost:8080/sda/itf/cmcmici/CM-1-1-011
 	@RequestMapping(value = "/cmcmici/{cmid}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> selectOne(@PathVariable String cmid) {
+	public @ResponseBody ResponseEntity<ResponseMessage> selectCmCmiCiOne(@PathVariable String cmid) {
 		Map<String, Object> commandMap = new HashMap<String, Object>();
 
 		ResponseMessage resultMsg = new ResponseMessage();

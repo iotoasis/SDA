@@ -13,6 +13,7 @@ public interface CmService {
 	public CmCiDTO selectCmCmiCiOne(Map<String, Object> commandMap) throws Exception;
 	
 	public List<CmDTO> selectList(Map<String, Object> commandMap)throws Exception;
+	public CmDTO selectOne(Map<String, Object> commandMap) throws Exception;
 		
 	// SO 스케줄에서 사용됨
 	public List<CmCiDTO> selectCmCiList(Map<String, Object> commandMap) throws Exception;
