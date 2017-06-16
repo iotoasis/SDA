@@ -24,8 +24,8 @@ public class CiDAO extends AbstractDAO{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<CiDTO> selectCIList(Map<String, Object> commandMap) throws Exception {
-		return (List<CiDTO>)selectList("itf.ci.selectCIList", commandMap);
+	public List<CiDTO> selectList(Map<String, Object> commandMap) throws Exception {
+		return (List<CiDTO>)selectList("itf.ci.selectList", commandMap);
 	}
 	
 }

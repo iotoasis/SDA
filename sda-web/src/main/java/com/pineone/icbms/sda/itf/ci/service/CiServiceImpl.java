@@ -23,11 +23,13 @@ public class CiServiceImpl implements CiService{
 	@Resource(name="ciDAO")
 	private CiDAO ciDAO; 
 	
+	/*
 	// 목록조회
 	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> selectList(Map<String, Object> map) throws Exception {
 		return ciDAO.selectList("selectList", map);
 	}
+	*/
 	
 	// 헌건조회
 	public CiDTO selectOne(String idx) throws Exception{
@@ -59,10 +61,10 @@ public class CiServiceImpl implements CiService{
 		return Integer.parseInt(ciDAO.delete("deleteMany", ciDTO).toString());
 	}
 	
-	// CIALL
-	public List<CiDTO> selectCIList(Map<String, Object> commandMap) throws Exception {
+	// /ci/ALL
+	public List<CiDTO> selectList(Map<String, Object> commandMap) throws Exception {
 		List<CiDTO> list = new ArrayList<CiDTO>();
-		list = ciDAO.selectCIList(commandMap);
+		list = ciDAO.selectList(commandMap);
 
 		if (list == null || list.size() == 0) {
 			throw new UserDefinedException(HttpStatus.NOT_FOUND);

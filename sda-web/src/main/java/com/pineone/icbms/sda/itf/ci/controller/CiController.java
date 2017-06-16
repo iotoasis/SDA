@@ -34,9 +34,9 @@ public class CiController {
 	@Resource(name = "ciService")
 	private CiService ciService;
 
-	// http://localhost:8080/sda/itf/CIALL
-	@RequestMapping(value = "/CIALL", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> selectCMList(Map<String, Object> commandMap) {
+	// http://localhost:8080/sda/itf/ci/ALL
+	@RequestMapping(value = "/ci/ALL", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -44,9 +44,9 @@ public class CiController {
 		String contents;
 
 		List<CiDTO> list = new ArrayList<CiDTO>();
-		log.info("/CIALL GET start================>");
+		log.info("/ci/ALL GET start================>");
 		try {
-			list = ciService.selectCIList(commandMap);
+			list = ciService.selectList(commandMap);
 
 			contents = gson.toJson(list);
 
@@ -63,10 +63,12 @@ public class CiController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/CIALL GET end================>");
+		log.info("/ci/ALL GET end================>");
 		return entity;
 	}
 
+	
+	/*
 
 	// http://localhost:8080/sda/itf/ci/
 	@RequestMapping(value = "/ci/", method = RequestMethod.GET)
@@ -83,6 +85,8 @@ public class CiController {
 
 		return lists;
 	}
+	
+	*/
 
 	// http://localhost:8080/sda/itf/ci/CQ-1-1-001
 	@RequestMapping(value = "/ci/{idx}", method = RequestMethod.GET)
