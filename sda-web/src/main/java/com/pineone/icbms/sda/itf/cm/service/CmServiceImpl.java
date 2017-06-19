@@ -15,6 +15,7 @@ import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.itf.ci.dao.CiDAO;
 import com.pineone.icbms.sda.itf.cm.dao.CmDAO;
 import com.pineone.icbms.sda.itf.cm.dto.CmCiDTO;
+import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 
 @Service("cmService")
 public class CmServiceImpl implements CmService{ 
@@ -26,10 +27,37 @@ public class CmServiceImpl implements CmService{
 	@Resource(name="ciDAO")
 	private CiDAO ciDAO;
 	
-	// 목록조회
-	public List<CmCiDTO> selectList(Map<String, Object> commandMap) throws Exception {
-		List<CmCiDTO> list = new ArrayList<CmCiDTO>();
+	// /cm/ALL
+	public List<CmDTO> selectList(Map<String, Object> commandMap) throws Exception {
+		List<CmDTO> list = new ArrayList<CmDTO>();
 		list = cmDAO.selectList(commandMap);
+
+		if (list == null || list.size() == 0) {
+			throw new UserDefinedException(HttpStatus.NOT_FOUND);
+		}
+
+		return list ;
+	}
+	
+	// /cm/{cmid}
+	public CmDTO selectOne(Map<String, Object> commandMap) throws Exception{
+		CmDTO cmDTO = new CmDTO();
+		cmDTO = cmDAO.selectOne(commandMap);
+		
+		// 데이타가 없으면 오류발생시킴
+		if (cmDTO == null || cmDTO.getCmid() == null) {
+			throw new UserDefinedException(HttpStatus.NOT_FOUND);
+		}
+
+		return cmDTO ;
+		
+	}
+	
+	
+	// 목록조회
+	public List<CmCiDTO> selectCmCmiCiList(Map<String, Object> commandMap) throws Exception {
+		List<CmCiDTO> list = new ArrayList<CmCiDTO>();
+		list = cmDAO.selectCmCmiCiList(commandMap);
 
 		// 데이타가 없으면 오류발생시킴
 		if (list == null || list.size() == 0) {
@@ -40,9 +68,9 @@ public class CmServiceImpl implements CmService{
 	}
 
 	// 한건조회
-	public CmCiDTO selectOne(Map<String, Object> commandMap) throws Exception{
+	public CmCiDTO selectCmCmiCiOne(Map<String, Object> commandMap) throws Exception{
 		CmCiDTO cmCiDTO = new CmCiDTO();
-		cmCiDTO = cmDAO.selectOne(commandMap);
+		cmCiDTO = cmDAO.selectCmCmiCiOne(commandMap);
 		
 		// 데이타가 없으면 오류발생시킴
 		if (cmCiDTO == null || cmCiDTO.getTnsda_context_model_cmid() == null) {

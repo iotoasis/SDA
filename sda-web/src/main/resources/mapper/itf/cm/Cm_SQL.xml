@@ -2,19 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="itf.cm">
-	<select id="selectList" parameterType="hashmap"
-		resultType="com.pineone.icbms.sda.itf.cm.dto.CmCiDTO">
+	
+	
+	<select id="selectList" parameterType="hashmap" resultType="com.pineone.icbms.sda.itf.cm.dto.CmDTO">
 		<![CDATA[
-	 select b.tnsda_context_model_cmid, b.tnsda_context_info_ciid, c.cmname, a.ciname, a.conditions, 
-				a.domain, a.sparql, a.ci_gubun, a.ci_remarks, c.cm_remarks, a.arg_cnt as ci_arg_cnt, c.arg_cnt as cm_arg_cnt
-		from tnsda_context_info a, tnsda_context_model_info b, tnsda_context_model c
-		where a.ciid=b.tnsda_context_info_ciid and b.use_yn='Y' 
-		    and b.tnsda_context_model_cmid = c.cmid			
-		  order by cmid desc
+		SELECT cmid, cmname, execution_type, ifnull(schedule, "NULL") as schedule, ifnull(cm_remarks, "NULL") as cm_remarks, 
+		arg_cnt, use_yn, cuser, cdate, uuser, udate, ifnull(create_string, "NULL") as create_string
+		FROM tnsda_context_model
+		]]>
+	</select>
+	
+	<select id="selectOne" parameterType="hashmap" resultType="com.pineone.icbms.sda.itf.cm.dto.CmDTO">
+		<![CDATA[
+		SELECT cmid, cmname, execution_type, ifnull(schedule, "NULL") as schedule, ifnull(cm_remarks, "NULL") as cm_remarks, arg_cnt, use_yn, cuser, cdate, uuser, udate
+		FROM tnsda_context_model
+		WHERE cmid=#{cmid}
 		]]>
 	</select>
 
-	<select id="selectOne" parameterType="hashmap"
+	<select id="selectCmCmiCiOne" parameterType="hashmap"
 		resultType="com.pineone.icbms.sda.itf.cm.dto.CmCiDTO">
 		<![CDATA[
 	 select b.tnsda_context_model_cmid, b.tnsda_context_info_ciid, c.cmname, a.ciname, a.conditions, 
@@ -35,6 +41,18 @@
 		where a.use_yn = 'Y' and b.use_yn = 'Y' and c.use_yn = 'Y'  and a.ciid=b.tnsda_context_info_ciid 
 		    and b.tnsda_context_model_cmid=c.cmid and b.tnsda_context_model_cmid=#{cmid}
 		    order by b.ci_seq		    
+		]]>
+	</select>
+	
+	<select id="selectCmCmiCiList" parameterType="hashmap"
+		resultType="com.pineone.icbms.sda.itf.cm.dto.CmCiDTO">
+		<![CDATA[
+	 select b.tnsda_context_model_cmid, b.tnsda_context_info_ciid, c.cmname, a.ciname, a.conditions, 
+				a.domain, a.sparql, a.ci_gubun, a.ci_remarks, c.cm_remarks, a.arg_cnt as ci_arg_cnt, c.arg_cnt as cm_arg_cnt
+		from tnsda_context_info a, tnsda_context_model_info b, tnsda_context_model c
+		where a.ciid=b.tnsda_context_info_ciid and b.use_yn='Y' 
+		    and b.tnsda_context_model_cmid = c.cmid			
+		  order by cmid desc
 		]]>
 	</select>
 

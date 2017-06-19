@@ -62,7 +62,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 		JavaStreamingContext jssc = new JavaStreamingContext(sc, Durations.seconds(10));
 
 		Map<String, String> conf = new HashMap<String, String>();
-				//class name을 user_id, grup_id로 사용함
+				//class name을 user_id, grup_id로 사용합니다.
 				conf.put("zookeeper.connect",Utils.ZOOKEEPER_LIST);
 				conf.put("group.id",group_id);
 				conf.put("zookeeper.session.timeout.ms", "6000");
