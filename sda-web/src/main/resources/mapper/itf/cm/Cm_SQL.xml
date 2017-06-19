@@ -55,5 +55,13 @@
 		  order by cmid desc
 		]]>
 	</select>
+	
+	<update id="deleteCm" parameterType="hashmap">
+		<![CDATA[
+		UPDATE tnsda_context_model SET use_yn="N" 
+		WHERE cmid=#{cmid}
+		AND use_yn="Y"
+		]]>
+	</update>
 
 </mapper>

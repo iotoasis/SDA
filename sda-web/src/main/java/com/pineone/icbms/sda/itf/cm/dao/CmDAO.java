@@ -40,20 +40,24 @@ public class CmDAO extends AbstractDAO{
 		return cnt;
 	}
 	
-	@SuppressWarnings("unchecked") 
-	public int update(Map<String, Object> map) throws Exception{
-		int cnt = 0; 
-		List<CmDTO> list = (ArrayList<CmDTO>)map.get("list");
-		cnt = Integer.parseInt(insert("itf.cm.update", list).toString());
-		return cnt;
-	}
+//	@SuppressWarnings("unchecked") 
+//	public int update(Map<String, Object> map) throws Exception{
+//		int cnt = 0; 
+//		List<CmDTO> list = (ArrayList<CmDTO>)map.get("list");
+//		cnt = Integer.parseInt(insert("itf.cm.update", list).toString());
+//		return cnt;
+//	}
 
-	@SuppressWarnings("unchecked") 
-	public int delete(Map<String, Object> map) throws Exception{
-		int cnt = 0; 
-		List<CmDTO> list = (ArrayList<CmDTO>)map.get("list");
-		cnt = Integer.parseInt(insert("itf.cm.delete", list).toString());
-		return cnt;
+//	@SuppressWarnings("unchecked") 
+//	public int delete(Map<String, Object> map) throws Exception{
+//		int cnt = 0; 
+//		List<CmDTO> list = (ArrayList<CmDTO>)map.get("list");
+//		cnt = Integer.parseInt(insert("itf.cm.delete", list).toString());
+//		return cnt;
+//	}
+	
+	public int delete(Map<String, Object> commandMap) throws Exception {
+		return Integer.parseInt( (String) delete("itf.cm.deleteCm", commandMap));
 	}
 	
 	@SuppressWarnings("unchecked")

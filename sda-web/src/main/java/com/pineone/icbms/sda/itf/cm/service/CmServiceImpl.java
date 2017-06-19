@@ -86,4 +86,12 @@ public class CmServiceImpl implements CmService{
 		return cmDAO.selectCmCiList(commandMap);
 	}
 
+	public int delete(Map<String, Object> map) throws Exception {
+		return Integer.parseInt(ciDAO.update("deleteCm", map).toString());
+	}
+	
+	public int update(String cmid) throws Exception{
+		return Integer.parseInt(cmDAO.update("update", cmid).toString());
+	}
+
 }
