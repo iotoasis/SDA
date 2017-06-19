@@ -51,13 +51,14 @@ public class CiServiceImpl implements CiService{
 		return Integer.parseInt(ciDAO.update("updateMany", ciDTO).toString());
 	}
 	
-//	// 삭제(단건)
-//	public int delete(String ciid) throws Exception{
-//		return Integer.parseInt(ciDAO.delete("delete", ciid).toString());
-//	}
+	// 삭제(단건)
+	public int delete(String ciid) throws Exception{
+		return Integer.parseInt(ciDAO.delete("delete", ciid).toString());
+	}
 	
+	// DELETE, use_yn을 'N'으로 변경
 	public int delete(Map<String, Object> map) throws Exception {
-		return Integer.parseInt(ciDAO.update("delete", map).toString());
+		return Integer.parseInt(ciDAO.update("deleteCi", map).toString());
 	}
 
 	// 삭제(여러건)

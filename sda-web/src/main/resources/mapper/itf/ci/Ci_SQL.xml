@@ -30,7 +30,7 @@
 		]]>
 	</select>
 	
-	<update id="delete" parameterType="hashmap">
+	<update id="deleteCi" parameterType="hashmap">
 		<![CDATA[
 		UPDATE tnsda_context_info SET use_yn="N" 
 		WHERE ciid=#{ciid}
