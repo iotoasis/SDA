@@ -29,4 +29,12 @@
 		WHERE ciid=#{ciid}
 		]]>
 	</select>
+	
+	<update id="delete" parameterType="hashmap">
+		<![CDATA[
+		UPDATE tnsda_context_info SET use_yn="N" 
+		WHERE ciid=#{ciid}
+		AND use_yn="Y"
+		]]>
+	</update>
 </mapper>

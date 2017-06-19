@@ -32,4 +32,10 @@ public class CiDAO extends AbstractDAO{
 		return (CiDTO)selectOne("itf.ci.selectOne", commandMap);
 	}
 	
+	public int delete(Map<String, Object> commandMap) throws Exception {
+		return Integer.parseInt( (String) delete("itf.ci.delete", commandMap));
+	}
+	
+	
+	
 }

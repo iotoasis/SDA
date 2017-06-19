@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
+import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
 import com.pineone.icbms.sda.itf.ci.service.CiService;
@@ -104,7 +105,45 @@ public class CiController {
 		return entity;
 	}
 	
-	/* 기
+	// http://localhost:8080/sda/itf/ci/CQ-1-1-001
+	@RequestMapping(value = "/ci/{ciid}", method = RequestMethod.DELETE)
+	public  @ResponseBody ResponseEntity<ResponseMessage> delete(@PathVariable String ciid) {
+		int rtn_cnt = 0;
+		
+		Map<String, Object> commandMap = new HashMap<String, Object>();
+
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		log.info("/ci/{ciid} DELETE start================>");
+		try {
+			commandMap.put("ciid", ciid);
+
+			rtn_cnt = ciService.delete(commandMap);
+			
+			if(rtn_cnt==1) {
+				entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+				resultMsg.setCode(Utils.OK_CODE);
+				resultMsg.setMessage(Utils.OK_MSG);
+			} else {		
+				throw new UserDefinedException(HttpStatus.NOT_FOUND, "NOT_FOUND");
+			}
+			resultMsg.setContents("");				
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+
+			responseHeaders.add("ExceptionCause", e.getMessage());
+			responseHeaders.add("ExceptionClass", e.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("/ci/{ciid} DELETE end================>");
+		return entity;
+	}
+	
+	/* 기존
 
 	// http://localhost:8080/sda/itf/ci/
 	@RequestMapping(value = "/ci/", method = RequestMethod.GET)
@@ -166,16 +205,6 @@ public class CiController {
 		return rtn_cnt;
 	}
 
-	// http://localhost:8080/sda/itf/ci/CQ-1-1-001
-	@RequestMapping(value = "/ci/{idx}", method = RequestMethod.DELETE)
-	public int delete(@PathVariable String idx) {
-		int rtn_cnt = 0;
-		try {
-			rtn_cnt = ciService.delete(idx);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return rtn_cnt;
-	}
+
 
 }
