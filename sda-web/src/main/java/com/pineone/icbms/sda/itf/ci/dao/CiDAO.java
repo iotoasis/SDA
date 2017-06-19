@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.pineone.icbms.sda.sch.comm.dao.AbstractDAO;
 import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
+import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 
 @Repository("ciDAO")
 public class CiDAO extends AbstractDAO{
@@ -20,6 +21,15 @@ public class CiDAO extends AbstractDAO{
 		List<CiDTO> ciDTO = new ArrayList<CiDTO>();
 		ciDTO = selectList("itf.ci.selectSparqlListByCiids", ciids);
 		return ciDTO;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CiDTO> selectList(Map<String, Object> commandMap) throws Exception {
+		return (List<CiDTO>)selectList("itf.ci.selectList", commandMap);
+	}
+	
+	public CiDTO selectOne(Map<String, Object> commandMap) throws Exception{
+		return (CiDTO)selectOne("itf.ci.selectOne", commandMap);
 	}
 	
 }

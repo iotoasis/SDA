@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.itf.cm.dto.CmCiDTO;
+import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 import com.pineone.icbms.sda.itf.cm.service.CmService;
 
 @RestController
@@ -31,10 +32,10 @@ public class CmController {
 
 	@Resource(name = "cmService")
 	private CmService cmService;
-
-	// 목록 조회
-	// http://localhost:8080/sda/itf/cm
-	@RequestMapping(value = "/cm", method = RequestMethod.GET)
+	
+	
+	// http://localhost:8080/sda/itf/cm/ALL
+	@RequestMapping(value = "/cm/ALL", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
@@ -42,8 +43,8 @@ public class CmController {
 		Gson gson = new Gson();
 		String contents;
 
-		List<CmCiDTO> list = new ArrayList<CmCiDTO>();
-		log.info("/cm GET start================>");
+		List<CmDTO> list = new ArrayList<CmDTO>();
+		log.info("/cm/ALL GET start================>");
 		try {
 			list = cmService.selectList(commandMap);
 
@@ -62,11 +63,10 @@ public class CmController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/cm GET end================>");
+		log.info("/cm/ALL GET end================>");
 		return entity;
 	}
-
-	// 단건 조회
+	
 	// http://localhost:8080/sda/itf/cm/CM-1-1-011
 	@RequestMapping(value = "/cm/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectOne(@PathVariable String cmid) {
@@ -80,10 +80,83 @@ public class CmController {
 
 		log.info("/cm/{cmid} GET start================>");
 		try {
+			CmDTO cmDTO = new CmDTO();
+			commandMap.put("cmid", cmid);
+
+			cmDTO = cmService.selectOne(commandMap);
+
+			contents = gson.toJson(cmDTO);
+
+			resultMsg.setCode(Utils.OK_CODE);
+			resultMsg.setMessage(Utils.OK_MSG);
+			resultMsg.setContents(contents);
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+
+			responseHeaders.add("ExceptionCause", e.getMessage());
+			responseHeaders.add("ExceptionClass", e.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("/cm/{cmid} GET end================>");
+		return entity;
+	}
+	
+	
+
+	
+	// http://localhost:8080/sda/itf/cmcmici
+	@RequestMapping(value = "/cmcmici", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<ResponseMessage> selectCmCmiCiList(Map<String, Object> commandMap) {
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		Gson gson = new Gson();
+		String contents;
+
+		List<CmCiDTO> list = new ArrayList<CmCiDTO>();
+		log.info("/cmcmici GET start================>");
+		try {
+			list = cmService.selectCmCmiCiList(commandMap);
+
+			contents = gson.toJson(list);
+
+			resultMsg.setCode(Utils.OK_CODE);
+			resultMsg.setMessage(Utils.OK_MSG);
+			resultMsg.setContents(contents);
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+
+			responseHeaders.add("ExceptionCause", e.getMessage());
+			responseHeaders.add("ExceptionClass", e.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("/cmcmici GET end================>");
+		return entity;
+	}
+
+	// http://localhost:8080/sda/itf/cmcmici/CM-1-1-011
+	@RequestMapping(value = "/cmcmici/{cmid}", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<ResponseMessage> selectCmCmiCiOne(@PathVariable String cmid) {
+		Map<String, Object> commandMap = new HashMap<String, Object>();
+
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		Gson gson = new Gson();
+		String contents;
+
+		log.info("/cmcmici/{cmid} GET start================>");
+		try {
 			CmCiDTO cmCiDTO = new CmCiDTO();
 			commandMap.put("cmid", cmid);
 
-			cmCiDTO = cmService.selectOne(commandMap);
+			cmCiDTO = cmService.selectCmCmiCiOne(commandMap);
 
 			contents = gson.toJson(cmCiDTO);
 
@@ -100,7 +173,7 @@ public class CmController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/cm/{cmid} GET end================>");
+		log.info("/cmcmici/{cmid} GET end================>");
 		return entity;
 	}
 
