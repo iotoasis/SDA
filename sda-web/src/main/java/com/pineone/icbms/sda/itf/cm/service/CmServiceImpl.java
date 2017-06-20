@@ -87,7 +87,7 @@ public class CmServiceImpl implements CmService{
 	}
 
 	public int delete(Map<String, Object> map) throws Exception {
-		return Integer.parseInt(ciDAO.update("deleteCm", map).toString());
+		return Integer.parseInt(cmDAO.update("itf.cm.delete", map).toString());
 	}
 	
 	public int update(String cmid) throws Exception{

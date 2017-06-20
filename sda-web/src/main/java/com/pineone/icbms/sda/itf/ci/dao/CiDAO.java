@@ -33,7 +33,7 @@ public class CiDAO extends AbstractDAO{
 	}
 	
 	public int delete(Map<String, Object> commandMap) throws Exception {
-		return Integer.parseInt( (String) delete("itf.ci.delete", commandMap));
+		return Integer.parseInt( (String) update("itf.ci.delete", commandMap));
 	}
 	
 	

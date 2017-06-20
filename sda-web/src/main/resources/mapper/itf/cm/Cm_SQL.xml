@@ -56,7 +56,7 @@
 		]]>
 	</select>
 	
-	<update id="deleteCm" parameterType="hashmap">
+	<update id="delete" parameterType="hashmap">
 		<![CDATA[
 		UPDATE tnsda_context_model SET use_yn="N" 
 		WHERE cmid=#{cmid}

@@ -57,7 +57,7 @@ public class CmDAO extends AbstractDAO{
 //	}
 	
 	public int delete(Map<String, Object> commandMap) throws Exception {
-		return Integer.parseInt( (String) delete("itf.cm.deleteCm", commandMap));
+		return Integer.parseInt( (String) update("itf.cm.delete", commandMap));
 	}
 	
 	@SuppressWarnings("unchecked")

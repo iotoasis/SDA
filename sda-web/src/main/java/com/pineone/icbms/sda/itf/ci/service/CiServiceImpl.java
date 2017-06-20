@@ -58,7 +58,7 @@ public class CiServiceImpl implements CiService{
 	
 	// DELETE, use_yn을 'N'으로 변경
 	public int delete(Map<String, Object> map) throws Exception {
-		return Integer.parseInt(ciDAO.update("deleteCi", map).toString());
+		return Integer.parseInt(ciDAO.update("itf.ci.delete", map).toString());
 	}
 
 	// 삭제(여러건)
