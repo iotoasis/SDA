@@ -42,8 +42,8 @@ public class CiServiceImpl implements CiService{
 	}
 
 	// 수정(단건)
-	public int update(String idx) throws Exception{
-		return Integer.parseInt(ciDAO.update("update", idx).toString());
+	public int update(String ciid) throws Exception{
+		return Integer.parseInt(ciDAO.update("update", ciid).toString());
 	}
 
 	// 수정(여러건)
@@ -52,8 +52,13 @@ public class CiServiceImpl implements CiService{
 	}
 	
 	// 삭제(단건)
-	public int delete(String idx) throws Exception{
-		return Integer.parseInt(ciDAO.delete("delete", idx).toString());
+	public int delete(String ciid) throws Exception{
+		return Integer.parseInt(ciDAO.delete("delete", ciid).toString());
+	}
+	
+	// DELETE, use_yn을 'N'으로 변경
+	public int delete(Map<String, Object> map) throws Exception {
+		return Integer.parseInt(ciDAO.update("itf.ci.delete", map).toString());
 	}
 
 	// 삭제(여러건)

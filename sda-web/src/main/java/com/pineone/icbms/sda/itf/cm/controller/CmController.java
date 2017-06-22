@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
+import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.itf.cm.dto.CmCiDTO;
 import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
@@ -174,6 +175,44 @@ public class CmController {
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
 		log.info("/cmcmici/{cmid} GET end================>");
+		return entity;
+	}
+	
+	// http://localhost:8080/sda/itf/cm/CQ-1-1-001
+	@RequestMapping(value = "/cm/{cmid}", method = RequestMethod.DELETE)
+	public  @ResponseBody ResponseEntity<ResponseMessage> delete(@PathVariable String cmid) {
+		int rtn_cnt = 0;
+		
+		Map<String, Object> commandMap = new HashMap<String, Object>();
+
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		log.info("/cm/{cmid} DELETE start================>");
+		try {
+			commandMap.put("cmid", cmid);
+
+			rtn_cnt = cmService.delete(commandMap);
+			
+			if(rtn_cnt==1) {
+				entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+				resultMsg.setCode(Utils.OK_CODE);
+				resultMsg.setMessage(Utils.OK_MSG);
+			} else {		
+				throw new UserDefinedException(HttpStatus.NOT_FOUND, "NOT_FOUND");
+			}
+			resultMsg.setContents("");				
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+
+			responseHeaders.add("ExceptionCause", e.getMessage());
+			responseHeaders.add("ExceptionClass", e.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("/cm/{cmid} DELETE end================>");
 		return entity;
 	}
 

@@ -11,9 +11,9 @@ public interface CiService {
 //	List<Map<String, Object>> selectList(Map<String, Object> map) throws Exception;
 	CiDTO selectOne(String idx) throws Exception;
 	int insert(Map<String, Object> map) throws Exception;
-	int update(String idx) throws Exception;
+	int update(String ciid) throws Exception;
 	int update(CiDTO[] ciDTO) throws Exception;
-	int delete(String idx) throws Exception;
+	int delete(Map<String, Object> map) throws Exception;
 	int delete(CiDTO[] ciDTO) throws Exception;
 	List<CiDTO> selectList(Map<String, Object> commandMap) throws Exception;
 	public CiDTO selectOne(Map<String, Object> commandMap) throws Exception;
