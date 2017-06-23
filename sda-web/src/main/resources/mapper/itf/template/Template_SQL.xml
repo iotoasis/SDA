@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="itf.template">
+	
+	
+	<select id="selectList" parameterType="hashmap" resultType="com.pineone.icbms.sda.itf.template.dto.TemplateDTO">
+		<![CDATA[
+		SELECT tmid, tmname, tm_remarks, tm_query, use_yn, 
+		cuser, cdate, uuser, udate, arg_cnt
+		FROM tnsda_template
+		]]>
+	</select>
+	
+	<select id="selectOne" parameterType="hashmap" resultType="com.pineone.icbms.sda.itf.template.dto.TemplateDTO">
+		<![CDATA[
+		SELECT tmid, tmname, tm_remarks, tm_query, use_yn,
+		cuser, cdate, uuser, udate, arg_cnt
+		FROM tnsda_template 
+		WHERE tmid=#{tmid}
+		]]>
+	</select>
+	
+
+</mapper>
