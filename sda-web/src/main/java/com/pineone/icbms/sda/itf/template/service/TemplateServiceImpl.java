@@ -47,6 +47,10 @@ public class TemplateServiceImpl implements TemplateService {
 		
 	}
 	
+	public int checkId(String tmid) throws Exception {
+		return templateDAO.checkId(tmid);
+	}
+	
 	
 
 }

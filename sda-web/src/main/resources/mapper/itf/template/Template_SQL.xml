@@ -21,5 +21,11 @@
 		]]>
 	</select>
 	
+	<select id="checkId" parameterType="String" resultType="int">
+		<![CDATA[
+		SELECT COUNT(*) FROM tnsda_template WHERE tmid LIKE #{tmid};
+		]]>
+	</select>
+
 
 </mapper>

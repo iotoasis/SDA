@@ -32,15 +32,15 @@ public class CiServiceImpl implements CiService{
 	*/
 	
 	// 헌건조회
-	public CiDTO selectOne(String idx) throws Exception{
-		return (CiDTO)ciDAO.selectOne("selectOne", idx);
+	public String selectOne(String ciid) throws Exception{
+		return ciDAO.selectOne("itf.ci.selectCiid", ciid).toString();
 	}
 	
 	// 저장
 	public int insert(Map<String, Object> map) throws Exception{
-		return Integer.parseInt(ciDAO.insert("insert", map).toString());
+		return Integer.parseInt(ciDAO.insert("itf.ci.insert", map).toString());
 	}
-
+	
 	// 수정(단건)
 	public int update(String ciid) throws Exception{
 		return Integer.parseInt(ciDAO.update("update", ciid).toString());
@@ -91,5 +91,15 @@ public class CiServiceImpl implements CiService{
 			return ciDTO ;
 			
 		}
+		
+		public int insert(CiDTO ciDTO) throws Exception {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+		
+		public int checkId(String ciid) throws Exception {
+			return ciDAO.checkId(ciid);
+		}
+
 
 }

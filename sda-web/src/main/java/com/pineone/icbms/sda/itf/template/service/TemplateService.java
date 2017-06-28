@@ -10,6 +10,7 @@ public interface TemplateService {
 	
 	public List<TemplateDTO> selectList(Map<String, Object> commandMap)throws Exception;
 	public TemplateDTO selectOne(Map<String, Object> commandMap) throws Exception;
+	int checkId(String tmid) throws Exception;
 
 
 }

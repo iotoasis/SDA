@@ -36,6 +36,9 @@ public class CiDAO extends AbstractDAO{
 		return Integer.parseInt( (String) update("itf.ci.delete", commandMap));
 	}
 	
+	public int checkId(String ciid) throws Exception {
+		return Integer.parseInt(selectOne("itf.ci.checkId", ciid).toString());
+	}
 	
 	
 }

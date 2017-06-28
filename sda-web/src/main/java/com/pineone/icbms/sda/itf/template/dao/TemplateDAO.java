@@ -19,5 +19,9 @@ public class TemplateDAO extends AbstractDAO {
 	public TemplateDTO selectOne(Map<String, Object> commandMap) throws Exception{
 		return (TemplateDTO)selectOne("itf.template.selectOne", commandMap);
 	}
+	
+	public int checkId(String tmid) throws Exception {
+		return Integer.parseInt(selectOne("itf.template.checkId", tmid).toString());
+	}
 
 }
