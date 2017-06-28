@@ -260,7 +260,7 @@ public class CiController {
 								resultMsg.setContents("");
 								entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
 							} else {
-								throw new UserDefinedException(HttpStatus.BAD_REQUEST, "INSERTED_FAILED");
+								throw new UserDefinedException(HttpStatus.BAD_REQUEST, "INSERT_FAILED");
 							}
 						} else {
 							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "TEMPLATE_PARAMETER_COUNT_MISMATCHED");
