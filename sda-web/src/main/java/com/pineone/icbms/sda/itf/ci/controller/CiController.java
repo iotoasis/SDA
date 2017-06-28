@@ -260,7 +260,7 @@ public class CiController {
 								resultMsg.setContents("");
 								entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
 							} else {
-								throw new UserDefinedException(HttpStatus.BAD_REQUEST, "TOO_MANY_ROWS_INSERTED");
+								throw new UserDefinedException(HttpStatus.BAD_REQUEST, "INSERTED_FAILED");
 							}
 						} else {
 							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "TEMPLATE_PARAMETER_COUNT_MISMATCHED");
