@@ -260,16 +260,16 @@ public class CiController {
 								resultMsg.setContents("");
 								entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
 							} else {
-								throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Too many rows inserted");
+								throw new UserDefinedException(HttpStatus.BAD_REQUEST, "TOO_MANY_ROWS_INSERTED");
 							}
 						} else {
-							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Template parameter count MISMATCHED");
+							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "TEMPLATE_PARAMETER_COUNT_MISMATCHED");
 						}
 					} else {
-						throw new UserDefinedException(HttpStatus.NOT_FOUND, "Template ID NOT_FOUND");
+						throw new UserDefinedException(HttpStatus.NOT_FOUND, "TEMPLATE_ID_NOT_FOUND");
 					}
 				} else {
-					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Argument count MISMATCHED");
+					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "ARGUMENT_COUNT_MISMATCHED");
 				}
 			} else {
 				throw new UserDefinedException(HttpStatus.CONFLICT, "ID_DUPLICATED");
