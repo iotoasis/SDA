@@ -13,6 +13,7 @@ public interface CiService {
 	int insert(Map<String, Object> map) throws Exception;
 	int update(String ciid) throws Exception;
 	int update(CiDTO[] ciDTO) throws Exception;
+	int update(Map<String, Object> map) throws Exception;
 	int delete(Map<String, Object> map) throws Exception;
 	int delete(CiDTO[] ciDTO) throws Exception;
 	List<CiDTO> selectList(Map<String, Object> commandMap) throws Exception;

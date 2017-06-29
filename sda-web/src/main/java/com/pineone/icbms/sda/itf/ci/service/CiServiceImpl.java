@@ -79,27 +79,24 @@ public class CiServiceImpl implements CiService{
 	}
 	
 	// /ci/{ciid}
-		public CiDTO selectOne(Map<String, Object> commandMap) throws Exception{
-			CiDTO ciDTO = new CiDTO();
-			ciDTO = ciDAO.selectOne(commandMap);
+	public CiDTO selectOne(Map<String, Object> commandMap) throws Exception{
+		CiDTO ciDTO = new CiDTO();
+		ciDTO = ciDAO.selectOne(commandMap);
 			
-			// 데이타가 없으면 오류발생시킴
-			if (ciDTO == null || ciDTO.getCiid() == null) {
-				throw new UserDefinedException(HttpStatus.NOT_FOUND);
-			}
-
-			return ciDTO ;
+		// 데이타가 없으면 오류발생시킴
+		if (ciDTO == null || ciDTO.getCiid() == null) {
+			throw new UserDefinedException(HttpStatus.NOT_FOUND);
+		}
+		return ciDTO ;
 			
-		}
+	}
 		
-		public int insert(CiDTO ciDTO) throws Exception {
-			// TODO Auto-generated method stub
-			return 0;
-		}
+	public int checkId(String ciid) throws Exception {
+		return ciDAO.checkId(ciid);
+	}
 		
-		public int checkId(String ciid) throws Exception {
-			return ciDAO.checkId(ciid);
-		}
-
+	public int update(Map<String, Object> commandMap) throws Exception {
+		return Integer.parseInt(ciDAO.update("itf.ci.update", commandMap).toString());	
+	}
 
 }

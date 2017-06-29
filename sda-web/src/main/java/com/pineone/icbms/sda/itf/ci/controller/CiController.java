@@ -288,6 +288,110 @@ public class CiController {
 		return entity;
 	}
 	
+	// http://localhost:8080/sda/itf/ci
+	@RequestMapping(value = "/ci", method = RequestMethod.PUT)
+	public @ResponseBody ResponseEntity<ResponseMessage> update(@RequestBody TemplateReqDTO tempReqDTO) {
+		
+		int rtn_cnt = 0;
+		Map<String, Object> commandMap = new HashMap<String, Object>();
+		
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		log.info("/itf/ci PUT test start================>");
+		try {
+			String ciid = tempReqDTO.getCiid();
+			commandMap.put("ciid", ciid);
+				
+			// id 존재여부 확인 후 select_list 개수와 select_cnt 값 일치 확인
+			if(ciService.checkId(ciid) != 0) {
+				String select_list = tempReqDTO.getSelect_list();
+				String[] strArr;
+				strArr = select_list.split(",");
+				
+				List<String> match = new ArrayList<String>();
+				
+				for(int i=0; i<strArr.length; i++) {
+					strArr[i] = strArr[i].trim();
+				}
+				if(strArr.length == tempReqDTO.getSelect_cnt()) {
+					commandMap.clear();
+					commandMap.put("tmid", tempReqDTO.getTmid());
+					
+					int checkTemplate = templateService.checkId(tempReqDTO.getTmid());
+					
+					if(checkTemplate != 0) {
+						TemplateDTO templateDTO = templateService.selectOne(commandMap);
+						if(templateDTO.getArg_cnt() == tempReqDTO.getSelect_cnt()) {
+							String tmQuery = templateDTO.getTm_query();
+							
+							Pattern pattern = Pattern.compile("(@\\{srg)([0-9])+\\}");
+							Matcher matcher = pattern.matcher(tmQuery);							
+							StringBuffer replacedString = new StringBuffer();
+							
+							for(int i = 0; i<strArr.length; i++){					
+								matcher.find();
+								match.add(matcher.group());
+								matcher.appendReplacement(replacedString, "?"+strArr[Integer.parseInt(matcher.group(2))]);
+				
+							}
+							matcher.appendTail(replacedString);
+							
+							String resultTmQuery = replacedString.toString();
+							
+							commandMap.clear();
+							CiDTO ciDTO = new CiDTO();
+							ciDTO.setCiid(tempReqDTO.getCiid());
+							ciDTO.setCiname(tempReqDTO.getCiname());
+							ciDTO.setConditions(tempReqDTO.getConditions().toString());
+							ciDTO.setDomain(tempReqDTO.getDomain());
+							ciDTO.setSparql(resultTmQuery);
+							ciDTO.setCi_remarks(tempReqDTO.getCi_remarks());
+							ciDTO.setArg_cnt(templateDTO.getArg_cnt());
+							
+							commandMap.put("ci", ciDTO);
+							rtn_cnt = ciService.update(commandMap);
+
+							if(rtn_cnt==1) {
+								resultMsg.setCode(Utils.OK_CODE);
+								resultMsg.setMessage(Utils.OK_MSG);
+								resultMsg.setContents("");
+								entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+							} else {
+								throw new UserDefinedException(HttpStatus.BAD_REQUEST, "UPDATE_FAILED");
+							}
+						} else {
+							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "TEMPLATE_PARAMETER_COUNT_MISMATCHED");
+						}
+					} else {
+						throw new UserDefinedException(HttpStatus.NOT_FOUND, "TEMPLATE_ID_NOT_FOUND");
+					}
+				} else {
+					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "ARGUMENT_COUNT_MISMATCHED");
+				}
+			} else {
+				throw new UserDefinedException(HttpStatus.NOT_FOUND, "ID_NOT_FOUND");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+
+			responseHeaders.add("ExceptionCause", e.getMessage());
+			responseHeaders.add("ExceptionClass", e.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("/itf/ci PUT test end================>");
+		return entity;
+	}
+	
+	
+	
+	
+	
+	
 
 	// http://localhost:8080/sda/itf/ci/
 	// [{"parent_idx":5000, "title":"title5000", "contents":"5000", "hit_cnt":0,
