@@ -2,4 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="itf.cmi">
+	<insert id="insert" parameterType="hashmap">
+		<![CDATA[
+		INSERT INTO tnsda_context_model_info
+		VALUES (#{cmi.tnsda_context_model_cmid}, #{cmi.tnsda_context_info_ciid}, "Y", "admin", now(), "admin", now(), #{cmi.ci_seq}); 
+		]]>
+	</insert>
 </mapper>
