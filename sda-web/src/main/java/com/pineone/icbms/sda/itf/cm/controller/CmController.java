@@ -288,7 +288,19 @@ public class CmController {
 							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "CI_ARGUMENT_COUNT_MISMATCHED");
 					}			
 				}
-			
+				
+				CmDTO cmDTO = new CmDTO();
+				
+				cmDTO.setCmid(cmReqDTO.getCmid());
+				cmDTO.setCmname(cmReqDTO.getCmname());
+				cmDTO.setExecution_type(cmReqDTO.getExecution_type());
+				cmDTO.setCm_remarks(cmReqDTO.getCm_remarks());
+				cmDTO.setArg_cnt(Integer.parseInt(ciMap.get(strArr[0]).toString()));
+				
+				commandMap.clear();
+				commandMap.put("cm", cmDTO);
+				cm_rtn_cnt = cmService.insert(commandMap);
+				
 				CmiDTO cmiDTO = new CmiDTO();
 				
 				for(int i=0; i<strArr.length; i++) {
@@ -302,18 +314,6 @@ public class CmController {
 						throw new UserDefinedException(HttpStatus.BAD_REQUEST, "CMI_INSERT_FAILED");
 					}
 				}
-				
-				CmDTO cmDTO = new CmDTO();
-				
-				cmDTO.setCmid(cmReqDTO.getCmid());
-				cmDTO.setCmname(cmReqDTO.getCmname());
-				cmDTO.setExecution_type(cmReqDTO.getExecution_type());
-				cmDTO.setCm_remarks(cmReqDTO.getCm_remarks());
-				cmDTO.setArg_cnt(Integer.parseInt(ciMap.get(strArr[0]).toString()));
-				
-				commandMap.clear();
-				commandMap.put("cm", cmDTO);
-				cm_rtn_cnt = cmService.insert(commandMap);
 				
 				if(cm_rtn_cnt==1 ) {
 					resultMsg.setCode(Utils.OK_CODE);
