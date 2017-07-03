@@ -200,7 +200,7 @@ public class CiController {
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
 
-		log.info("/itf/ci POST test start================>");
+		log.info("/itf/ci POST start================>");
 		try {
 			String ciid = tempReqDTO.getCiid();
 			commandMap.put("ciid", ciid);
@@ -284,7 +284,7 @@ public class CiController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/itf/ci POST test end================>");
+		log.info("/itf/ci POST end================>");
 		return entity;
 	}
 	
@@ -299,7 +299,7 @@ public class CiController {
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
 
-		log.info("/itf/ci PUT test start================>");
+		log.info("/itf/ci PUT start================>");
 		try {
 			String ciid = tempReqDTO.getCiid();
 			commandMap.put("ciid", ciid);
@@ -383,7 +383,7 @@ public class CiController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/itf/ci PUT test end================>");
+		log.info("/itf/ci PUT end================>");
 		return entity;
 	}
 	
