@@ -21,6 +21,8 @@ public interface CmService {
 	int checkId(String cmid) throws Exception;
 	
 	int insert(Map<String, Object> map) throws Exception;
+	int update(Map<String, Object> map) throws Exception;
+
 
 	
 	// SO 스케줄에서 사용됨

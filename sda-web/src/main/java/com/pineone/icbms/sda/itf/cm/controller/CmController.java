@@ -246,7 +246,7 @@ public class CmController {
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
 
-		log.info("/itf/cm POST test start================>");
+		log.info("/itf/cm POST start================>");
 		try {
 			String cmid = cmReqDTO.getCmid();
 			commandMap.put("cmid", cmid);
@@ -336,9 +336,122 @@ public class CmController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/itf/cm POST test end================>");
+		log.info("/itf/cm POST end================>");
 		return entity;
 	}
+	
+	// http://localhost:8080/sda/itf/cm
+	@RequestMapping(value = "/cm", method = RequestMethod.PUT)
+	public @ResponseBody ResponseEntity<ResponseMessage> update(@RequestBody CmReqDTO cmReqDTO) {
+		
+		int cm_rtn_cnt = 0;
+		int cmi_rtn_cnt = 0;
+		
+		Map<String, Object> commandMap = new HashMap<String, Object>();
+		
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		log.info("/itf/cm PUT start================>");
+		try {
+			String cmid = cmReqDTO.getCmid();
+			commandMap.put("cmid", cmid);
+				
+			// cmid 존재 여부 확인 
+			if(cmService.checkId(cmid) == 1) {
+				String ci_list = cmReqDTO.getCiid();
+				String[] strArr;
+				Map<String, Object> ciMap = new HashMap<String, Object>();
+				
+				strArr = ci_list.split(",");
+				for(int i=0; i<strArr.length; i++) {
+					strArr[i] = strArr[i].trim();
+				}
+					
+				for(int i=0; i<strArr.length; i++) {
+					
+					int checkCi = ciService.checkId(strArr[i]);
+					
+					//ciid 존재 확인 
+					if(checkCi==0){
+						throw new UserDefinedException(HttpStatus.NOT_FOUND, "CI_ID_NOT_FOUND");
+					}
+					//ciid 중복 확인
+					for(int j=0; j<i; j++){
+						if(strArr[i].equals(strArr[j]))
+							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "CI_ID_DUPLICATED");
+					}
+					commandMap.clear();
+					commandMap.put("ciid", strArr[i]);
+					CiDTO ciDTO = ciService.selectOne(commandMap);
+					ciMap.put(strArr[i], ciDTO.getArg_cnt());				
+				}
+				
+				// 입력받은 ci의 arg_cnt가 모두 일치하는지 확인
+				for(int i=0; i<strArr.length; i++) {
+					for(int j=0; j<i; j++) {
+						if(!ciMap.get(strArr[i]).toString().equals(ciMap.get(strArr[j]).toString()))
+							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "CI_ARGUMENT_COUNT_MISMATCHED");
+					}			
+				}
+				
+				CmDTO cmDTO = new CmDTO();
+				
+				cmDTO.setCmid(cmReqDTO.getCmid());
+				cmDTO.setCmname(cmReqDTO.getCmname());
+				cmDTO.setExecution_type(cmReqDTO.getExecution_type());
+				cmDTO.setCm_remarks(cmReqDTO.getCm_remarks());
+				cmDTO.setArg_cnt(Integer.parseInt(ciMap.get(strArr[0]).toString()));
+				
+				commandMap.clear();
+				commandMap.put("cm", cmDTO);
+				cm_rtn_cnt = cmService.update(commandMap);
+				
+				// update할 cm의 cmi 데이터 삭제 
+				cmiService.delete(cmReqDTO.getCmid());
+				
+				CmiDTO cmiDTO = new CmiDTO();
+				
+				for(int i=0; i<strArr.length; i++) {
+					cmiDTO.setTnsda_context_model_cmid(cmReqDTO.getCmid());
+					cmiDTO.setTnsda_context_info_ciid(strArr[i]);
+					cmiDTO.setCi_seq(i+1);
+					commandMap.clear();
+					commandMap.put("cmi", cmiDTO);
+					cmi_rtn_cnt = cmiService.insert(commandMap);
+					if(cmi_rtn_cnt != 1) {
+						throw new UserDefinedException(HttpStatus.BAD_REQUEST, "CMI_INSERT_FAILED");
+					}
+				}
+				
+				if(cm_rtn_cnt==1 ) {
+					resultMsg.setCode(Utils.OK_CODE);
+					resultMsg.setMessage(Utils.OK_MSG);
+					resultMsg.setContents(ciMap.get(strArr[1]).toString());
+					entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+				} else {
+					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "UPDATE_FAILED");
+				}
+			} else {
+				throw new UserDefinedException(HttpStatus.NOT_FOUND, "CM_ID_NOT_FOUND");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+
+			responseHeaders.add("ExceptionCause", e.getMessage());
+			responseHeaders.add("ExceptionClass", e.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("/itf/cm PUT end================>");
+		return entity;
+	}
+
+	
+
 
 /*	
 	// 여러개의 ci를 묶어서 test수행

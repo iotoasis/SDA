@@ -42,4 +42,13 @@ public class CmiServiceImpl implements CmiService{
 		return Integer.parseInt(cmiDAO.insert("itf.cmi.insert", map).toString());
 	}
 	
+	public int update(Map<String, Object> commandMap) throws Exception {
+		return Integer.parseInt(cmiDAO.update("itf.cmi.update", commandMap).toString());	
+	}
+	
+	public int delete(String cmid) throws Exception {
+		return Integer.parseInt(cmiDAO.delete("itf.cmi.delete", cmid).toString()) ;
+	}
+
+	
 }

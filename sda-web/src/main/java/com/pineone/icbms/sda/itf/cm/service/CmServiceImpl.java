@@ -99,6 +99,10 @@ public class CmServiceImpl implements CmService{
 	}
 	
 	public int insert(Map<String, Object> map) throws Exception{
-		return Integer.parseInt(ciDAO.insert("itf.cm.insert", map).toString());
+		return Integer.parseInt(cmDAO.insert("itf.cm.insert", map).toString());
+	}
+	
+	public int update(Map<String, Object> commandMap) throws Exception {
+		return Integer.parseInt(cmDAO.update("itf.cm.update", commandMap).toString());	
 	}
 }

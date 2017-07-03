@@ -8,4 +8,11 @@
 		VALUES (#{cmi.tnsda_context_model_cmid}, #{cmi.tnsda_context_info_ciid}, "Y", "admin", now(), "admin", now(), #{cmi.ci_seq}); 
 		]]>
 	</insert>
+	
+	<delete id="delete" parameterType="String">
+		<![CDATA[
+		DELETE FROM tnsda_context_model_info
+		WHERE tnsda_context_model_cmid = #{cmid}
+		]]>
+	</delete>
 </mapper>

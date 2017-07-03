@@ -15,7 +15,8 @@ public interface CmiService {
 //	public CmiDTO selectOne(Map<String, Object> commandMap) throws Exception;
 	
 	int insert(Map<String, Object> map) throws Exception;
-		
+	int update(Map<String, Object> map) throws Exception;
+	int delete(String cmid) throws Exception;
 	
 
 }
