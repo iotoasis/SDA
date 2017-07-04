@@ -32,15 +32,15 @@ public class CiServiceImpl implements CiService{
 	*/
 	
 	// 헌건조회
-	public CiDTO selectOne(String idx) throws Exception{
-		return (CiDTO)ciDAO.selectOne("selectOne", idx);
+	public String selectOne(String ciid) throws Exception{
+		return ciDAO.selectOne("itf.ci.selectCiid", ciid).toString();
 	}
 	
 	// 저장
 	public int insert(Map<String, Object> map) throws Exception{
-		return Integer.parseInt(ciDAO.insert("insert", map).toString());
+		return Integer.parseInt(ciDAO.insert("itf.ci.insert", map).toString());
 	}
-
+	
 	// 수정(단건)
 	public int update(String ciid) throws Exception{
 		return Integer.parseInt(ciDAO.update("update", ciid).toString());
@@ -79,17 +79,24 @@ public class CiServiceImpl implements CiService{
 	}
 	
 	// /ci/{ciid}
-		public CiDTO selectOne(Map<String, Object> commandMap) throws Exception{
-			CiDTO ciDTO = new CiDTO();
-			ciDTO = ciDAO.selectOne(commandMap);
+	public CiDTO selectOne(Map<String, Object> commandMap) throws Exception{
+		CiDTO ciDTO = new CiDTO();
+		ciDTO = ciDAO.selectOne(commandMap);
 			
-			// 데이타가 없으면 오류발생시킴
-			if (ciDTO == null || ciDTO.getCiid() == null) {
-				throw new UserDefinedException(HttpStatus.NOT_FOUND);
-			}
-
-			return ciDTO ;
-			
+		// 데이타가 없으면 오류발생시킴
+		if (ciDTO == null || ciDTO.getCiid() == null) {
+			throw new UserDefinedException(HttpStatus.NOT_FOUND);
 		}
+		return ciDTO ;
+			
+	}
+		
+	public int checkId(String ciid) throws Exception {
+		return ciDAO.checkId(ciid);
+	}
+		
+	public int update(Map<String, Object> commandMap) throws Exception {
+		return Integer.parseInt(ciDAO.update("itf.ci.update", commandMap).toString());	
+	}
 
 }

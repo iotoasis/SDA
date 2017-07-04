@@ -30,6 +30,14 @@
 		]]>
 	</select>
 	
+	<select id="selectCiid" parameterType="String" resultType="String">
+		<![CDATA[
+		SELECT ciid
+		FROM tnsda_context_info
+		WHERE ciid=#{ciid}
+		]]>
+	</select>
+	
 	<update id="delete" parameterType="hashmap">
 		<![CDATA[
 		UPDATE tnsda_context_info SET use_yn="N" 
@@ -37,4 +45,28 @@
 		AND use_yn="Y"
 		]]>
 	</update>
+	
+	<insert id="insert" parameterType="hashmap">
+		<![CDATA[
+		INSERT INTO tnsda_context_info
+		VALUES (#{ci.ciid}, #{ci.ciname}, #{ci.conditions}, #{ci.domain}, #{ci.sparql}, #{ci.ci_remarks}, #{ci.arg_cnt}, "Y", "admin", now(), "admin", now(), NULL, "SPARQL"); 
+		]]>
+	</insert>
+	
+	<select id="checkId" parameterType="String" resultType="int">
+		<![CDATA[
+		SELECT COUNT(*) FROM tnsda_context_info WHERE ciid LIKE #{ciid};
+		]]>
+	</select>
+	
+	<update id="update" parameterType="hashmap">
+		<![CDATA[
+		UPDATE tnsda_context_info
+		SET ciname=#{ci.ciname}, conditions=#{ci.conditions}, 
+		domain=#{ci.domain}, sparql=#{ci.sparql}, ci_remarks=#{ci.ci_remarks}, 
+		arg_cnt=#{ci.arg_cnt}, uuser="admin", udate=now()
+		WHERE ciid=#{ci.ciid} 
+		]]>
+	</update>
+
 </mapper>

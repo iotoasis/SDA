@@ -63,5 +63,26 @@
 		AND use_yn="Y"
 		]]>
 	</update>
-
+	
+	<select id="checkId" parameterType="String" resultType="int">
+		<![CDATA[
+		SELECT COUNT(*) FROM tnsda_context_model WHERE cmid LIKE #{cmid};
+		]]>
+	</select>
+	
+	<insert id="insert" parameterType="hashmap">
+		<![CDATA[
+		INSERT INTO tnsda_context_model
+		VALUES (#{cm.cmid}, #{cm.cmname}, #{cm.execution_type}, NULL, #{cm.cm_remarks}, #{cm.arg_cnt}, "Y", "admin", now(), "admin", now(), NULL); 
+		]]>
+	</insert>
+	
+	<update id="update" parameterType="hashmap">
+		<![CDATA[
+		UPDATE tnsda_context_model
+		SET cmname=#{cm.cmname}, execution_type=#{cm.execution_type}, 
+		cm_remarks=#{cm.cm_remarks}, uuser="admin", udate=now()
+		WHERE cmid=#{cm.cmid} 
+		]]>
+	</update>
 </mapper>

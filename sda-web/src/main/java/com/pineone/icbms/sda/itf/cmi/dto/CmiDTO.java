@@ -4,8 +4,17 @@ public class CmiDTO {
 
 	private String tnsda_context_model_cmid;
 	private String tnsda_context_info_ciid;
+	private int ci_seq;
     
-    public CmiDTO() {
+    public int getCi_seq() {
+		return ci_seq;
+	}
+
+	public void setCi_seq(int ci_seq) {
+		this.ci_seq = ci_seq;
+	}
+
+	public CmiDTO() {
 		super();
 	}
 

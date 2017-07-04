@@ -69,4 +69,8 @@ public class CmDAO extends AbstractDAO{
 		return (CmDTO)selectOne("itf.cm.selectOne", commandMap);
 	}
 
+	public int checkId(String cmid) throws Exception {
+		return Integer.parseInt(selectOne("itf.cm.checkId", cmid).toString());
+	}
+
 }
