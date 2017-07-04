@@ -1,7 +1,7 @@
 package com.pineone.icbms.sda.comm.dto;
 
 public class ConditionDTO {
-
+	
 	private String property;
 	private String object;
     

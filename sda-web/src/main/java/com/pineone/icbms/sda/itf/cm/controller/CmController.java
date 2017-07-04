@@ -2,8 +2,11 @@ package com.pineone.icbms.sda.itf.cm.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -13,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -20,10 +24,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
+import com.pineone.icbms.sda.comm.dto.TemplateReqDTO;
+import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
+import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
+import com.pineone.icbms.sda.itf.ci.service.CiService;
 import com.pineone.icbms.sda.itf.cm.dto.CmCiDTO;
 import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
+import com.pineone.icbms.sda.itf.cm.dto.CmReqDTO;
 import com.pineone.icbms.sda.itf.cm.service.CmService;
+import com.pineone.icbms.sda.itf.cmi.dto.CmiDTO;
+import com.pineone.icbms.sda.itf.cmi.service.CmiService;
+import com.pineone.icbms.sda.itf.template.dto.TemplateDTO;
 
 @RestController
 @RequestMapping(value = "/itf")
@@ -32,6 +44,12 @@ public class CmController {
 
 	@Resource(name = "cmService")
 	private CmService cmService;
+	
+	@Resource(name = "ciService")
+	private CiService ciService;
+	
+	@Resource(name = "cmiService")
+	private CmiService cmiService;
 	
 	
 	// http://localhost:8080/sda/itf/cm/ALL
@@ -176,6 +194,264 @@ public class CmController {
 		log.info("/cmcmici/{cmid} GET end================>");
 		return entity;
 	}
+	
+	// http://localhost:8080/sda/itf/cm/CQ-1-1-001
+	@RequestMapping(value = "/cm/{cmid}", method = RequestMethod.DELETE)
+	public  @ResponseBody ResponseEntity<ResponseMessage> delete(@PathVariable String cmid) {
+		int rtn_cnt = 0;
+		
+		Map<String, Object> commandMap = new HashMap<String, Object>();
+
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		log.info("/cm/{cmid} DELETE start================>");
+		try {
+			commandMap.put("cmid", cmid);
+
+			rtn_cnt = cmService.delete(commandMap);
+			
+			if(rtn_cnt==1) {
+				entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+				resultMsg.setCode(Utils.OK_CODE);
+				resultMsg.setMessage(Utils.OK_MSG);
+			} else {		
+				throw new UserDefinedException(HttpStatus.NOT_FOUND, "NOT_FOUND");
+			}
+			resultMsg.setContents("");				
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+
+			responseHeaders.add("ExceptionCause", e.getMessage());
+			responseHeaders.add("ExceptionClass", e.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("/cm/{cmid} DELETE end================>");
+		return entity;
+	}
+	
+	// http://localhost:8080/sda/itf/cm
+	@RequestMapping(value = "/cm", method = RequestMethod.POST)
+	public @ResponseBody ResponseEntity<ResponseMessage> insert(@RequestBody CmReqDTO cmReqDTO) {
+		
+		int cm_rtn_cnt = 0;
+		int cmi_rtn_cnt = 0;
+		
+		Map<String, Object> commandMap = new HashMap<String, Object>();
+		
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		log.info("/itf/cm POST start================>");
+		try {
+			String cmid = cmReqDTO.getCmid();
+			commandMap.put("cmid", cmid);
+				
+			// cmid 중복검사
+			if(cmService.checkId(cmid) == 0) {
+				String ci_list = cmReqDTO.getCiid();
+				String[] strArr;
+				Map<String, Object> ciMap = new HashMap<String, Object>();
+				
+				strArr = ci_list.split(",");
+				for(int i=0; i<strArr.length; i++) {
+					strArr[i] = strArr[i].trim();
+				}
+					
+				for(int i=0; i<strArr.length; i++) {
+					
+					int checkCi = ciService.checkId(strArr[i]);
+					
+					//ciid 존재 확인 
+					if(checkCi==0){
+						throw new UserDefinedException(HttpStatus.NOT_FOUND, "CI_ID_NOT_FOUND");
+					}
+					//ciid 중복 확인
+					for(int j=0; j<i; j++){
+						if(strArr[i].equals(strArr[j]))
+							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "CI_ID_DUPLICATED");
+					}
+					commandMap.clear();
+					commandMap.put("ciid", strArr[i]);
+					CiDTO ciDTO = ciService.selectOne(commandMap);
+					ciMap.put(strArr[i], ciDTO.getArg_cnt());				
+				}
+				
+				// 입력받은 ci의 arg_cnt가 모두 일치하는지 확인
+				for(int i=0; i<strArr.length; i++) {
+					for(int j=0; j<i; j++) {
+						if(!ciMap.get(strArr[i]).toString().equals(ciMap.get(strArr[j]).toString()))
+							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "CI_ARGUMENT_COUNT_MISMATCHED");
+					}			
+				}
+				
+				CmDTO cmDTO = new CmDTO();
+				
+				cmDTO.setCmid(cmReqDTO.getCmid());
+				cmDTO.setCmname(cmReqDTO.getCmname());
+				cmDTO.setExecution_type(cmReqDTO.getExecution_type());
+				cmDTO.setCm_remarks(cmReqDTO.getCm_remarks());
+				cmDTO.setArg_cnt(Integer.parseInt(ciMap.get(strArr[0]).toString()));
+				
+				commandMap.clear();
+				commandMap.put("cm", cmDTO);
+				cm_rtn_cnt = cmService.insert(commandMap);
+				
+				CmiDTO cmiDTO = new CmiDTO();
+				
+				for(int i=0; i<strArr.length; i++) {
+					cmiDTO.setTnsda_context_model_cmid(cmReqDTO.getCmid());
+					cmiDTO.setTnsda_context_info_ciid(strArr[i]);
+					cmiDTO.setCi_seq(i+1);
+					commandMap.clear();
+					commandMap.put("cmi", cmiDTO);
+					cmi_rtn_cnt = cmiService.insert(commandMap);
+					if(cmi_rtn_cnt != 1) {
+						throw new UserDefinedException(HttpStatus.BAD_REQUEST, "CMI_INSERT_FAILED");
+					}
+				}
+				
+				if(cm_rtn_cnt==1 ) {
+					resultMsg.setCode(Utils.OK_CODE);
+					resultMsg.setMessage(Utils.OK_MSG);
+					resultMsg.setContents(ciMap.get(strArr[1]).toString());
+					entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+				} else {
+					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "INSERT_FAILED");
+				}
+			} else {
+				throw new UserDefinedException(HttpStatus.CONFLICT, "CM_ID_DUPLICATED");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+
+			responseHeaders.add("ExceptionCause", e.getMessage());
+			responseHeaders.add("ExceptionClass", e.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("/itf/cm POST end================>");
+		return entity;
+	}
+	
+	// http://localhost:8080/sda/itf/cm
+	@RequestMapping(value = "/cm", method = RequestMethod.PUT)
+	public @ResponseBody ResponseEntity<ResponseMessage> update(@RequestBody CmReqDTO cmReqDTO) {
+		
+		int cm_rtn_cnt = 0;
+		int cmi_rtn_cnt = 0;
+		
+		Map<String, Object> commandMap = new HashMap<String, Object>();
+		
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		log.info("/itf/cm PUT start================>");
+		try {
+			String cmid = cmReqDTO.getCmid();
+			commandMap.put("cmid", cmid);
+				
+			// cmid 존재 여부 확인 
+			if(cmService.checkId(cmid) == 1) {
+				String ci_list = cmReqDTO.getCiid();
+				String[] strArr;
+				Map<String, Object> ciMap = new HashMap<String, Object>();
+				
+				strArr = ci_list.split(",");
+				for(int i=0; i<strArr.length; i++) {
+					strArr[i] = strArr[i].trim();
+				}
+					
+				for(int i=0; i<strArr.length; i++) {
+					
+					int checkCi = ciService.checkId(strArr[i]);
+					
+					//ciid 존재 확인 
+					if(checkCi==0){
+						throw new UserDefinedException(HttpStatus.NOT_FOUND, "CI_ID_NOT_FOUND");
+					}
+					//ciid 중복 확인
+					for(int j=0; j<i; j++){
+						if(strArr[i].equals(strArr[j]))
+							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "CI_ID_DUPLICATED");
+					}
+					commandMap.clear();
+					commandMap.put("ciid", strArr[i]);
+					CiDTO ciDTO = ciService.selectOne(commandMap);
+					ciMap.put(strArr[i], ciDTO.getArg_cnt());				
+				}
+				
+				// 입력받은 ci의 arg_cnt가 모두 일치하는지 확인
+				for(int i=0; i<strArr.length; i++) {
+					for(int j=0; j<i; j++) {
+						if(!ciMap.get(strArr[i]).toString().equals(ciMap.get(strArr[j]).toString()))
+							throw new UserDefinedException(HttpStatus.BAD_REQUEST, "CI_ARGUMENT_COUNT_MISMATCHED");
+					}			
+				}
+				
+				CmDTO cmDTO = new CmDTO();
+				
+				cmDTO.setCmid(cmReqDTO.getCmid());
+				cmDTO.setCmname(cmReqDTO.getCmname());
+				cmDTO.setExecution_type(cmReqDTO.getExecution_type());
+				cmDTO.setCm_remarks(cmReqDTO.getCm_remarks());
+				cmDTO.setArg_cnt(Integer.parseInt(ciMap.get(strArr[0]).toString()));
+				
+				commandMap.clear();
+				commandMap.put("cm", cmDTO);
+				cm_rtn_cnt = cmService.update(commandMap);
+				
+				// update할 cm의 cmi 데이터 삭제 
+				cmiService.delete(cmReqDTO.getCmid());
+				
+				CmiDTO cmiDTO = new CmiDTO();
+				
+				for(int i=0; i<strArr.length; i++) {
+					cmiDTO.setTnsda_context_model_cmid(cmReqDTO.getCmid());
+					cmiDTO.setTnsda_context_info_ciid(strArr[i]);
+					cmiDTO.setCi_seq(i+1);
+					commandMap.clear();
+					commandMap.put("cmi", cmiDTO);
+					cmi_rtn_cnt = cmiService.insert(commandMap);
+					if(cmi_rtn_cnt != 1) {
+						throw new UserDefinedException(HttpStatus.BAD_REQUEST, "CMI_INSERT_FAILED");
+					}
+				}
+				
+				if(cm_rtn_cnt==1 ) {
+					resultMsg.setCode(Utils.OK_CODE);
+					resultMsg.setMessage(Utils.OK_MSG);
+					resultMsg.setContents(ciMap.get(strArr[1]).toString());
+					entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+				} else {
+					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "UPDATE_FAILED");
+				}
+			} else {
+				throw new UserDefinedException(HttpStatus.NOT_FOUND, "CM_ID_NOT_FOUND");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+
+			responseHeaders.add("ExceptionCause", e.getMessage());
+			responseHeaders.add("ExceptionClass", e.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("/itf/cm PUT end================>");
+		return entity;
+	}
+
+	
+
 
 /*	
 	// 여러개의 ci를 묶어서 test수행
