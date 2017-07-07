@@ -154,6 +154,11 @@ public class Utils {
 	public static final String CMD = "query";
 	public static final String CMD_TEST = "query-test";
 	
+	// Semantic Descriptor 쿼리 경로 
+	public static final String QUERY_LECTURE_PATH = "/Users/Lucia/sdaf/sda-common/src/main/resources/semantic/descriptor/query/query_lecture.sql";
+	public static final String QUERY_DEVICE_PATH = "/Users/Lucia/sdaf/sda-common/src/main/resources/semantic/descriptor/query/query_device.sql";
+	public static final String SD_SAVE_FILE_PATH = "/Users/Lucia/Documents/pineone/oasis_ontology_file/icbms_update_triple.ttl";
+			
 	//test용
 	public static final String CALLBACK_TEST = "occ";
 	
