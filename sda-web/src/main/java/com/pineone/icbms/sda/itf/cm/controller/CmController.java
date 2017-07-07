@@ -52,8 +52,8 @@ public class CmController {
 	private CmiService cmiService;
 	
 	
-	// http://localhost:8080/sda/itf/cm/ALL
-	@RequestMapping(value = "/cm/ALL", method = RequestMethod.GET)
+	// http://localhost:8080/sda/itf/cm/all
+	@RequestMapping(value = "/cm/all", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
@@ -62,7 +62,7 @@ public class CmController {
 		String contents;
 
 		List<CmDTO> list = new ArrayList<CmDTO>();
-		log.info("/cm/ALL GET start================>");
+		log.info("/cm/all GET start================>");
 		try {
 			list = cmService.selectList(commandMap);
 
@@ -81,7 +81,7 @@ public class CmController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/cm/ALL GET end================>");
+		log.info("/cm/all GET end================>");
 		return entity;
 	}
 	
