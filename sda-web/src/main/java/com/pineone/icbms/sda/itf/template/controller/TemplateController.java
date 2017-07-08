@@ -33,8 +33,8 @@ public class TemplateController {
 	@Resource(name = "templateService")
 	private TemplateService templateService;
 
-	// http://localhost:8080/sda/itf/template/ALL
-	@RequestMapping(value = "/template/ALL", method = RequestMethod.GET)
+	// http://localhost:8080/sda/itf/template/all
+	@RequestMapping(value = "/template/all", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
@@ -43,9 +43,9 @@ public class TemplateController {
 		String contents;
 		List<TemplateDTO> list = new ArrayList<TemplateDTO>();
 		
-		log.info("/template/ALL GET start================>");
+		log.info("/template/all GET start================>");
 		
-		try {
+		try {	
 			list = templateService.selectList(commandMap);
 
 			contents = gson.toJson(list);
@@ -63,7 +63,7 @@ public class TemplateController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/template/ALL GET end================>");
+		log.info("/template/all GET end================>");
 		return entity;
 	}
 	
