@@ -25,6 +25,7 @@ import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sf.TripleService;
+import com.pineone.icbms.sda.sf.sd.UpdateSemanticDescriptor;
 import com.pineone.icbms.sda.subscribe.service.SubscribeService;
 
 @RestController
@@ -251,5 +252,62 @@ public class SubscribeController {
 		log.info("init2 jena data end================>");
 		return entity;
 	}
+
+	// http://localhost:8080/sda/subscribe/update-jena?p=날짜8자리,db명
+	@RequestMapping(value = "update-jena", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<ResponseMessage> updateJena(@RequestParam(value="p")  String args) {
+		log.debug("requested parameter(p) for update Jena ==>" + args);
+		
+		
+		ResponseMessage resultMsg = new ResponseMessage();
+		
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		
+		String[] argArr;
+
+		log.info("update jena data begin================>");
+		
+		try {
+			argArr = args.split(",");
+
+			if(argArr.length != 2){ 
+				log.debug("p(" + args + ") count mismatched");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+			
+			if( ! Utils.checkPass(argArr[0])) {
+				log.debug("p("+args+") is not valid... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+			
+			// Make Semantic Descriptor File - device
+			UpdateSemanticDescriptor updateSemanticDescriptor = new UpdateSemanticDescriptor();
+			updateSemanticDescriptor.makeUpdateJena(argArr[1]);
+			
+
+			//tripleService.sendTripleFileToDW("filepath");
+			//tripleService.sendTripleFileToDM("filepath");
+			// 리턴값 확인 정상 일때 아래 resultMsg
+			
+			resultMsg.setCode(Utils.OK_CODE);
+			resultMsg.setMessage(Utils.OK_MSG);
+			resultMsg.setContents("");
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+			
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+			log.debug("Exception 1 : "+resultMsg.getMessage());			
+			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
+			responseHeaders.add("ExceptionClass", resultMsg.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("update jena data end================>");
+		return entity;
+	}
+	
 	
 }
