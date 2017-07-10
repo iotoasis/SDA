@@ -398,6 +398,7 @@ public  class QueryService extends QueryCommon {
 	}
 	
 	// AwareHist에 finish time, work_result, triple_file_name, triple_check_result를 update
+	/*
 	public int updateFinishTime(String cmid, String ciid, String start_time, String finish_time, String work_result) throws Exception {
 		log.debug("updateFinishTime of AwareHist start.....");
 		
@@ -427,7 +428,9 @@ public  class QueryService extends QueryCommon {
 		log.debug("updateFinishTime of AwareHist end.....");
 		return updateCnt;
 	}
+	*/
 	
+	/*
 	// awareHist테이블에 데이타 insert
 	public int insertAwareHist(String cmid, String ciid, String start_time) throws Exception {
 		log.debug("insertAwareHist start....");
@@ -457,4 +460,5 @@ public  class QueryService extends QueryCommon {
 		log.debug("insertAwareHist  end.....");		
 		return updateCnt;
 	}
+	*/
 }
