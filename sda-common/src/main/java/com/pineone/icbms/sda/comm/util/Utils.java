@@ -157,8 +157,10 @@ public class Utils {
 	// Semantic Descriptor 쿼리 경로 
 	public static final String QUERY_LECTURE_PATH = "/home/pineone/svc/apps/sda/update-jena-data/query/query_lecture.sql";
 	public static final String QUERY_DEVICE_PATH = "/home/pineone/svc/apps/sda/update-jena-data/query/query_device.sql";
-	public static final String SD_SAVE_FILE_PATH = "/home/pineone/svc/apps/sda/update-jena-data/icbms_update_triple.ttl";
-		
+	public static final String ALL_SAVE_FILE_PATH = "/home/pineone/svc/apps/sda/update-jena-data/icbms_update_triple.ttl";
+	public static final String DEVICE_SAVE_FILE_PATH = "/home/pineone/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl";
+	public static final String LECTURE_SAVE_FILE_PATH = "/home/pineone/svc/apps/sda/update-jena-data/icbms_update_lecture_triple.ttl";
+	
 	//test용
 	public static final String CALLBACK_TEST = "occ";
 	
