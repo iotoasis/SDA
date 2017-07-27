@@ -11,6 +11,7 @@ import java.sql.SQLException;
 
 import org.springframework.http.HttpStatus;
 
+import com.mongodb.util.Util;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 
@@ -26,13 +27,17 @@ public class UpdateSemanticDescriptor {
 		StringBuffer buffer = new StringBuffer();
 		String prefix = Utils.getHeaderForTripleFile();
 		buffer.append(prefix);
+		String filepath = null;
 		
 		if(dbName.equals("device")) {
 			buffer.append(getDeviceInfoFromRDBMSTriples());
+			filepath = Utils.DEVICE_SAVE_FILE_PATH;
 		} else if(dbName.equals("lecture")) {
 			buffer.append(getLectureInfoFromRDBMSTriples());
+			filepath = Utils.LECTURE_SAVE_FILE_PATH;
 		} else if(dbName.equals("all")) {
 			buffer.append(getDeviceInfoFromRDBMSTriples() + "\n" + getLectureInfoFromRDBMSTriples());
+			filepath = Utils.ALL_SAVE_FILE_PATH;
 		} else {
 			throw new UserDefinedException(HttpStatus.BAD_REQUEST);
 		}
@@ -41,13 +46,13 @@ public class UpdateSemanticDescriptor {
 		FileOutputStream fos = null;
 		// Write
 		try {
-			previous = new File(Utils.SD_SAVE_FILE_PATH);
+			previous = new File(filepath);
 
 			if(previous.exists()){
 				previous.delete();
 			}
 			
-			fos = new FileOutputStream(Utils.SD_SAVE_FILE_PATH);
+			fos = new FileOutputStream(filepath);
 			
 			fos.write(buffer.toString().getBytes());
 			
@@ -127,7 +132,7 @@ public class UpdateSemanticDescriptor {
 	}
 
 	
-	public void makeUpdateJena(String dbName ) throws UserDefinedException, IOException {
+	public void makeUpdateJena(String dbName) throws UserDefinedException, IOException {
 		UpdateSemanticDescriptor sd = new UpdateSemanticDescriptor();
 		sd.getMergedFile(dbName);
 	}
