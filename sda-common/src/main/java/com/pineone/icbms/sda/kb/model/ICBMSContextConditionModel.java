@@ -69,6 +69,9 @@ public class ICBMSContextConditionModel {
 		List<ICBMSContextConditionModel> clist = gson.fromJson(samplejson, type);
 		
 		clist.get(1);
+		
+		System.out.println("type ===>"+type.toString());
+		System.out.println("clist.get(1)===>"+clist.get(1).toString());
 	  
 
 	}
