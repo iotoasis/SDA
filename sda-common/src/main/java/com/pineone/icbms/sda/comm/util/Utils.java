@@ -82,6 +82,7 @@ public class Utils {
 		MARIADBOFGRIB,
 		MARIADBOFSDA,
 		SPARQL,
+		HALYARDSPARQL,
 		SHELL
 	}
 	
@@ -306,7 +307,6 @@ public class Utils {
 		        +"prefix unit: <http://data.nasa.gov/qudt/owl/unit#>  \n"
 		        +"prefix dim: <http://data.nasa.gov/qudt/owl/dimension#>  \n"
 		        +"prefix b: <http://www.onem2m.org/ontology/Base_Ontology#>  \n"
-		        +"prefix foaf: <http://xmlns.com/foaf/0.1/> \n" 
 		        +"prefix herit: <http://herit-in/herit-cse/> \n"
 		        +"prefix o: <http://www.iotoasis.org/ontology/> \n";
 

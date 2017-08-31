@@ -44,6 +44,10 @@ public  class QueryService extends QueryCommon {
 	public QueryService(QueryItf queryItf) {
 		this.queryItf = queryItf;
 	}
+	
+	public QueryItf getInterface() {
+		return this.queryItf;
+	}
 
 	// 1개의 쿼리 실행(args없음)
 	public List<Map<String, String>> runQuery(String query) throws Exception {
@@ -65,20 +69,25 @@ public  class QueryService extends QueryCommon {
 //			ciid = splitStr[3];
 			
 			if(queryGubun.equals(Utils.QUERY_GUBUN.MARIADBOFGRIB.toString())){
-				System.out.println(Utils.QUERY_GUBUN.MARIADBOFGRIB.toString());
+				System.out.println("query gubun : "+Utils.QUERY_GUBUN.MARIADBOFGRIB.toString());
 				queryItf = new MariaDbOfGribQueryImpl();
 			} else if(queryGubun.equals(Utils.QUERY_GUBUN.MARIADBOFSDA.toString())){
-				System.out.println(Utils.QUERY_GUBUN.MARIADBOFSDA.toString());
+				System.out.println("query gubun : "+Utils.QUERY_GUBUN.MARIADBOFSDA.toString());
 				queryItf = new MariaDbOfSdaQueryImpl();
 			} else if(queryGubun.equals(Utils.QUERY_GUBUN.SPARQL.toString())){
-				System.out.println(Utils.QUERY_GUBUN.SPARQL.toString());
+				System.out.println("query gubun : "+Utils.QUERY_GUBUN.SPARQL.toString());
 				queryItf = new SparqlQueryImpl();
+				
+			} else if(queryGubun.equals(Utils.QUERY_GUBUN.HALYARDSPARQL.toString())){
+				System.out.println("query gubun : "+Utils.QUERY_GUBUN.HALYARDSPARQL.toString());
+				queryItf = new SparqlHalyardQueryImpl();
+				
 			} else if(queryGubun.equals(Utils.QUERY_GUBUN.MONGODB.toString())){
-				System.out.println(Utils.QUERY_GUBUN.MONGODB.toString());
+				System.out.println("query gubun : "+Utils.QUERY_GUBUN.MONGODB.toString());
 				queryItf = new MongoDbQueryImpl();
 
 			} else if(queryGubun.equals(Utils.QUERY_GUBUN.SHELL.toString())){
-				System.out.println(Utils.QUERY_GUBUN.SHELL.toString());
+				System.out.println("query gubun : "+Utils.QUERY_GUBUN.SHELL.toString());
 				queryItf = new ShellQueryImpl();
 
 			} else {
