@@ -113,6 +113,7 @@ public class SubscribeServiceImpl implements SubscribeService {
 				Map<String, String> map = new HashMap<String, String>();
 				map.put("_uri", uriList.get(k));
 				map.put("_notificationUri", notification_uri);
+				map.put("_commandId", "By-SubscribeService-of-SDA");
 
 				String jsonMsg = gson.toJson(map);
 				log.debug("Request message for subscribing  =>  " + jsonMsg);
@@ -127,6 +128,87 @@ public class SubscribeServiceImpl implements SubscribeService {
 							responseMessage.getMessage());
 				}
 				// SI에 등록 끝
+			}
+		}
+		// 처리끝
+	}
+	
+	
+	// subscribe 등록해제
+	public void unregist(String cmid) throws Exception {
+		String unsubscription_uri = Utils.getSdaProperty("com.pineone.icbms.sda.si.unsubscription_uri");
+		Map<String, Object> commandMap;
+
+		// cmid로 삭제 대상 ci목록 가져오기
+		commandMap = new HashMap<String, Object>();
+		commandMap.put("cmid", cmid);
+		List<CiDTO> ciList = subscribeDAO.selectList(commandMap);
+
+		// 데이타가 없으면 오류발생시킴
+		if (ciList == null || ciList.size() == 0) {
+			throw new UserDefinedException(HttpStatus.NOT_FOUND);
+		}
+
+		Gson gson = new Gson();
+		CiDTO[] ciDTO = new CiDTO[ciList.size()];
+		
+		// SI 호출 준비(CI list의 값이 CiDTO테이블과 같으므로 CiDTO에 담는다) -CI개수 만큼 ciDTO를 준비함
+		for (int i = 0; i < ciList.size(); i++) {
+			ciDTO[i] = ciList.get(i);
+		}
+
+		// CI개수 만큼 반복해서 삭제처리함
+		for (int i = 0; i < ciDTO.length; i++) {
+			// log.debug("val["+i+"]"+ciDTO[i].toString());
+
+			// condition을 JENA에 요청하여 uri목록을 얻음
+			List<String> uriList = new ArrayList<String>();
+			OneM2MSubscribeUriMapper mapper = new OneM2MSubscribeUriMapper(ciDTO[i].getDomain(),
+					ciDTO[i].getConditions());
+
+			uriList = mapper.getSubscribeUri();
+			log.debug("uriList to unregist ==> \n" + uriList);
+
+			for (int k = 0; k < uriList.size(); k++) {
+				/*
+				// tnsda_subscribe에 등록 시작
+				SubscribeDTO subscribeDTO = new SubscribeDTO();
+				String subscribe_time = Utils.dateFormat.format(new Date());
+
+				subscribeDTO.setCmid(cmid);
+				subscribeDTO.setCiid(ciDTO[i].getCiid());
+				subscribeDTO.setUri(uriList.get(k));
+				subscribeDTO.setNotification_uri(notification_uri);
+				subscribeDTO.setSubscribe_time(subscribe_time);
+				subscribeDTO.setCuser(user);
+				subscribeDTO.setUuser(user);
+
+				subscribeDAO.insert(subscribeDTO);
+				// tnsda_subscribe에 등록 끝
+				*/
+
+				// SI에 subscription해제 요청시작
+				Map<String, String> map = new HashMap<String, String>();
+				map.put("_uri", uriList.get(k));
+
+				String jsonMsg = gson.toJson(map);
+				log.debug("Request message for unsubscribing  =>  " + jsonMsg);
+
+				ResponseMessage responseMessage = Utils.requestData(unsubscription_uri, jsonMsg); // POST
+				log.debug("responseMessage of unsubscribing from SI : " + responseMessage.toString());
+				if (responseMessage.getCode() != 200) {
+					throw new RemoteSIException(HttpStatus.valueOf(responseMessage.getCode()),
+							responseMessage.getMessage());
+				}
+				// SI에 subscription해제 요청끝
+				
+				// subscribe테이블에서 삭제함(cmid와 ciid 그리고  uri를 키로 이용하여 삭제함)
+				commandMap = new HashMap<String, Object>();
+				commandMap.put("cmid", cmid);
+				commandMap.put("ciid", ciDTO[i].getCiid());
+				commandMap.put("uri", uriList.get(k));
+				subscribeDAO.deleteByUri(commandMap);
+
 			}
 		}
 		// 처리끝

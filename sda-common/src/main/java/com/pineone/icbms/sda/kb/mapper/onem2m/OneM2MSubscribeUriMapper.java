@@ -61,9 +61,15 @@ public class OneM2MSubscribeUriMapper {
 
 	private String makeTypeField(List<String> type) {
 		String result = "";
-		String typequery = " ?uri rdf:type @type@  . \n";
+		//String typequery = " ?uri rdf:type @type@  . \n";
+		String typequery = "\t{ ?uri o:hasDeviceType @type@ .}";
 		for (int i = 0; i < type.size(); i++) {
+			if(i != 0 && type.size() >= 2) {
+				result = result +"\n\t\t union";
+			}
 			result = result + new String(typequery).replaceAll("@type@", type.get(i));
+			
+			System.out.println("[TEST]type.get("+i+") ==> \n"+type.get(i));
 		}
 		return result;
 	}
@@ -72,11 +78,13 @@ public class OneM2MSubscribeUriMapper {
 		if (this.domain == null)
 			return "";
 		else
-			return "	?uri  dul:hasLocation ?domain.		\n	" + "	?domain rdf:type " + domain + " .		\n	";
+			//return "	?uri  dul:hasLocation ?domain.		\n	" + "	?domain rdf:type " + domain + " .		\n	";
+			return "\n\t?uri dul:hasLocation "+ domain + ".";
 	}
 
 	private String getSubscribeDataContainer(String type) {
-		String result = "/Data";
+		//String result = "/Data";
+		String result = "";
 		if (type.equals(OneM2MContainerType.status.toString())) {
 			return OneM2MContainerType.status + result;
 		} else if (type.equals(OneM2MContainerType.reserved.toString())) {
@@ -97,9 +105,17 @@ public class OneM2MSubscribeUriMapper {
 
 	public String makeQueryString() {
 		String query = Utils.getSparQlHeader();
-		query = query + " SELECT   distinct  ?uri  where {		\n	";
+		//query = query + " SELECT   distinct  ?uri  where {		\n	";
+		query = query + "select  distinct  ?res  where {	\n\t?uri rdf:type b:Device.\n	";
 		query = query + this.makeTypeField(getTypedUri());
-		query = query + this.makeDomainField() + "} ";
+		query = query + this.makeDomainField() + " ?uri o:hasResource ?res } ";
+		
+		//test
+		System.out.println("[TEST]this.makeTypeField(getTypedUri() ==> \n"+ this.makeTypeField(getTypedUri()));
+		
+		System.out.println("[TEST]this.makeDomainField() ==> \n"+ this.makeDomainField());
+		
+		System.out.println("[TEST]query ==> \n"+query);
 
 		return query;
 	}
@@ -122,14 +138,19 @@ public class OneM2MSubscribeUriMapper {
 		for (; rs.hasNext();) {
 			QuerySolution qs = rs.nextSolution();
 			result.add(getProperContainerType(
-					new String(qs.get("uri").toString().replaceAll(baseuri, ""))));
+					new String(qs.get("res").toString().replaceAll(baseuri, ""))));
 		}
 		return result;
 	}
 	
 	public static void main(String[] args) {
-		OneM2MSubscribeUriMapper mapper = new OneM2MSubscribeUriMapper("icbms:ClassRoom",
-				"[{\"subject\":\"?arg1\", \"predicate\":\"rdf:type\", \"object\":\"m2m:TemperatureSensor\"}]");
+		//OneM2MSubscribeUriMapper mapper = new OneM2MSubscribeUriMapper("icbms:ClassRoom",
+		//		"[{\"subject\":\"?arg1\", \"predicate\":\"rdf:type\", \"object\":\"m2m:TemperatureSensor\"}]");
+		
+		OneM2MSubscribeUriMapper mapper = new OneM2MSubscribeUriMapper("o:techno",
+				"[{\"subject\":\"?arg1\", \"predicate\":\"rdf:type\", \"object\":\"o:motion-sensor_33\"}"
+			+  ",{\"subject\":\"?arg1\", \"predicate\":\"rdf:type\", \"object\":\"o:motion-sensor_32\"}]");
+		
 		System.out.println(mapper.getSubscribeUri());
 	}
 

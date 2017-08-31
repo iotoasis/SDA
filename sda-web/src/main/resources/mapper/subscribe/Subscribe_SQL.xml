@@ -33,5 +33,11 @@
 			delete  from tnsda_subscribe where cmid = #{cmid}
 		]]>
 	</delete>
+
+	<delete id="deleteByUri" parameterType="hashmap">
+		<![CDATA[
+			delete  from tnsda_subscribe where cmid = #{cmid} and ciid = #{ciid} and uri = #{uri}
+		]]>
+	</delete>
 	
 </mapper>

@@ -1,7 +1,6 @@
 package com.pineone.icbms.sda.itf.ci.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.dto.TemplateReqDTO;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
@@ -47,8 +45,8 @@ public class CiController {
 	@Resource(name = "templateService")
 	private TemplateService templateService;
 
-	// http://localhost:8080/sda/itf/ci/ALL
-	@RequestMapping(value = "/ci/ALL", method = RequestMethod.GET)
+	// http://localhost:8080/sda/itf/ci/all
+	@RequestMapping(value = "/ci/all", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
@@ -57,7 +55,7 @@ public class CiController {
 		String contents;
 
 		List<CiDTO> list = new ArrayList<CiDTO>();
-		log.info("/ci/ALL GET start================>");
+		log.info("/ci/all GET start================>");
 		try {
 			list = ciService.selectList(commandMap);
 
@@ -76,7 +74,7 @@ public class CiController {
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 					HttpStatus.valueOf(resultMsg.getCode()));
 		}
-		log.info("/ci/ALL GET end================>");
+		log.info("/ci/all GET end================>");
 		return entity;
 	}
 
