@@ -10,7 +10,10 @@ public interface SubscribeService {
 	// regist
 	public void regist(String cmid) throws Exception;
 
-	// subscribe
+	// unregist
+	public void unregist(String cmid) throws Exception;
+
+	// subscribe list
 	public List<CiDTO> selectList() throws Exception;
 
 	// callback

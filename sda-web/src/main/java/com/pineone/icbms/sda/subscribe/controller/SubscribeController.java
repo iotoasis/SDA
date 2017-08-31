@@ -65,6 +65,35 @@ public class SubscribeController {
 		return entity;
 	}
 
+	// 지정된 cmid를 기준으로 subscribe 등록해제
+	// http://localhost:8080/sda/subscribe/regist/CM-1-1-001
+	@RequestMapping(value = "/unregist/{cmid}", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<ResponseMessage> unregist(@PathVariable String cmid) {
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+
+		log.info("subscribe unregist begin================>");
+		
+		try {
+			// 등록해제(unsubscription)
+			subscribeService.unregist(cmid);
+
+			resultMsg.setCode(Utils.OK_CODE);
+			resultMsg.setMessage(Utils.OK_MSG);
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+		} catch (Exception e) {
+			resultMsg = Utils.makeResponseBody(e);
+			log.debug("Exception : "+resultMsg.getMessage());			
+			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
+			responseHeaders.add("ExceptionClass", resultMsg.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("subscribe unregist end================>");
+		return entity;
+	}
+
 	// callback 되었을때 호출되는 메서드
 	@RequestMapping(value = "/callback", method = RequestMethod.POST)
 	public @ResponseBody ResponseEntity<ResponseMessage> callback(@RequestBody String requestBody) {

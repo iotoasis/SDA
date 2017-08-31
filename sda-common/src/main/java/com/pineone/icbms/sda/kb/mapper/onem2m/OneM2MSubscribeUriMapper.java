@@ -83,7 +83,8 @@ public class OneM2MSubscribeUriMapper {
 	}
 
 	private String getSubscribeDataContainer(String type) {
-		String result = "/Data";
+		//String result = "/Data";
+		String result = "";
 		if (type.equals(OneM2MContainerType.status.toString())) {
 			return OneM2MContainerType.status + result;
 		} else if (type.equals(OneM2MContainerType.reserved.toString())) {
@@ -105,9 +106,9 @@ public class OneM2MSubscribeUriMapper {
 	public String makeQueryString() {
 		String query = Utils.getSparQlHeader();
 		//query = query + " SELECT   distinct  ?uri  where {		\n	";
-		query = query + "select  distinct  ?uri  where {	\n\t?uri rdf:type b:Device.\n	";
+		query = query + "select  distinct  ?res  where {	\n\t?uri rdf:type b:Device.\n	";
 		query = query + this.makeTypeField(getTypedUri());
-		query = query + this.makeDomainField() + "} ";
+		query = query + this.makeDomainField() + " ?uri o:hasResource ?res } ";
 		
 		//test
 		System.out.println("[TEST]this.makeTypeField(getTypedUri() ==> \n"+ this.makeTypeField(getTypedUri()));
@@ -137,7 +138,7 @@ public class OneM2MSubscribeUriMapper {
 		for (; rs.hasNext();) {
 			QuerySolution qs = rs.nextSolution();
 			result.add(getProperContainerType(
-					new String(qs.get("uri").toString().replaceAll(baseuri, ""))));
+					new String(qs.get("res").toString().replaceAll(baseuri, ""))));
 		}
 		return result;
 	}

@@ -44,5 +44,9 @@ public class SubscribeDAO extends AbstractDAO{
 		return Integer.parseInt(delete("subscribe.deleteByCmid", commandMap).toString());
 	}	
 
+	public int deleteByUri(Map<String, Object> commandMap) throws Exception{
+		return Integer.parseInt(delete("subscribe.deleteByUri", commandMap).toString());
+	}	
+
 
 }
