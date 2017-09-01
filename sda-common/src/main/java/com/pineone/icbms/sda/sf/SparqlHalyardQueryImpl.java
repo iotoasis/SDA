@@ -43,7 +43,7 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 
 		ResponseMessage rm = null;
 		try {
-			rm = Utils.requestData(query);
+			rm = Utils.requestGet(query);
 		} catch (Exception e) {
 			throw e;
 		}
@@ -56,14 +56,15 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 		} 
 		
 		// 첫번째는 header이므로 1부터 시작함
+		Map<String, String> map = new LinkedHashMap<String, String>();
 		for(int m = 1; m < lines.length; m++) {
-			String row[] = lines[m].split(",");					// 각각의 row를 분리
+			String row[] = lines[m].split(",");					// row를 컬럼으로 분리
 			for(int n = 0; n < header.length; n++) {			
-				Map<String, String> map = new LinkedHashMap<String, String>();
 				map.put(header[n].trim(), row[n].trim());
-				list.add(map);
 			}
+			list.add(map);
 		}
+	
 		log.info("runQuery of halyard sparql end ======================>");
 		return list;
 	}
