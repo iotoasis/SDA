@@ -10,6 +10,10 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,8 +26,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
@@ -430,17 +436,126 @@ public class Utils {
 	}
 	/* */
 
-
-	// POST로 요청
-	public static final ResponseMessage requestData(String uri, String data) throws Exception {
+	// PUT로 요청(header지정)
+	public static final ResponseMessage requestPut(String uri, String data, Map<String, String> headers) throws Exception {
 		HttpResponse response = null;
 		ResponseMessage responseMessage = new ResponseMessage();
+		Iterator<String> itr = headers.keySet().iterator();
 
+		String key = "";
+		String val = "";
+		
+		try {
+			HttpClient client = new DefaultHttpClient();
+			HttpPut put = new HttpPut(uri);
+			
+			while(itr.hasNext()) {
+				key = (String)itr.next();
+				val = (String)headers.get(key);
+				
+				put.setHeader(key, val);
+			}
+
+			HttpEntity entity = new ByteArrayEntity(data.getBytes(ENDODING_UTF8));
+			put.setEntity(entity);
+			response = client.execute(put);
+			log.debug("Response from Server(PUT) ====response====> [" + response + "]");
+			log.debug("Response from Server(PUT) ====response.getStatusLine().getStatusCode() ====> ["
+					+ response.getStatusLine().getStatusCode() + "]");
+			log.debug("Response from Server(PUT) ====response.getStatusLine().getReasonPhrase() ====> ["
+					+ response.getStatusLine().getReasonPhrase() + "]");
+
+			responseMessage.setCode(response.getStatusLine().getStatusCode());
+			responseMessage.setMessage(response.getStatusLine().getReasonPhrase());
+			if(response.getEntity() == null) {
+				responseMessage.setContents("");
+			} else {
+				responseMessage.setContents(EntityUtils.toString(response.getEntity()));
+			}
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+
+		return responseMessage;		
+	}
+	
+	// DELETE로 요청(header지정)
+	public static final ResponseMessage requestDELETE(String uri, String data, Map<String, String> headers) throws Exception {
+		HttpResponse response = null;
+		ResponseMessage responseMessage = new ResponseMessage();
+		Iterator<String> itr = headers.keySet().iterator();
+
+		String key = "";
+		String val = "";
+		
+		try {
+			HttpClient client = new DefaultHttpClient();
+			HttpDelete delete = new HttpDelete(uri);
+			
+			while(itr.hasNext()) {
+				key = (String)itr.next();
+				val = (String)headers.get(key);
+				
+				delete.setHeader(key, val);
+			}
+
+			//HttpEntity entity = new ByteArrayEntity(data.getBytes(ENDODING_UTF8));
+			//delete..setEntity(entity);
+			response = client.execute(delete);
+			log.debug("Response from Server(DELETE) ====response====> [" + response + "]");
+			log.debug("Response from Server(DELETE) ====response.getStatusLine().getStatusCode() ====> ["
+					+ response.getStatusLine().getStatusCode() + "]");
+			log.debug("Response from Server(DELETE) ====response.getStatusLine().getReasonPhrase() ====> ["
+					+ response.getStatusLine().getReasonPhrase() + "]");
+
+			responseMessage.setCode(response.getStatusLine().getStatusCode());
+			responseMessage.setMessage(response.getStatusLine().getReasonPhrase());
+			if(response.getEntity() == null) {
+				responseMessage.setContents("");
+			} else {
+				responseMessage.setContents(EntityUtils.toString(response.getEntity()));
+			}
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+
+		return responseMessage;		
+	}
+	
+	
+	// POST로 요청(header지정)
+	public static final ResponseMessage requestPost(String uri, String data, Map<String, String> headers) throws Exception {
+		HttpResponse response = null;
+		ResponseMessage responseMessage = new ResponseMessage();
+		Iterator<String> itr = headers.keySet().iterator();
+
+		String key = "";
+		String val = "";
+		
 		try {
 			HttpClient client = new DefaultHttpClient();
 			HttpPost post = new HttpPost(uri);
-			post.setHeader(ACCEPT_ENCODING, ACCEPT_ENCODING_IDNTITY);
-			post.setHeader(CONTENT_TYPE, CONTENT_TYPE_JSON);
+			
+			while(itr.hasNext()) {
+				key = (String)itr.next();
+				val = (String)headers.get(key);
+				
+				post.setHeader(key, val);
+			}
 
 			HttpEntity entity = new ByteArrayEntity(data.getBytes(ENDODING_UTF8));
 			post.setEntity(entity);
@@ -453,7 +568,11 @@ public class Utils {
 
 			responseMessage.setCode(response.getStatusLine().getStatusCode());
 			responseMessage.setMessage(response.getStatusLine().getReasonPhrase());
-			responseMessage.setContents(EntityUtils.toString(response.getEntity()));
+			if(response.getEntity() == null) {
+				responseMessage.setContents("");
+			} else {
+				responseMessage.setContents(EntityUtils.toString(response.getEntity()));
+			}
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 			throw e;
@@ -465,19 +584,46 @@ public class Utils {
 			throw e;
 		}
 
-		return responseMessage;
+		return responseMessage;		
+	}
+	
+	// POST로 요청
+	public static final ResponseMessage requestPost(String uri, String data) throws Exception {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put(Utils.ACCEPT_ENCODING, Utils.ACCEPT_ENCODING_IDNTITY);
+		map.put(Utils.CONTENT_TYPE, Utils.CONTENT_TYPE_JSON);
+
+		return requestPost(uri, data, map);
 	}
 
 	// GET으로 요청
-	public static final ResponseMessage requestData(String uri) throws Exception {
+	public static final ResponseMessage requestGet(String uri) throws Exception {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put(Utils.ACCEPT_ENCODING, Utils.ACCEPT_ENCODING_IDNTITY);
+		map.put(Utils.CONTENT_TYPE, Utils.CONTENT_TYPE_JSON);
+		
+		return requestGet(uri, map);
+	}
+	
+	// GET으로 요청(header지정)
+	public static final ResponseMessage requestGet(String uri, Map<String, String> headers) throws Exception {
 		HttpResponse response = null;
 		ResponseMessage responseMessage = new ResponseMessage();
+		Iterator<String> itr = headers.keySet().iterator();
+
+		String key = "";
+		String val = "";
 
 		try {
 			HttpClient client = new DefaultHttpClient();
 			HttpGet get = new HttpGet(uri);
-			get.setHeader(ACCEPT_ENCODING, ACCEPT_ENCODING_IDNTITY);
-			get.setHeader(CONTENT_TYPE, CONTENT_TYPE_JSON);
+			
+			while(itr.hasNext()) {
+				key = (String)itr.next();
+				val = (String)headers.get(key);
+				
+				get.setHeader(key, val);
+			}
 
 			response = client.execute(get);
 			log.debug("Response from Server(GET) ====response====> [" + response + "]");
@@ -488,7 +634,12 @@ public class Utils {
 
 			responseMessage.setCode(response.getStatusLine().getStatusCode());
 			responseMessage.setMessage(response.getStatusLine().getReasonPhrase());
-			responseMessage.setContents(EntityUtils.toString(response.getEntity()));
+			if(response.getEntity() == null) {
+				responseMessage.setContents("");
+			} else {
+				responseMessage.setContents(EntityUtils.toString(response.getEntity()));
+			}
+
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 			throw e;
