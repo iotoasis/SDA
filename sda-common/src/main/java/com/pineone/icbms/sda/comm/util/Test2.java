@@ -1,161 +1,191 @@
 package com.pineone.icbms.sda.comm.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFormatter;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import com.google.gson.Gson;
+import com.pineone.icbms.sda.sf.IdxCnt;
+  
 public class Test2 {
-	public static void main(String[] args) {
-		 String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.sparql.endpoint");
-		 String test = "/herit-in/herit-cse/TempSensor_LR0001TS0001/status/Data/CONTENT_INST_29529";
-		 
-		 String sparql = " SELECT  distinct ?location where { " 
-		  +"?s  rdf:type icbms:Lecture ; @{aaa}XX "
-		  +"icbms:starttime ?stime ; "
-		  +"dul:hasLocation ?location ; @{arg1}, @{arg3} "
-          +"icbms:hasWeekday icbms:@{sysweekday} . "
-	      +"filter(?stime > \"@{systime}\") . "
-		  +"} "
-		  +"# sysweekday : monday "
-		  +"# systime : 0855 ";
-		 
-		 
-		 // SELECT  distinct ?location where { ?s  rdf:type icbms:Lecture ; icbms:starttime ?stime ; dul:hasLocation ?location ; icbms:hasWeekday 
-		 // icbms:sunday . filter(?stime > "0855") . } # sysweekday : monday # systime : 0855 
-		 String sysdateFormat2 = Utils.sysdateFormat2.format(new Date());
-		 System.out.println("sysdateFormat2 : "+sysdateFormat2);
-		 
-		 String[] idxVal = new String[]{"aa","bb","cc","dd"};
-		 int cnt = 0; 
-			
-		 int cnt2 = 0;
-		 
-			StringBuffer parseQl = new StringBuffer();
-			String addStr = "";
-			String lastStr = "";
-			String argStr = "";
-			String idx = "";
-			int skipCnt = 0;
-			while (! sparql.equals("")) {
-				try {
-					addStr = sparql.substring(0, sparql.indexOf("@{"));
-				} catch (StringIndexOutOfBoundsException e) {		// 더이상 "@{"이 없다면 나머지 문자열은 그대로 적용
-					parseQl.append(sparql);
-					break;
-				}
-				
-				lastStr = sparql.substring(sparql.indexOf("@{"));
-				skipCnt += 2;
-				argStr = lastStr.substring(skipCnt, lastStr.indexOf("}"));
+	private static final Log log = LogFactory.getLog(Test2.class);
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+    	try {
+    		List<Map<String, String>> list = getUniqueResultBySameColumn();
+    		System.out.println("final list==>"+list);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	//String lbl_tmp = "[ \"ONDB_TicketCount01_001_ReportLabel\"]";
+    	String lbl_tmp = "[ \"ONDB_TicketCount01_001_ReportLabel\"]";
+    	Gson gson =new Gson();
+    	
+    	System.out.println(lbl_tmp);
+    	
+    	String[] json = gson.fromJson(lbl_tmp ,String[].class);
+    	
+    	for(String str : json)
+    	System.out.println("adsfsdfsdf=>"+str);
+    }
+    
+    
+	// 여러개의 쿼리를 이용하여 결과 만들기(argument가 있음): 컬럼의 개수가 1개 이상이고 비교대상의 컬럼 명칭이 모두 동일한 경우 결과 값 추출하는 로직 
+	private static List<Map<String, String>> getUniqueResultBySameColumn() throws Exception {
 
-				System.out.println("addStr["+cnt+"]==========>"+addStr);
-				System.out.println("lastStr["+cnt+"]==========>"+lastStr);
-				System.out.println("argStr["+cnt+"]==========>"+argStr);
-				
-				SimpleDateFormat systimeFormat = new SimpleDateFormat("HHmm" );
-				SimpleDateFormat sysdateFormat = new SimpleDateFormat("yyyyMMdd" );
-				SimpleDateFormat sysdatetimeFormat = new SimpleDateFormat("yyyyMMddHHmmss" );
-				SimpleDateFormat sysweekdayFormat = new SimpleDateFormat("u");
+		// queryList의 쿼리를 수행한 결과를 모두 담고 있는 List
+		List<List<Map<String, String>>> query_result_list = new ArrayList<List<Map<String, String>>>();
 
-				
-				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-				Date now = new Date();
-				
-				parseQl.append(addStr);			
-				if(argStr.equals("systime")) {
-					parseQl.append(systimeFormat.format(now));
-					skipCnt += 7;
-				} else if(argStr.equals("sysdate")) {
-					parseQl.append(sysdateFormat.format(now));				
-					skipCnt += 7;
-				} else if(argStr.equals("sysdatetime")) {
-					parseQl.append(sysdatetimeFormat.format(now));				
-					skipCnt += 11;
-				} else if(argStr.equals("sysweekday")) {
-					String d = sysweekdayFormat.format(now);
-					String dStr = "";
-					if(d.equals("1")) { // 월요일
-						dStr = "monday";
-					} else if(d.equals("2")) {
-						dStr = "tuesday";
-					} else if(d.equals("3")) {
-						dStr = "wednesday";
-					} else if(d.equals("4")) {
-						dStr = "thursday";
-					} else if(d.equals("5")) {
-						dStr = "friday";
-					} else if(d.equals("6")) {
-						dStr = "saturday";
-					} else if(d.equals("7")) { // 일요일
-						dStr = "sunday";
+		boolean haveNullResult = false;
+	
+		/*
+		 * 	
+o:engcenter_616
+	
+o:t1eng_605
+		 * 
+		 */
+		List<Map<String, String>> query_result1= new ArrayList<Map<String, String>>();
+		List<Map<String, String>> query_result2= new ArrayList<Map<String, String>>();
+		List<Map<String, String>> query_result3= new ArrayList<Map<String, String>>();
+		
+		Map<String, String> map1_1 = new HashMap<String, String>(); map1_1.put("loc", "o:1"); query_result1.add(map1_1);
+		//Map<String, String> map1_2 = new HashMap<String, String>(); map1_2.put("loc", "o:1"); query_result1.add(map1_2);
+		//Map<String, String> map1_3 = new HashMap<String, String>(); map1_3.put("loc", "o:3"); query_result1.add(map1_3);
+			
+		Map<String, String> map2_1 = new HashMap<String, String>();   map2_1.put("loc", "o:11");  query_result2.add(map2_1);
+		//Map<String, String> map2_2 = new HashMap<String, String>();   map2_2.put("loc", "o:2");  query_result2.add(map2_2);
+   	    //Map<String, String> map2_3 = new HashMap<String, String>();   map2_3.put("loc", "o:33");  query_result2.add(map2_3);
+   	    //Map<String, String> map2_4 = new HashMap<String, String>();   map2_4.put("loc", "o:1");  query_result2.add(map2_4);
+
+	
+		Map<String, String> map3_1 = new HashMap<String, String>();  map3_1.put("loc", "o:1"); query_result3.add(map3_1);
+		Map<String, String> map3_2 = new HashMap<String, String>();  map3_2.put("loc", "o:2"); query_result3.add(map3_2);
+		Map<String, String> map3_3 = new HashMap<String, String>();  map3_3.put("loc", "o:3"); query_result3.add(map3_3);
+		Map<String, String> map3_4 = new HashMap<String, String>();  map3_4.put("loc", "o:4"); query_result3.add(map3_4);
+
+		// 중복제거
+		query_result1 = distinctList(query_result1);
+		query_result2 = distinctList(query_result2);
+		query_result3 = distinctList(query_result3);
+		
+		query_result_list.add(query_result1);
+		query_result_list.add(query_result2);
+		//query_result_list.add(query_result3);
+		
+		// 결과값의 전체 개수
+		int total_query_result_list_count = query_result_list.size();
+		log.debug("query_result_list =========> " + query_result_list.toString());
+
+		log.debug("total_query_result_list.size() ==>" + total_query_result_list_count);
+		log.debug("haveNullResult ==>" + haveNullResult);
+
+		// 제일 작은 개수를 찾기위해서 개수및 idx 만으로 이루어진 임시 List를 만듬
+		List<IdxCnt> cntList = new ArrayList<IdxCnt>();
+
+		if (haveNullResult == false) {
+			for (int i = 0; i < query_result_list.size(); i++) {
+				IdxCnt cnt = new IdxCnt();
+				cnt.setCnt(query_result_list.get(i).size());
+				cnt.setIdx(i);
+				cntList.add(cnt);
+			}
+		}
+		log.debug("cntList =========> " + cntList);
+		
+		// return할 최종결과 List
+		List<Map<String, String>> returnList = new ArrayList<Map<String, String>>();
+		int matchedRowCnt = 0;
+		// 2. 건수가 제일 작은 것을 기준으로 찾아야함.
+		if (haveNullResult == false && total_query_result_list_count > 1) {
+			Collections.sort(cntList, new CntCompare());
+			log.debug("sorted cntList =========> " + cntList);
+			
+			int idx = cntList.get(0).getIdx(); 			// 개수가 제일 작은것을 찾는다.
+			List<Map<String, String>> stdList = query_result_list.get(idx); // 비교시 기준이 되는 List를 추출한다.
+			query_result_list.remove(idx); 				// idx에 속하는 List는 제거하여 중복체크되지 않도록 함
+
+			log.debug("stdList =========> " + stdList.toString());
+			log.debug("removed query_result_list =========> " + query_result_list.toString());
+
+			// 제일 작은 개수 List를 기준으로 체크한다.
+			for (int i = 0; i < stdList.size(); i++) {
+				matchedRowCnt = 0;
+				log.debug("stdList.get(" + i + ") :"+stdList.get(i));
+				for (int k = 0; k < query_result_list.size(); k++) {
+					log.debug("query_result_list.get(" + k + ") :" +query_result_list.get(k));
+					
+					if (query_result_list.get(k).contains(stdList.get(i))) {
+						matchedRowCnt++;
+						log.debug("query_result_list.get(" + k + ").contains(stdList.get(" + i + ")) == true");
 					}
-					parseQl.append(dStr);
-					skipCnt += 10;
-				} else if(argStr.startsWith("arg")) {
-					skipCnt += 3;
-					idx = argStr.substring(3); 			// "arg"이후의 숫자값을 취함
-					for(int i = 0;i < 10000; i++) {
-						if(Integer.parseInt(idx) == i) {
-							System.out.println("idx.length() ===========>"+idx.length());
-							parseQl.append(idxVal[i]);
-							skipCnt += idx.length();
-							break;
-						}
-					}
-				} else {
-					skipCnt += argStr.length();
-					parseQl.append("@{"+argStr+"}");
+				} // List 순환 end
+				
+				log.debug("matchedRowCnt of "+stdList.get(i)+" ===> "+matchedRowCnt);
+				if(matchedRowCnt == (total_query_result_list_count-1)) {
+					returnList.add(stdList.get(i));
 				}
-				
-				// skipCnt만큼 지난 이후의 문자열을 설정
-				System.out.println("skipCnt["+cnt+"]==========>"+skipCnt);				
-				sparql = lastStr.substring(skipCnt+1);		// '}'에 대한 1 증가
-				skipCnt = 0;
-				lastStr = "";
-				argStr = "";
-				cnt++;
-			}  // end of while
-			
-			System.out.println("parseQl==========>"+parseQl.toString());
-			
-			
-			
-			int style = DateFormat.MEDIUM;
-		    //Also try with style = DateFormat.FULL and DateFormat.SHORT
-		    Date date = new Date();
-		    DateFormat df;
-		    df = DateFormat.getDateInstance(style, Locale.UK);
-		    System.out.println("United Kingdom: " + df.format(date));
-		    df = DateFormat.getDateInstance(style, Locale.US);
-		    System.out.println("USA: " + df.format(date));   
-		    df = DateFormat.getDateInstance(style, Locale.FRANCE);
-		    System.out.println("France: " + df.format(date));
-		    df = DateFormat.getDateInstance(style, Locale.ITALY);
-		    System.out.println("Italy: " + df.format(date));
-		    df = DateFormat.getDateInstance(style, Locale.JAPAN);
-		    System.out.println("Japan: " + df.format(date));
-		    
-		    
-		    System.out.println("현재+10일 => " +Utils.getDate ( 10 )); 
-		    
-		    System.out.println("aaaa=>"+XmlCalendar2Date.toDate("20150101T010205".replace("T", "")));
-		    
-		    System.out.println("format ==>"+String.format("%010d", 4210));
+			}
+		} else if (haveNullResult == false && total_query_result_list_count  == 1) {       			// 결과값이 1개의 row만을 가지고 있으면 내부 값을 모두 리턴해줌
+			log.debug("total_query_result_list_count is 1  =========> " + query_result_list.get(0));
+			returnList = query_result_list.get(0);
+		} else {
+			// pass
+		}
+		
+		return distinctList(returnList);
 
 	}
+	
+	private static  List<Map<String, String>> distinctList(List<Map<String, String>> list) {
+		//중복 제거
+		// HashSet 데이터 형태로 생성되면서 중복 제거됨
+		HashSet<Map<String,String>> hs = new HashSet<Map<String, String>>(list);
+
+		// ArrayList 형태로 다시 생성
+		ArrayList<Map<String, String>> returnList2 = new ArrayList<Map<String, String>>(hs);
+		return returnList2;
+	}
+  
+}
+
+
+// 숫자 비교용 클래스(내림차순, asc)
+final class CntCompare implements Comparator<IdxCnt> {
+	@Override
+	public int compare(IdxCnt arg0, IdxCnt arg1) {
+		//desc
+		//return arg0.getCnt() > arg1.getCnt() ? -1 : arg0.getCnt() < arg1.getCnt() ? 1 : 0;
+		
+		//asc
+		return arg0.getCnt() < arg1.getCnt() ? -1 : arg0.getCnt() > arg1.getCnt() ? 1 : 0;
+	}
+	
+	class lbl_class {
+		String[] lbls;
+
+		public String[] getLbls() {
+			return lbls;
+		}
+
+		public void setLbls(String[] lbls) {
+			this.lbls = lbls;
+		}
+
+		
+		
+	}
+	
+	
 }

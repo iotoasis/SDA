@@ -183,7 +183,7 @@ public class Utils {
 	public static final String ENDODING_UTF8 = "UTF-8";
 
 	public static final String NEW_LINE = "\n";
-	public static final String SPLIT_STR = "~#";
+	//public static final String SPLIT_STR = "~#";
 	
 	// 정상코드
 	public static final int OK_CODE = 200;
@@ -487,7 +487,7 @@ public class Utils {
 	}
 	
 	// DELETE로 요청(header지정)
-	public static final ResponseMessage requestDELETE(String uri, String data, Map<String, String> headers) throws Exception {
+	public static final ResponseMessage requestDelete(String uri, Map<String, String> headers) throws Exception {
 		HttpResponse response = null;
 		ResponseMessage responseMessage = new ResponseMessage();
 		Iterator<String> itr = headers.keySet().iterator();

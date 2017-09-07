@@ -37,7 +37,7 @@ public  class QueryService extends QueryCommon {
 	
 	private QueryItf queryItf; 
 	
-	public QueryService() {
+	private QueryService() {
 		super();
 	}
 
@@ -56,17 +56,17 @@ public  class QueryService extends QueryCommon {
 
 	// 1개의 쿼리 실행(args있음)
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
+		// gooper
+		/*
 		String queryString;
 		String queryGubun;
-		
+
 		// 구분에 따른 쿼리를 수행한다.
 		if(query.contains(Utils.SPLIT_STR)) {
 			String[] splitStr = query.split(Utils.SPLIT_STR);
 			
 			queryString = splitStr[0];
 			queryGubun = splitStr[1];
-//			cmid = splitStr[2];
-//			ciid = splitStr[3];
 			
 			if(queryGubun.equals(Utils.QUERY_GUBUN.MARIADBOFGRIB.toString())){
 				System.out.println("query gubun : "+Utils.QUERY_GUBUN.MARIADBOFGRIB.toString());
@@ -93,12 +93,16 @@ public  class QueryService extends QueryCommon {
 			} else {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Unknown query gubun of "+queryGubun);
 			}
+
 		} else {  //default는 SPARQL로 처리함
 			queryString = query;
 			queryItf = new SparqlQueryImpl();
 		}
+
 		return queryItf.runQuery(queryString, idxVals);
+		*/
 		
+		return queryItf.runQuery(query, idxVals);
 	}
 
 	// 여러개의 쿼리를 이용하여 결과 만들기(argument가 있음)

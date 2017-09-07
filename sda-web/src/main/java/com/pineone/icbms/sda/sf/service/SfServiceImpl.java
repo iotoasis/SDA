@@ -48,15 +48,12 @@ public class SfServiceImpl implements SfService{
 		List<String> queryList = new ArrayList<String>();
 		for(int i = 0; i < list.size(); i++) {
 			CmCiDTO cmCiDTO = list.get(i);
-			//query+구분값+cmid+ciid로 만들어서 보내준다.			
-/*			queryList.add(cmCiDTO.getSparql()
-					+Utils.SPLIT_STR+cmCiDTO.getCi_gubun()
-					+Utils.SPLIT_STR+cmCiDTO.getTnsda_context_model_cmid()
-					+Utils.SPLIT_STR+cmCiDTO.getTnsda_context_info_ciid()
-					);
-*/
-			//query+구분값로 만들어서 보내준다. 
+			/*
+			//query+구분값+cmid+ciid로 만들어서 보내준다.
 			queryList.add(cmCiDTO.getSparql()+Utils.SPLIT_STR+cmCiDTO.getCi_gubun());
+			*/
+			
+			queryList.add(cmCiDTO.getSparql());			
 		}
 		
 		List<Map<String, String>> returnList= new QueryService(new SparqlQueryImpl()).runQuery(queryList);
@@ -110,16 +107,11 @@ public class SfServiceImpl implements SfService{
 					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Not a valid argument count ! ");
 				}
 			}
+			/*
 			//query+구분값+cmid+ciid로 만들어서 보내준다. 
-/*			queryList.add(cmCiDTO.getSparql()
-					+Utils.SPLIT_STR+cmCiDTO.getCi_gubun()
-					+Utils.SPLIT_STR+cmCiDTO.getTnsda_context_model_cmid()
-					+Utils.SPLIT_STR+cmCiDTO.getTnsda_context_info_ciid()
-					);
-*/		
-			//query+구분값로 만들어서 보내준다. 
-			queryList.add(cmCiDTO.getSparql()+Utils.SPLIT_STR+cmCiDTO.getCi_gubun());	
-		
+			queryList.add(cmCiDTO.getSparql()+Utils.SPLIT_STR+cmCiDTO.getCi_gubun());
+			*/	
+			queryList.add(cmCiDTO.getSparql());
 		}
 		
 		// 쿼리 조건을 인자로 받음
