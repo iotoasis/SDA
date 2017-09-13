@@ -18,6 +18,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import scala.NotImplementedError;
+
+import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.util.Utils;
 /*
  * MariaDB of Grib에 접속하여 쿼리수행
@@ -129,6 +132,25 @@ public class MariaDbOfGribQueryImpl extends QueryCommon implements QueryItf {
 				} catch (SQLException sqle) {
 				}
 			}
+		}
+	}
+
+	@Override
+	public List<Map<String, String>> runQuery(String query) throws Exception {
+		return runQuery(query, new String[]{""});
+	}
+
+	@Override
+	public List<Map<String, String>> runQuery(List<String> queryList) throws Exception {
+		return runQuery(queryList, new String[]{""});
+	}
+
+	@Override
+	public List<Map<String, String>> runQuery(List<String> queryList, String[] idxVals) throws Exception {
+		if(queryList.size() == 1) {
+			return runQuery(queryList.get(0), idxVals);
+		} else {
+			throw new NotImplementedError("runQuery() for many querys is not implemented");
 		}
 	}
 }

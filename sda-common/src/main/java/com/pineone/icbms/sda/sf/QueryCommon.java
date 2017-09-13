@@ -1,11 +1,13 @@
 package com.pineone.icbms.sda.sf;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -177,4 +179,20 @@ public class QueryCommon {
 		}
 	}
 
+	public String removeQueryGubun(String query) {
+		if(query.contains(Utils.SPLIT_STR)) {
+			return query.split(Utils.SPLIT_STR)[0];
+		} else return query;
+	}
+	
+	public List<String> removeQueryGubun(List<String> queryList) {
+		List<String> newQuery = new ArrayList<String>();
+		
+		for(int m = 0; m < queryList.size(); m++) {
+			if(queryList.get(m).contains(Utils.SPLIT_STR)) {
+				newQuery.add(queryList.get(m).split(Utils.SPLIT_STR)[0]);
+			} else newQuery.add(queryList.get(m));
+		}
+		return newQuery;
+	}
 }
