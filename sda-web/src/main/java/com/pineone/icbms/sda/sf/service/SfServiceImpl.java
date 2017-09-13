@@ -16,8 +16,10 @@ import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.itf.ci.dao.CiDAO;
 import com.pineone.icbms.sda.itf.cm.dao.CmDAO;
 import com.pineone.icbms.sda.itf.cm.dto.CmCiDTO;
+import com.pineone.icbms.sda.sf.MultiPurposeQueryService;
 import com.pineone.icbms.sda.sf.QueryService;
-import com.pineone.icbms.sda.sf.SparqlQueryImpl;
+import com.pineone.icbms.sda.sf.QueryServiceFactory;
+import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 
 @Service("sfService")
 public class SfServiceImpl implements SfService{ 
@@ -48,15 +50,13 @@ public class SfServiceImpl implements SfService{
 		List<String> queryList = new ArrayList<String>();
 		for(int i = 0; i < list.size(); i++) {
 			CmCiDTO cmCiDTO = list.get(i);
-			/*
+
 			//query+구분값+cmid+ciid로 만들어서 보내준다.
 			queryList.add(cmCiDTO.getSparql()+Utils.SPLIT_STR+cmCiDTO.getCi_gubun());
-			*/
-			
-			queryList.add(cmCiDTO.getSparql());			
 		}
 		
-		List<Map<String, String>> returnList= new QueryService(new SparqlQueryImpl()).runQuery(queryList);
+		//List<Map<String, String>> returnList= new QueryService(new SparqlFusekiQueryImpl()).runQuery(queryList);
+		List<Map<String, String>> returnList  = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL).runQuery(queryList);
 		
 		log.debug("queryList in getContext by cmid =>"+queryList);
 		log.debug("returnList in getContext by cmid =>"+returnList);
@@ -107,15 +107,18 @@ public class SfServiceImpl implements SfService{
 					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Not a valid argument count ! ");
 				}
 			}
-			/*
+			
 			//query+구분값+cmid+ciid로 만들어서 보내준다. 
 			queryList.add(cmCiDTO.getSparql()+Utils.SPLIT_STR+cmCiDTO.getCi_gubun());
-			*/	
-			queryList.add(cmCiDTO.getSparql());
 		}
 		
-		// 쿼리 조건을 인자로 받음
-		List<Map<String, String>> returnList = new QueryService(new SparqlQueryImpl()).runQuery(queryList, args.split(","));
+		// 쿼리및 조건을 인자로 받음
+		//List<Map<String, String>> returnList = new QueryService(new SparqlFusekiQueryImpl()).runQuery(queryList, args.split(","));
+		//List<Map<String, String>> returnList = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL).runQuery(queryList, args.split(","));
+		
+		MultiPurposeQueryService mpQueryService = new MultiPurposeQueryService();
+		List<Map<String, String>> returnList = mpQueryService.runQuery(queryList, args.split(","));
+		
 		
 		
 		// 쿼리실행결과를 로그로 남김
