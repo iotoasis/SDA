@@ -84,12 +84,12 @@ public class Utils {
 	
 	// 쿼리구분
 	public static enum QUERY_GUBUN {
-		MONGODB,
-		MARIADBOFGRIB,
-		MARIADBOFSDA,
-		SPARQL,
-		HALYARDSPARQL,
-		SHELL
+		MONGODB
+		,MARIADBOFGRIB
+		,MARIADBOFSDA
+		,FUSEKISPARQL
+		,HALYARDSPARQL
+		,SHELL
 	}
 	
 	// 쿼리 수행 목적지
@@ -183,7 +183,7 @@ public class Utils {
 	public static final String ENDODING_UTF8 = "UTF-8";
 
 	public static final String NEW_LINE = "\n";
-	//public static final String SPLIT_STR = "~#";
+	public static final String SPLIT_STR = "~#";
 	
 	// 정상코드
 	public static final int OK_CODE = 200;
