@@ -25,7 +25,8 @@ import com.pineone.icbms.sda.itf.cm.service.CmService;
 import com.pineone.icbms.sda.kb.dto.OneM2MContainerDTO;
 import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MSubscribeUriMapper;
 import com.pineone.icbms.sda.sf.QueryService;
-import com.pineone.icbms.sda.sf.SparqlQueryImpl;
+import com.pineone.icbms.sda.sf.QueryServiceFactory;
+import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 import com.pineone.icbms.sda.sf.TripleService;
 import com.pineone.icbms.sda.subscribe.dao.CallbackDAO;
 import com.pineone.icbms.sda.subscribe.dao.CallbackNoticeDAO;
@@ -118,7 +119,7 @@ public class SubscribeServiceImpl implements SubscribeService {
 				String jsonMsg = gson.toJson(map);
 				log.debug("Request message for subscribing  =>  " + jsonMsg);
 
-				ResponseMessage responseMessage = Utils.requestData(subscription_uri, jsonMsg); // POST
+				ResponseMessage responseMessage = Utils.requestPost(subscription_uri, jsonMsg); // POST
 				// ResponseMessage responseMessage =
 				// Utils.getMessageFromResponse(response);
 
@@ -194,7 +195,7 @@ public class SubscribeServiceImpl implements SubscribeService {
 				String jsonMsg = gson.toJson(map);
 				log.debug("Request message for unsubscribing  =>  " + jsonMsg);
 
-				ResponseMessage responseMessage = Utils.requestData(unsubscription_uri, jsonMsg); // POST
+				ResponseMessage responseMessage = Utils.requestPost(unsubscription_uri, jsonMsg); // POST
 				log.debug("responseMessage of unsubscribing from SI : " + responseMessage.toString());
 				if (responseMessage.getCode() != 200) {
 					throw new RemoteSIException(HttpStatus.valueOf(responseMessage.getCode()),
@@ -230,7 +231,9 @@ public class SubscribeServiceImpl implements SubscribeService {
 		int callback_seq = 0;
 		TripleService tripleService = new TripleService();
 		//SparqlService sparqlService = new SparqlService();
-		QueryService sparqlService= new QueryService(new SparqlQueryImpl());
+		//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
+		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
+		
 		Map<String, Object> commandMap;
 
 		log.info("callback process begin================>");
@@ -351,7 +354,7 @@ synchronized(this) {
 					sparqlList.add(cmCiDTO.getSparql());
 				}
 
-				returnList = sparqlService.runQuery(sparqlList);
+				returnList = ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).runQuery(sparqlList);
 
 				// callback_notice테이블에 insert한다. 시작
 				CallbackNoticeDTO callbackNoticeDTO = new CallbackNoticeDTO();
@@ -382,7 +385,7 @@ synchronized(this) {
 
 					log.debug("Request message[" + i + "] of emergency for sending to SO  =>  " + jsonMsg);
 
-					responseMessage = Utils.requestData(callback_result_uri, jsonMsg); // POST
+					responseMessage = Utils.requestPost(callback_result_uri, jsonMsg); // POST
 
 					log.debug("responseMessage[" + i + "] of emergency from SO : " + responseMessage.toString());
 					// JENA에 쿼리 결과 값을 SO에 전송끝

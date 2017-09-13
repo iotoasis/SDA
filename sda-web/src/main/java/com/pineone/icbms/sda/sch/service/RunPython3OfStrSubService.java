@@ -16,8 +16,9 @@ import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sch.comm.SchedulerJobComm;
 import com.pineone.icbms.sda.sf.QueryCommon;
 import com.pineone.icbms.sda.sf.QueryService;
+import com.pineone.icbms.sda.sf.QueryServiceFactory;
 import com.pineone.icbms.sda.sf.ShellQueryImpl;
-import com.pineone.icbms.sda.sf.SparqlQueryImpl;
+import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 
 @Service
 public class RunPython3OfStrSubService extends SchedulerJobComm implements Job {
@@ -45,7 +46,9 @@ public class RunPython3OfStrSubService extends SchedulerJobComm implements Job {
 		int cnt = 0;
 		StringBuffer work_result = new StringBuffer();
 		
-		QueryService sparqlService= new QueryService(new SparqlQueryImpl());
+		//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
+		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
+		
 		String day_delete_query = " delete { <http://www.iotoasis.org/ontology/day> <http://www.iotoasis.org/ontology/hasStartTime> ?starttime . } "
 										     +" where {<http://www.iotoasis.org/ontology/day> <http://www.iotoasis.org/ontology/hasStartTime> ?starttime  . } ";  
 		
@@ -57,7 +60,9 @@ public class RunPython3OfStrSubService extends SchedulerJobComm implements Job {
 		String night_insert_query = " insert data { <http://www.iotoasis.org/ontology/night> <http://www.iotoasis.org/ontology/hasStartTime>  \"@{arg0}\"^^xsd:string  . } ";
 
 		try {
-			ShellQueryImpl sqi = new ShellQueryImpl();
+			//ShellQueryImpl sqi = new ShellQueryImpl();
+			QueryService sqi = QueryServiceFactory.create(Utils.QUERY_GUBUN.SHELL);
+			
 			List<Map<String, String>> list  = sqi.runQuery(sql.toString(), new String[]{""});
 			
 			cnt = list.size();
@@ -75,10 +80,10 @@ public class RunPython3OfStrSubService extends SchedulerJobComm implements Job {
 					log.debug("RunPython3Service start ......................");
 							
 					// 낮시간 update
-					sparqlService.updateSparql(day_delete_query, Utils.getSparQlHeader()+day_insert_query, new String[]{split_str[3]}, Utils.QUERY_DEST.ALL.toString());
+					((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(day_delete_query, Utils.getSparQlHeader()+day_insert_query, new String[]{split_str[3]}, Utils.QUERY_DEST.ALL.toString());
 					
 					// 밤시간 update
-					sparqlService.updateSparql(night_delete_query, Utils.getSparQlHeader()+night_insert_query, new String[]{split_str[4]}, Utils.QUERY_DEST.ALL.toString());
+					((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(night_delete_query, Utils.getSparQlHeader()+night_insert_query, new String[]{split_str[4]}, Utils.QUERY_DEST.ALL.toString());
 					
 					// fuseki등록 종료
 					log.debug("RunPython3Service  end ......................");		

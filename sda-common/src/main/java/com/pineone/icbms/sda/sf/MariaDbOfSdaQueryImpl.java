@@ -18,6 +18,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import scala.NotImplementedError;
+
+import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.util.Utils;
 /*
  * MariaDB of SDA에 접속하여 쿼리수행
@@ -130,5 +133,20 @@ public class MariaDbOfSdaQueryImpl extends QueryCommon implements QueryItf {
 				}
 			}
 		}
+	}
+
+	@Override
+	public List<Map<String, String>> runQuery(String query) throws Exception {
+		throw new NotImplementedError();
+	}
+
+	@Override
+	public List<Map<String, String>> runQuery(List<String> queryList) throws Exception {
+		throw new NotImplementedError();
+	}
+
+	@Override
+	public List<Map<String, String>> runQuery(List<String> queryList, String[] idxVals) throws Exception {
+		throw new NotImplementedError();
 	}
 }

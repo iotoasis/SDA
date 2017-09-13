@@ -280,26 +280,27 @@ public class TripleService implements Serializable{
 				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:double . }" ;
 
-		QueryService sparqlService= new QueryService(new SparqlQueryImpl());
+		//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
+		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 
 		//log.debug("this.getParentResourceUri() ====> "+this.getParentResourceUri());
 		//log.debug("this.getInstanceUri() =====>"+this.getInstanceUri());
 		//log.debug("this.getInstanceValue() =====>"+this.getInstanceValue());
 		
 		// hasLatestContentInstance 생성(DW, DM)
-		sparqlService.updateSparql(deleteql, insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.ALL.toString());
+		((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(deleteql, insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.ALL.toString());
 	
 		// DM에 hasContentInstance를 생성(DM)
 		//sparqlService.updateSparql(delete_ci_ql, insert_ci_ql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.DM.toString());
 		
 		// DM에 isContentInstanceOf를 생성(DM)
-		sparqlService.updateSparql(delete_ici_ql, insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.DM.toString());
+		((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_ici_ql, insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.DM.toString());
 
 		// DM에 hasContentValue 생성(DM)
 		// con에 숫자도 있지만 문자열도 있으므로 숫자 값만 처리함
 		try {
 			Double.parseDouble(this.getInstanceValue());
-			sparqlService.updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
 		} catch (NumberFormatException e) {
 		    // pass
 		}

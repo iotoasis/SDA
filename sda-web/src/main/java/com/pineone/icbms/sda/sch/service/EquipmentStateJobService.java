@@ -21,7 +21,8 @@ import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sch.comm.SchedulerJobComm;
 import com.pineone.icbms.sda.sch.dao.AggrDAO;
 import com.pineone.icbms.sda.sf.QueryService;
-import com.pineone.icbms.sda.sf.SparqlQueryImpl;
+import com.pineone.icbms.sda.sf.QueryServiceFactory;
+import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 
 @Service
 public class EquipmentStateJobService extends SchedulerJobComm implements Job {
@@ -61,7 +62,8 @@ public class EquipmentStateJobService extends SchedulerJobComm implements Job {
 			
 			// aggr테이블의 aggr_id에 설정된 개수만큼 아래를 수행한다.(1개만 있다..)
 			//SparqlService sparqlService = new SparqlService();
-			QueryService sparqlService= new QueryService(new SparqlQueryImpl());
+			//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
+			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 			
 			List<Map<String, String>> argsResultList;		// 대상목록
 //			List<Map<String, String>> aggrResultList;
@@ -107,7 +109,7 @@ public class EquipmentStateJobService extends SchedulerJobComm implements Job {
 				String condition = "http://www.iotoasis.org/ontology/notFullyEquipped";
 				
 				//delete->insert
-				sparqlService.updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{location, condition}, Utils.QUERY_DEST.ALL.toString());
+				((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{location, condition}, Utils.QUERY_DEST.ALL.toString());
 					msg.append(Utils.NEW_LINE);				
 					msg.append("location["+m+"] ==>  ");
 					msg.append(location);
@@ -129,7 +131,7 @@ public class EquipmentStateJobService extends SchedulerJobComm implements Job {
 				//sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{location, context_cond});
 				
 				//delete->insert
-				sparqlService.updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{location, condition}, Utils.QUERY_DEST.ALL.toString());
+				((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{location, condition}, Utils.QUERY_DEST.ALL.toString());
 					msg.append(Utils.NEW_LINE);				
 					msg.append("location["+m+"] ==>  ");
 					msg.append(location);

@@ -254,7 +254,7 @@ public class SubscribeController {
 		
 		try {
 			// data mart서버의 url호출 
-			resultMsg = Utils.requestData("http://"+Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.ip")+":"+Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.port")+"/sda/subscribe/init-jena2?p="+args);
+			resultMsg = Utils.requestGet("http://"+Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.ip")+":"+Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.port")+"/sda/subscribe/init-jena2?p="+args);
 			log.debug("InitJena2 result  : "+resultMsg.getMessage());
 			
 			if (resultMsg.getCode() == 200) {

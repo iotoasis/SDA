@@ -5,9 +5,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import scala.NotImplementedError;
+
+import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.util.Utils;
 /*
  * MongoDB에 접속하여 쿼리수행
@@ -93,24 +97,23 @@ public class ShellQueryImpl extends QueryCommon implements QueryItf {
 		map.put("result", result[0].toString());
 	    list.add(map);
 		return list;
-	}		
-	
-	
-/*	public Map<String,String> makeStringMap(Map<String, String> map) {
-		Map<String, String> newMap = new HashMap<String, String>();
-		
-    	Set<String> entry = map.keySet();
-    	Iterator<String> itr = entry.iterator();
-    	
-    	while(itr.hasNext()) {
-    		String key = String.valueOf(itr.next());
-    		//System.out.println("key : "+key);
-    		String value = String.valueOf(map.get(key));
-    		//System.out.println("value : "+value);
-    		
-    		newMap.put(key, value);
-    	}
-    	
-	    return newMap;
-	}		*/
-}
+	}
+
+	@Override
+	public List<Map<String, String>> runQuery(String query) throws Exception {
+		return runQuery(query, new String[]{""});
+	}
+
+	@Override
+	public List<Map<String, String>> runQuery(List<String> queryList) throws Exception {
+		return runQuery(queryList, new String[]{""});
+	}
+
+	@Override
+	public List<Map<String, String>> runQuery(List<String> queryList, String[] idxVals) throws Exception {
+		if(queryList.size() == 1) {
+			return runQuery(queryList.get(0), idxVals);
+		} else {
+			throw new NotImplementedError("runQuery() for many querys is not implemented");
+		}
+	}}
