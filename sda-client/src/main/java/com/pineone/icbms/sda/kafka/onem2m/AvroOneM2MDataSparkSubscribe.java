@@ -1,5 +1,6 @@
 package com.pineone.icbms.sda.kafka.onem2m;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.kafka.KafkaUtils;
 
 import com.pineone.icbms.sda.comm.SchComm;
+import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sf.TripleService;
@@ -269,10 +271,22 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 					}
 				}
 			}
-			// 파일 전송
-			log.info("Sending triples in "+user_id+" start.......................");
+			// 파일 전송(DW)
+			log.info("Sending triples in "+user_id+" to DW start.......................");
 			tripleService.sendTripleFileToDW(triple_path_file);
-			log.info("Sending triples in "+user_id+" end.......................");
+			log.info("Sending triples in "+user_id+" to DW end.......................");
+			
+			// 파일 전송(Halyard)
+			log.info("Sending triples in "+user_id+" to Halyard start.......................");
+			try { 
+				tripleService.sendTripleFileToHalyard(new File(triple_path_file));
+			} catch (Exception e) {
+				log.debug("sendTripleFileToHalyard exception in AvroOneM2MDataSparkSubscribe.java : "+e.getLocalizedMessage());
+				log.debug("triple_path_file : "+triple_path_file);
+
+			}
+			log.info("Sending triples in "+user_id+" to Halyard end.......................");
+			
 		}
 
 		Map<String, String> hm = new HashMap<String, String>();
