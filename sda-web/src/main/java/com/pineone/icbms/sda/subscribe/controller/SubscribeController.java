@@ -24,6 +24,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
+import com.pineone.icbms.sda.sf.QueryService;
+import com.pineone.icbms.sda.sf.QueryServiceFactory;
+import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 import com.pineone.icbms.sda.sf.TripleService;
 import com.pineone.icbms.sda.sf.sd.UpdateSemanticDescriptor;
 import com.pineone.icbms.sda.subscribe.service.SubscribeService;
@@ -281,13 +284,15 @@ public class SubscribeController {
 		log.info("init2 jena data end================>");
 		return entity;
 	}
-
+	
+	
 	// http://localhost:8080/sda/subscribe/update-jena?p=날짜8자리,db명
 	@RequestMapping(value = "update-jena", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> updateJena(@RequestParam(value="p")  String args) {
 		log.debug("requested parameter(p) for update Jena ==>" + args);
 		
-		
+		TripleService tripleService = new TripleService();
+
 		ResponseMessage resultMsg = new ResponseMessage();
 		
 		ResponseEntity<ResponseMessage> entity = null;
@@ -310,13 +315,44 @@ public class SubscribeController {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
 			}
 			
-			// Make Semantic Descriptor File - device
+			// Make Semantic Descriptor File - DBName
 			UpdateSemanticDescriptor updateSemanticDescriptor = new UpdateSemanticDescriptor();
 			updateSemanticDescriptor.makeUpdateJena(argArr[1]);
 			
+			// Update 대상의 관련 항목 삭제-Device, Lecture, ... 
+			log.debug("update jena data delete begin================>");
+			String deleteql="";
+			//  Device 관련 항목 DELETE Query: o:name, rdfs:label, dc:creator
+			if(argArr[1].equals("device")) {
+				log.debug("device data delete================>");
+				deleteql =  " PREFIX o: <http://www.iotoasis.org/ontology/> "
+							+" PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
+					        +" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+					        +" PREFIX b: <http://www.onem2m.org/ontology/Base_Ontology#> "
+					        +" PREFIX dc: <http://purl.org/dc/elements/1.1/> "
+					        +" DELETE  { ?s o:name ?o . } "
+					        +" WHERE   { ?s rdf:type b:Device ; "
+					        +"                     o:name ?o . } ; " 
+					        +" DELETE  { ?s rdfs:label ?o . } "
+					        +" WHERE   { ?s rdf:type b:Device ; "
+					        +"                     rdfs:label ?o . } ; " 
+					        +" DELETE  { ?s dc:creator ?o . } "
+					        +" WHERE   { ?s rdf:type b:Device ; "
+					        +"                     dc:creator ?o . } " ;
+			} else if(argArr[1].equals("lecture")) {
+				deleteql = "";
+			}
+			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{""}, Utils.QUERY_DEST.DM.toString());
+			
+			log.debug("update jena data delete end================>");
+			
+			
+			
 
 			//tripleService.sendTripleFileToDW("filepath");
-			//tripleService.sendTripleFileToDM("filepath");
+			//tripleService.sendTripleFileToDM("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
+			tripleService.sendTripleFileToDM("/Users/Lucia/semnatic/icbms_update_device_triple.ttl");
 			// 리턴값 확인 정상 일때 아래 resultMsg
 			
 			resultMsg.setCode(Utils.OK_CODE);
