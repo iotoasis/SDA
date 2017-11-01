@@ -27,7 +27,7 @@ public class UpdateSemanticDescriptor {
 	final Configuration config_device = new Configuration(new File(Utils.QUERY_DEVICE_PATH));
 
 	// update 를 위한 테스트 코드
-	final Configuration config_one_device = new Configuration(new File(Utils.UPDATE_QUERY_DEVICE_TEMP_FILE_PATH));
+	// final Configuration config_one_device = new Configuration(new File(Utils.UPDATE_QUERY_DEVICE_PATH));
 
 	Connection connection = null;
 	PreparedStatement pstmt = null;
@@ -43,7 +43,7 @@ public class UpdateSemanticDescriptor {
 		String temppath = null;
 		
 		
-		filepath = Utils.UPDATE_DEVICE_SAVE_FILE_PATH;
+		filepath = Utils.UPDATE_DEVICE_SAVE_FILE_PATH + name + ".ttl";
 		querypath = Utils.UPDATE_QUERY_DEVICE_PATH;
 		temppath = Utils.UPDATE_QUERY_DEVICE_TEMP_FILE_PATH+name+".sql";
 		
@@ -68,7 +68,7 @@ public class UpdateSemanticDescriptor {
 			e.printStackTrace();
 		}
 		
-		buffer.append(getOneDeviceInfoFromRDBMSTriples()); 
+		buffer.append(getOneDeviceInfoFromRDBMSTriples(name)); 
 		
 		
 		
@@ -179,7 +179,7 @@ public class UpdateSemanticDescriptor {
 	}
 
 	
-	public String getOneDeviceInfoFromRDBMSTriples() throws SQLException {
+	public String getOneDeviceInfoFromRDBMSTriples(String name) throws SQLException {
 		StringBuffer buffer = new StringBuffer();
 		String driver = "org.mariadb.jdbc.Driver";
 		String url = "jdbc:mariadb://" + Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.server") + ":" 
@@ -194,6 +194,7 @@ public class UpdateSemanticDescriptor {
 			e1.printStackTrace();
 		}
 
+		Configuration config_one_device = new Configuration(new File(Utils.UPDATE_QUERY_DEVICE_TEMP_FILE_PATH+name+".sql")); 
 		String query = (String) config_one_device.get("device");
 			try {
 			connection = DriverManager.getConnection(url, username, password);
@@ -293,11 +294,13 @@ public class UpdateSemanticDescriptor {
 
 	public boolean deleteTempFile(String name) {
 
-		String temppath = Utils.UPDATE_QUERY_DEVICE_TEMP_FILE_PATH+name+".sql";
-		File f = new File(temppath);
-		
-		if (f.delete()) {
+		String temp_sql = Utils.UPDATE_QUERY_DEVICE_TEMP_FILE_PATH+name+".sql";
+		String temp_ttl = Utils.UPDATE_DEVICE_SAVE_FILE_PATH+name+".ttl";
+		File f1 = new File(temp_sql);
+		File f2 = new File(temp_ttl);
+		if (f1.delete()) {
 			return true;
+			
 		} else {
 			return false;
 		}

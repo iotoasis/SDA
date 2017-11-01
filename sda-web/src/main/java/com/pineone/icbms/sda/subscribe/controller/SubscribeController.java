@@ -1,6 +1,8 @@
 package com.pineone.icbms.sda.subscribe.controller;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.sql.SQLException;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -344,7 +346,7 @@ public class SubscribeController {
 		  //  tripleService.sendTripleFileToDM("/Users/Lucia/semnatic/icbms_update_device_triple.ttl");
 		    
 		    if(!updateSemanticDescriptor.deleteTempFile(argArr[2])) {
-		    	log.debug("temp device ttl file deletion failed");
+		    	log.debug("temp device files deletion failed");
 		    	throw new UserDefinedException(HttpStatus.INTERNAL_SERVER_ERROR);
 		    }
 		    
@@ -432,7 +434,7 @@ public class SubscribeController {
 
 			//tripleService.sendTripleFileToDW("filepath");
 			//tripleService.sendTripleFileToDM("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
-			tripleService.sendTripleFileToDM("/Users/Lucia/semnatic/icbms_update_device_triple.ttl");
+			//tripleService.sendTripleFileToDM("/Users/Lucia/semnatic/icbms_update_device_triple.ttl");
 			// 리턴값 확인 정상 일때 아래 resultMsg
 			
 			resultMsg.setCode(Utils.OK_CODE);
