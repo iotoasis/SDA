@@ -285,7 +285,87 @@ public class SubscribeController {
 		return entity;
 	}
 	
-	
+	// http://localhost:8080/sda/subscribe/update-device?p=날짜8자리,db명,id
+	@RequestMapping(value = "update-device", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<ResponseMessage> updateDevice(@RequestParam(value="p") String args) {
+		log.debug("requested parameter(p) for update device ==> " + args);
+		
+		TripleService tripleService = new TripleService();
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		String[] argArr;
+		
+		log.info("update device data begin================>");
+		
+		try {
+			argArr = args.split(",");
+			if(argArr.length != 3) {
+				log.debug("p(" + args + ") count mismatched");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+			if( ! Utils.checkPass(argArr[0])) {
+				log.debug("p("+args+") is not valid... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+			if(!argArr[1].equals("device")) {
+				log.debug("p(" + args + ") is not valid ... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+			
+			
+			UpdateSemanticDescriptor updateSemanticDescriptor = new UpdateSemanticDescriptor();
+			// device name의 유무에 따른 처리 : device name이 유일하다는 가정하에 수행 
+			if(!updateSemanticDescriptor.checkDevice(argArr[2])){
+				log.debug("p("+args+") is not found... ");
+				throw new UserDefinedException(HttpStatus.NOT_FOUND);
+			}
+			
+			updateSemanticDescriptor.makeUpdateDevice(argArr[2]);
+			
+			String deleteql =  " PREFIX o: <http://www.iotoasis.org/ontology/> "
+					+" PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
+			        +" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+			        +" PREFIX b: <http://www.onem2m.org/ontology/Base_Ontology#> "
+			        +" PREFIX dc: <http://purl.org/dc/elements/1.1/> "
+			        +" DELETE  { <@{arg0}> o:name ?o . } "
+			        +" WHERE   { <@{arg0}> rdf:type b:Device ; "
+			        +"                     o:name ?o . } ; " 
+			        +" DELETE  { <@{arg0}> rdfs:label ?o . } "
+			        +" WHERE   { <@{arg0}> rdf:type b:Device ; "
+			        +"                     rdfs:label ?o . } ; " 
+			        +" DELETE  { <@{arg0}> dc:creator ?o . } "
+			        +" WHERE   { <@{arg0}> rdf:type b:Device ; "
+			        +"                     dc:creator ?o . } " ;
+			
+			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
+		    ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{"http://www.iotoasis.org/herit-in/herit-cse/"+argArr[2]}, Utils.QUERY_DEST.DM.toString()); 
+		    
+		  //  tripleService.sendTripleFileToDM("/Users/Lucia/semnatic/icbms_update_device_triple.ttl");
+		    
+		    if(!updateSemanticDescriptor.deleteTempFile(argArr[2])) {
+		    	log.debug("temp device ttl file deletion failed");
+		    	throw new UserDefinedException(HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
+		    
+			resultMsg.setCode(Utils.OK_CODE);
+			resultMsg.setMessage(Utils.OK_MSG);
+			resultMsg.setContents("");
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+			log.debug("Exception 1 : "+resultMsg.getMessage());			
+			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
+			responseHeaders.add("ExceptionClass", resultMsg.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("update device data end================>");
+		return entity;
+	}
+
 	// http://localhost:8080/sda/subscribe/update-jena?p=날짜8자리,db명
 	@RequestMapping(value = "update-jena", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> updateJena(@RequestParam(value="p")  String args) {

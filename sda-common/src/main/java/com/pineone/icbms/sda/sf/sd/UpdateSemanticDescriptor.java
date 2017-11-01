@@ -1,7 +1,12 @@
 package com.pineone.icbms.sda.sf.sd;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -20,9 +25,78 @@ public class UpdateSemanticDescriptor {
 	
 	final Configuration config_lecture = new Configuration(new File(Utils.QUERY_LECTURE_PATH));
 	final Configuration config_device = new Configuration(new File(Utils.QUERY_DEVICE_PATH));
-	
 
-	private void getMergedFile(String dbName) throws UserDefinedException, IOException {
+	// update 를 위한 테스트 코드
+	final Configuration config_one_device = new Configuration(new File(Utils.UPDATE_QUERY_DEVICE_TEMP_FILE_PATH));
+
+	Connection connection = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	
+	private void getMergedFileForDevice(String name) throws UserDefinedException, IOException, SQLException {
+
+		StringBuffer buffer = new StringBuffer();
+		String prefix = Utils.getHeaderForTripleFile();
+		buffer.append(prefix);
+		String filepath = null;
+		String querypath = null;
+		String temppath = null;
+		
+		
+		filepath = Utils.UPDATE_DEVICE_SAVE_FILE_PATH;
+		querypath = Utils.UPDATE_QUERY_DEVICE_PATH;
+		temppath = Utils.UPDATE_QUERY_DEVICE_TEMP_FILE_PATH+name+".sql";
+		
+		File previous = null;
+		FileOutputStream fos = null;
+		
+		String result="";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(new File(querypath)));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(temppath)));
+
+			while((result = br.readLine()) != null) {
+				result = result.replaceAll("(@\\{args)([0])+\\}", name);
+				bw.write(result + "\r\n");
+				bw.flush();
+			}
+			bw.close();
+			br.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		buffer.append(getOneDeviceInfoFromRDBMSTriples()); 
+		
+		
+		
+		// Write
+		try {
+			previous = new File(filepath);
+
+			if(previous.exists()){
+				previous.delete();
+			}
+			
+			fos = new FileOutputStream(filepath);
+			
+			fos.write(buffer.toString().getBytes());
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			//null 일시 close 아니면 pass
+			if(fos !=null ) {
+				fos.close();
+			} 
+		}
+
+	}
+	
+	private void getMergedFile(String dbName) throws UserDefinedException, IOException, SQLException {
 
 		StringBuffer buffer = new StringBuffer();
 		String prefix = Utils.getHeaderForTripleFile();
@@ -68,7 +142,7 @@ public class UpdateSemanticDescriptor {
 
 	}
 	
-	public String getLectureInfoFromRDBMSTriples() {
+	public String getLectureInfoFromRDBMSTriples() throws SQLException {
 		StringBuffer buffer = new StringBuffer();
 		String driver = "org.mariadb.jdbc.Driver";
 		String url = "jdbc:mariadb://" + Utils.getSdaProperty("com.pineone.icbms.sda.ss.db.server") + "/device";
@@ -84,9 +158,9 @@ public class UpdateSemanticDescriptor {
 
 		String query = (String) config_lecture.get("lecture");
 		try {
-			Connection connection = DriverManager.getConnection(url, username, password);
-			PreparedStatement pstmt = connection.prepareStatement(query);
-			ResultSet rs = pstmt.executeQuery();
+			connection = DriverManager.getConnection(url, username, password);
+			pstmt = connection.prepareStatement(query);
+			rs = pstmt.executeQuery();
 
 			while (rs.next()) {
 				String str = rs.getString(1);
@@ -96,11 +170,52 @@ public class UpdateSemanticDescriptor {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			connection.close();
+			pstmt.close();
+			rs.close();
 		}
 		return buffer.toString();
 	}
 
-	public String getDeviceInfoFromRDBMSTriples() {
+	
+	public String getOneDeviceInfoFromRDBMSTriples() throws SQLException {
+		StringBuffer buffer = new StringBuffer();
+		String driver = "org.mariadb.jdbc.Driver";
+		String url = "jdbc:mariadb://" + Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.server") + ":" 
+					+ Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.port") + "/device";
+		String username = Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.user");
+		String password = Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.pass");
+
+		try {
+			Class.forName(driver);
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		String query = (String) config_one_device.get("device");
+			try {
+			connection = DriverManager.getConnection(url, username, password);
+			pstmt = connection.prepareStatement(query);
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				String str = rs.getString(1);
+				buffer.append(str + "\n");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			connection.close();
+			pstmt.close();
+			rs.close();
+		}
+		return buffer.toString();
+	}
+	
+	
+	public String getDeviceInfoFromRDBMSTriples() throws SQLException {
 		StringBuffer buffer = new StringBuffer();
 		String driver = "org.mariadb.jdbc.Driver";
 		String url = "jdbc:mariadb://" + Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.server") + ":" 
@@ -117,9 +232,9 @@ public class UpdateSemanticDescriptor {
 
 		String query = (String) config_device.get("device");
 			try {
-			Connection connection = DriverManager.getConnection(url, username, password);
-			PreparedStatement pstmt = connection.prepareStatement(query);
-			ResultSet rs = pstmt.executeQuery();
+			connection = DriverManager.getConnection(url, username, password);
+			pstmt = connection.prepareStatement(query);
+			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				String str = rs.getString(1);
 				buffer.append(str + "\n");
@@ -127,13 +242,64 @@ public class UpdateSemanticDescriptor {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			connection.close();
+			pstmt.close();
+			rs.close();
 		}
 		return buffer.toString();
 	}
-
 	
-	public void makeUpdateJena(String dbName) throws UserDefinedException, IOException {
+	public boolean checkDevice(String name) throws SQLException {
+		String driver = "org.mariadb.jdbc.Driver";
+		String url = "jdbc:mariadb://" + Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.server") + ":" 
+					+ Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.port") + "/device";
+		String username = Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.user");
+		String password = Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.pass");
+		
+		String query = "SELECT COUNT(*) FROM Device WHERE name = '" + name + "'";
+;
+		
+		try {
+			connection = DriverManager.getConnection(url, username, password);
+			pstmt = connection.prepareStatement(query);
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				int result = rs.getInt(1);
+				if(result==1)
+					return true;
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			connection.close();
+			pstmt.close();
+			rs.close();
+		}
+		
+		return false;
+	}
+	public void makeUpdateDevice(String name) throws UserDefinedException, IOException, SQLException {
+		UpdateSemanticDescriptor sd = new UpdateSemanticDescriptor();
+		sd.getMergedFileForDevice(name);
+	}
+	
+	public void makeUpdateJena(String dbName) throws UserDefinedException, IOException, SQLException {
 		UpdateSemanticDescriptor sd = new UpdateSemanticDescriptor();
 		sd.getMergedFile(dbName);
+	}
+
+	public boolean deleteTempFile(String name) {
+
+		String temppath = Utils.UPDATE_QUERY_DEVICE_TEMP_FILE_PATH+name+".sql";
+		File f = new File(temppath);
+		
+		if (f.delete()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
