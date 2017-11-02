@@ -1,6 +1,9 @@
 package com.pineone.icbms.sda.sf;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -13,11 +16,11 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
-import org.apache.jena.update.UpdateExecutionFactory;
 import org.springframework.http.HttpStatus;
 
 import com.google.gson.Gson;
 import com.mongodb.DBObject;
+import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.kb.dto.OneM2MContentInstanceDTO;
@@ -305,6 +308,72 @@ public class TripleService implements Serializable{
 		    // pass
 		}
 	}
+	
+	
+	public void addLatestContentInstanceIntoHalyard() throws Exception {
+		// hasLatestContentInstance
+		String deleteql =  ""
+				                +" prefix o: <http://www.iotoasis.org/ontology/> "
+								+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+								+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+								+" delete  { <@{arg0}> o:hasLatestContentInstance ?o . } "
+								+" WHERE   { <@{arg0}> o:hasLatestContentInstance  ?o  .} "   ;
+		
+		String insertql =   ""
+				                +" prefix o: <http://www.iotoasis.org/ontology/> "
+								+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+								+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+								+" insert data { <@{arg0}> o:hasLatestContentInstance <@{arg1}> . }" ;
+		
+		
+		// isContentInstanceOf (형식: ?ci   o:isContentInstanceOf ?con2 .)
+		String delete_ici_ql =  ""
+				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
+				+" delete  { <@{arg0}> o:isContentInstanceOf ?o . } "
+				+" WHERE   { <@{arg0}> o:isContentInstanceOf  ?o  .} "   ;
+		String insert_ici_ql =   ""
+				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" insert data { <@{arg0}> o:isContentInstanceOf <@{arg1}> . }" ;
+
+		
+		//  hasContentValue
+		String delete_val_ql =  ""
+				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "  
+				+" delete  { <@{arg0}> o:hasContentValue ?o . } "
+				+" WHERE   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
+		String insert_val_ql =   ""
+				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:double . }" ;
+
+		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.HALYARDSPARQL);
+
+		//log.debug("this.getParentResourceUri() ====> "+this.getParentResourceUri());
+		//log.debug("this.getInstanceUri() =====>"+this.getInstanceUri());
+		//log.debug("this.getInstanceValue() =====>"+this.getInstanceValue());
+		
+		// Halyard에 hasLatestContentInstance 생성
+		//((SparqlHalyardQueryImpl)sparqlService.getImplementClass()).updateSparql(deleteql, insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.ALL.toString());
+		
+		// Halyard에 isContentInstanceOf 생성
+		//((SparqlHalyardQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_ici_ql, insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.DM.toString());
+
+		// halyard에 hasContentValue 생성
+		// con에 숫자도 있지만 문자열도 있으므로 숫자 값만 처리함
+		try {
+			Double.parseDouble(this.getInstanceValue());
+			//((SparqlHalyardQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
+		} catch (NumberFormatException e) {
+		    // pass
+		}
+	}
 
 	// triple파일 생성(작업시간과 생성시간을 엮어서 만듬)
 	public void makeTripleFile(String triple_path_file, StringBuffer sb) throws Exception {
@@ -453,9 +522,43 @@ public class TripleService implements Serializable{
 		log.info("sendTripleFile to DM  end==========================>");
 		return result;
 	}
-
 	
-	// triple파일 체크
+	
+	// triple파일을 읽어서 Post형태로 Halyard에 등록함(임시)
+	public ResponseMessage sendTripleFileToHalyard_bak(File triple_path_file) throws Exception {
+		return new ResponseMessage();
+		
+	}
+	
+	// triple파일을 읽어서 Post형태로 Halyard에 등록함	
+	public ResponseMessage sendTripleFileToHalyard(File triple_path_file) throws Exception {
+		log.info("sendTripleFile to Halyard  start==========================>");
+
+		// 전송할 파일읽기
+		String line = "";
+		StringBuffer sb = new StringBuffer();
+		//BufferedReader in = new BufferedReader(new FileReader(new File(triple_path_file)));
+		BufferedReader in = new BufferedReader(new FileReader(triple_path_file));
+		while(( line = in.readLine()) != null) {
+			sb.append(line);
+			sb.append(" \n ");
+		}
+		if(in != null) in.close();
+				
+		QueryService sparqlService= QueryServiceFactory.create(Utils.QUERY_GUBUN.HALYARDSPARQL);
+		ResponseMessage result = ((SparqlHalyardQueryImpl)sparqlService.getImplementClass()).insertByPost(sb.toString());
+		
+		if(result.getContents() == null || ! result.getContents().trim().equals("")) {
+			log.debug("result in TripleService.sendTripleFileToHalyard() == > "+ result.getContents());
+		} else {
+			// pass
+		}
+		
+		log.info("sendTripleFile to Halyard  end==========================>");
+		return result;
+	}
+	
+	// triple파일 체크(Fuseki만)
 	public String[] checkTripleFile(String triple_path_file, String result_file_name) throws Exception {
 		String[] result = new String[]{"",""};
 
@@ -468,14 +571,14 @@ public class TripleService implements Serializable{
 		args[1] = Utils.getSdaProperty("com.pineone.icbms.sda.riot.mode");;
 		args[2] = triple_path_file;
 
-		log.info("checkTripleFile start==========================>");
+		log.info("checkTripleFile start============================>");
 		log.debug("checkTripleFile ==============triple_path_file============>" + triple_path_file);
 		log.debug("result_path ==============result_path============>" + result_path);
 		
 		StringBuilder sb = new StringBuilder();
 
 		for (String str : args) {
-			sb.append(str);
+			sb.append(str); 
 			sb.append(" ");
 		}
 
