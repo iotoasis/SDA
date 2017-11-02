@@ -343,7 +343,7 @@ public class SubscribeController {
 			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 		    ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{"http://www.iotoasis.org/herit-in/herit-cse/"+argArr[2]}, Utils.QUERY_DEST.DM.toString()); 
 		    
-		    tripleService.sendTripleFileToDW("/Users/Lucia/semnatic/icbms_update_device_triple.ttl");
+			tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
 		    
 		    if(!updateSemanticDescriptor.deleteTempFile(argArr[2])) {
 		    	log.debug("temp device files deletion failed");
