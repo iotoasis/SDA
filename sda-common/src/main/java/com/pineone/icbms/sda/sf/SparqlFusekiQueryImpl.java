@@ -151,50 +151,52 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 		UpdateRequest ur = UpdateFactory.create(madeQl);
 		UpdateProcessor up;
 
-		try {
-			log.debug("try (first).................................. ");
-			up = UpdateExecutionFactory.createRemote(ur, updateService);
-			up.execute();
-		} catch (Exception e) {
-			int waitTime = 15*1000;
-			log.debug("Exception message in runModifySparql() =====> "+e.getMessage());  // HTTP 500 error making the query: java.lang.StackOverflowError or...
-			
+		if( ! dest.equals("DMONLY")) {
 			try {
-				// 일정시간 대기 했다가 다시 수행함
-				log.debug("sleeping.(first).................................. in "+waitTime);
-				Thread.sleep(waitTime);
-				
-				log.debug("try (second).................................. ");
+				log.debug("try (first).................................. ");
 				up = UpdateExecutionFactory.createRemote(ur, updateService);
 				up.execute();
-			} catch (Exception ee) {
-				log.debug("Exception 1====>"+ee.getMessage());
-				waitTime = 30*1000;
-				if(ee.getMessage().contains("Service Unavailable") || ee.getMessage().contains("java.net.ConnectException")			
-						 // || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error") 
-						 ) {
-					try {
-						// restart fuseki
-						Utils.restartFuseki();
-						
-						// 일정시간을 대기 한다.
-						log.debug("sleeping (final)................................. in "+waitTime);
-						Thread.sleep(waitTime);
-						
-						// 마지막으로 다시한번 시도한다.
-						log.debug("try (final).................................. ");
-						up = UpdateExecutionFactory.createRemote(ur, updateService);
-						up.execute();
-					} catch (Exception eee) {
-						log.debug("Exception 2====>"+eee.getMessage());
-						throw eee;
+			} catch (Exception e) {
+				int waitTime = 15*1000;
+				log.debug("Exception message in runModifySparql() =====> "+e.getMessage());  // HTTP 500 error making the query: java.lang.StackOverflowError or...
+				
+				try {
+					// 일정시간 대기 했다가 다시 수행함
+					log.debug("sleeping.(first).................................. in "+waitTime);
+					Thread.sleep(waitTime);
+					
+					log.debug("try (second).................................. ");
+					up = UpdateExecutionFactory.createRemote(ur, updateService);
+					up.execute();
+				} catch (Exception ee) {
+					log.debug("Exception 1====>"+ee.getMessage());
+					waitTime = 30*1000;
+					if(ee.getMessage().contains("Service Unavailable") || ee.getMessage().contains("java.net.ConnectException")			
+							 // || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error") 
+							 ) {
+						try {
+							// restart fuseki
+							Utils.restartFuseki();
+							
+							// 일정시간을 대기 한다.
+							log.debug("sleeping (final)................................. in "+waitTime);
+							Thread.sleep(waitTime);
+							
+							// 마지막으로 다시한번 시도한다.
+							log.debug("try (final).................................. ");
+							up = UpdateExecutionFactory.createRemote(ur, updateService);
+							up.execute();
+						} catch (Exception eee) {
+							log.debug("Exception 2====>"+eee.getMessage());
+							throw eee;
+						}
 					}
-				}
-				throw ee;
-			} // 두번째 try
-		} // 첫번째 try
+					throw ee;
+				} // 두번째 try
+			} // 첫번째 try
+		}
 		
-		if(dest.equals("DM") || dest.equals("ALL")) {
+		if(dest.equals("DM") || dest.equals("DMONLY") || dest.equals("ALL")) {
 			//동일한(delete or insert) sparql를 DM서버에도 수행함(최근값 혹은 추론결과, subscription값등을 등록한다.)
 			log.debug("runModifySparql() on DM server start.................................. ");
 			String madeQl2 = makeFinal(sparql, idxVals);

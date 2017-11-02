@@ -96,7 +96,8 @@ public class Utils {
 	public static enum QUERY_DEST {
 		DM,
 		DW,
-		ALL
+		ALL,
+		DMONLY
 	}
 	
 	// kafka broker
