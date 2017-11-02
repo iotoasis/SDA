@@ -298,7 +298,7 @@ public class UpdateSemanticDescriptor {
 		String temp_ttl = Utils.UPDATE_DEVICE_SAVE_FILE_PATH+name+".ttl";
 		File f1 = new File(temp_sql);
 		File f2 = new File(temp_ttl);
-		if (f1.delete()) {
+		if (f1.delete() && f2.delete()) {
 			return true;
 			
 		} else {

@@ -343,7 +343,7 @@ public class SubscribeController {
 			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 		    ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{"http://www.iotoasis.org/herit-in/herit-cse/"+argArr[2]}, Utils.QUERY_DEST.DM.toString()); 
 		    
-		  //  tripleService.sendTripleFileToDM("/Users/Lucia/semnatic/icbms_update_device_triple.ttl");
+		    tripleService.sendTripleFileToDW("/Users/Lucia/semnatic/icbms_update_device_triple.ttl");
 		    
 		    if(!updateSemanticDescriptor.deleteTempFile(argArr[2])) {
 		    	log.debug("temp device files deletion failed");
@@ -434,8 +434,17 @@ public class SubscribeController {
 
 			//tripleService.sendTripleFileToDW("filepath");
 			//tripleService.sendTripleFileToDM("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
-			//tripleService.sendTripleFileToDM("/Users/Lucia/semnatic/icbms_update_device_triple.ttl");
+			//tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
 			// 리턴값 확인 정상 일때 아래 resultMsg
+			
+			if (argArr[1].equals("device")) {
+				tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
+			} else if (argArr[1].equals("lecture")) {
+				tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_lecture_triple.ttl");
+			} else if (argArr[1].equals("all")) {
+				tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_triple.ttl");
+			}
+			
 			
 			resultMsg.setCode(Utils.OK_CODE);
 			resultMsg.setMessage(Utils.OK_MSG);
