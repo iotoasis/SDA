@@ -46,7 +46,8 @@ import com.mongodb.util.JSON;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.sf.MariaDbOfGribQueryImpl;
 import com.pineone.icbms.sda.sf.QueryService;
-import com.pineone.icbms.sda.sf.SparqlQueryImpl;
+import com.pineone.icbms.sda.sf.QueryServiceFactory;
+import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 
 public class Test {
 	private static final Log log = LogFactory.getLog(Test.class);
@@ -189,7 +190,14 @@ public class Test {
 		System.out.println("case1=>"+String.format("%s", StringUtils.leftPad("PARK",10,'X')));
 		
 		//SparqlService sfService = new SparqlService();
-		QueryService sfService= new QueryService(new SparqlQueryImpl());
+		//QueryService sfService= new QueryService(new SparqlFusekiQueryImpl());
+		QueryService sfService;
+		try {
+			sfService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		
 		List<String> queryList = new ArrayList<String>();
 

@@ -225,14 +225,14 @@ public class TripleService implements Serializable{
 		String deleteql =  ""
 				                +" prefix o: <http://www.iotoasis.org/ontology/> "
 								+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-								+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+								+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 								+" delete  { <@{arg0}> o:hasLatestContentInstance ?o . } "
-								+" WHERE   { <@{arg0}> o:hasLatestContentInstance  ?o  .} "   ;
+								+" where   { <@{arg0}> o:hasLatestContentInstance  ?o  .} "   ;
 		
 		String insertql =   ""
 				                +" prefix o: <http://www.iotoasis.org/ontology/> "
 								+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-								+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+								+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 								+" insert data { <@{arg0}> o:hasLatestContentInstance <@{arg1}> . }" ;
 		
 		/*
@@ -259,30 +259,39 @@ public class TripleService implements Serializable{
 		// isContentInstanceOf (	 ?ci   o:isContentInstanceOf ?con2 .)
 		String delete_ici_ql =  ""
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
 				+" delete  { <@{arg0}> o:isContentInstanceOf ?o . } "
-				+" WHERE   { <@{arg0}> o:isContentInstanceOf  ?o  .} "   ;
+				+" where   { <@{arg0}> o:isContentInstanceOf  ?o  .} "   ;
 		String insert_ici_ql =   ""
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
 				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 				+" insert data { <@{arg0}> o:isContentInstanceOf <@{arg1}> . }" ;
 
 		
-		//  hasContentValue
+		//  hasContentValue, case #1
 		String delete_val_ql =  ""
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "  
 				+" delete  { <@{arg0}> o:hasContentValue ?o . } "
-				+" WHERE   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
+				+" where   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
 		String insert_val_ql =   ""
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
 				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:double . }" ;
+				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:double . }" ; 
 
+		// hasContentValue, case #2
+		String deleteinsert_ql = ""
+				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "  
+				+" delete  { <@{arg0}> o:hasContentValue ?o . } "
+			    +" insert { <@{arg0}> o:hasContentValue <@{arg1}> . } "				
+				+" where   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
+		
 		//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
 		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 
@@ -303,21 +312,23 @@ public class TripleService implements Serializable{
 		// con에 숫자도 있지만 문자열도 있으므로 숫자 값만 처리함
 		try {
 			Double.parseDouble(this.getInstanceValue());
-			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
+			//((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DMONLY.toString());
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql2(deleteinsert_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DMONLY.toString());
 		} catch (NumberFormatException e) {
 		    // pass
 		}
 	}
 	
-	
+	// Halyard에는 최근값을 입력하지 않음...
+	/*
 	public void addLatestContentInstanceIntoHalyard() throws Exception {
 		// hasLatestContentInstance
 		String deleteql =  ""
 				                +" prefix o: <http://www.iotoasis.org/ontology/> "
 								+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-								+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+								+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 								+" delete  { <@{arg0}> o:hasLatestContentInstance ?o . } "
-								+" WHERE   { <@{arg0}> o:hasLatestContentInstance  ?o  .} "   ;
+								+" where   { <@{arg0}> o:hasLatestContentInstance  ?o  .} "   ;
 		
 		String insertql =   ""
 				                +" prefix o: <http://www.iotoasis.org/ontology/> "
@@ -329,28 +340,28 @@ public class TripleService implements Serializable{
 		// isContentInstanceOf (형식: ?ci   o:isContentInstanceOf ?con2 .)
 		String delete_ici_ql =  ""
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
 				+" delete  { <@{arg0}> o:isContentInstanceOf ?o . } "
-				+" WHERE   { <@{arg0}> o:isContentInstanceOf  ?o  .} "   ;
+				+" where   { <@{arg0}> o:isContentInstanceOf  ?o  .} "   ;
 		String insert_ici_ql =   ""
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
 				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 				+" insert data { <@{arg0}> o:isContentInstanceOf <@{arg1}> . }" ;
 
 		
 		//  hasContentValue
 		String delete_val_ql =  ""
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "  
 				+" delete  { <@{arg0}> o:hasContentValue ?o . } "
-				+" WHERE   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
+				+" where   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
 		String insert_val_ql =   ""
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
 				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:double . }" ;
 
 		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.HALYARDSPARQL);
@@ -369,12 +380,13 @@ public class TripleService implements Serializable{
 		// con에 숫자도 있지만 문자열도 있으므로 숫자 값만 처리함
 		try {
 			Double.parseDouble(this.getInstanceValue());
-			//((SparqlHalyardQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
+			((SparqlHalyardQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
 		} catch (NumberFormatException e) {
 		    // pass
 		}
 	}
-
+	*/
+	
 	// triple파일 생성(작업시간과 생성시간을 엮어서 만듬)
 	public void makeTripleFile(String triple_path_file, StringBuffer sb) throws Exception {
 		FileWriter fw = null;
