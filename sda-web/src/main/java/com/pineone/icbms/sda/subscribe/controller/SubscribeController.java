@@ -1,5 +1,7 @@
 package com.pineone.icbms.sda.subscribe.controller;
 
+import java.io.File;
+
 import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
@@ -21,6 +23,7 @@ import com.pineone.icbms.sda.sf.QueryService;
 import com.pineone.icbms.sda.sf.QueryServiceFactory;
 import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 import com.pineone.icbms.sda.sf.TripleService;
+import com.pineone.icbms.sda.sf.sd.Configuration;
 import com.pineone.icbms.sda.sf.sd.UpdateSemanticDescriptor;
 import com.pineone.icbms.sda.subscribe.service.SubscribeService;
 
@@ -347,7 +350,7 @@ public class SubscribeController {
 			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 		    ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{"http://www.iotoasis.org/herit-in/herit-cse/"+argArr[2]}, Utils.QUERY_DEST.DM.toString()); 
 		    
-			tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
+			tripleService.sendTripleFileToDW(Utils.UPDATE_DEVICE_SAVE_FILE_PATH+argArr[2]+".ttl");
 		    
 		    if(!updateSemanticDescriptor.deleteTempFile(argArr[2])) {
 		    	log.debug("temp device files deletion failed");
@@ -442,11 +445,11 @@ public class SubscribeController {
 			// 리턴값 확인 정상 일때 아래 resultMsg
 			
 			if (argArr[1].equals("device")) {
-				tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
+				tripleService.sendTripleFileToDW(Utils.DEVICE_SAVE_FILE_PATH);
 			} else if (argArr[1].equals("lecture")) {
-				tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_lecture_triple.ttl");
+				tripleService.sendTripleFileToDW(Utils.LECTURE_SAVE_FILE_PATH);
 			} else if (argArr[1].equals("all")) {
-				tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_triple.ttl");
+				tripleService.sendTripleFileToDW(Utils.ALL_SAVE_FILE_PATH);
 			}
 			
 			
