@@ -5,6 +5,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpStatus;
+
+import com.pineone.icbms.sda.comm.exception.UserDefinedException;
+import com.pineone.icbms.sda.comm.util.Utils;
 
 public  class QueryService extends QueryCommon {
 	private final Log log = LogFactory.getLog(this.getClass());
@@ -29,8 +33,8 @@ public  class QueryService extends QueryCommon {
 		this.queryItf = queryItf;
 	}
 	
-	public QueryItf getImplementClass() {
-		return this.queryItf;
+	public QueryItf getImplementClass() throws Exception{
+			return this.queryItf;
 	}
 
 	// 쿼리 실행(args없음)

@@ -1,5 +1,6 @@
 package com.pineone.icbms.sda.subscribe.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -310,6 +311,13 @@ synchronized(this) {
 				}
 				// subscription data triple파일을 DW에 전송
 				tripleService.sendTripleFileToDW(triple_path_file);
+				// subscription data triple파일을 Halyard에 전송
+				try {
+					tripleService.sendTripleFileToHalyard(new File(triple_path_file));
+				} catch (Exception e) {
+					log.debug("sendTripleFileToHalyard exception in SubscribeServiceImpl : "+e.getMessage());
+					log.debug("triple_path_file : "+triple_path_file);
+				}
 				
 				// subscription data triple파일을 DM에 전송
 				tripleService.sendTripleFileToDM(triple_path_file);

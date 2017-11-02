@@ -1,6 +1,5 @@
 package com.pineone.icbms.sda.subscribe.controller;
 
-
 import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
@@ -152,10 +151,23 @@ public class SubscribeController {
 			Utils.deleteDWTripleAll();
 			log.debug("init jena data delete end================>");
 			
-			// 서버 데이타 초기화
+			// 서버 데이타 초기화(DW)
 			log.debug("init jena sendTripleFile begin================>");
 			tripleService.sendTripleFileToDW(save_path_file);
 			log.debug("init jena sendTripleFile end================>");
+			
+
+			// 서버 데이타 초기화(Halyard)
+			log.debug("init jena sendTripleFileToHalyard begin================>");
+			try {
+				tripleService.sendTripleFileToHalyard(new File(save_path_file));
+			} catch (Exception e) {
+				log.debug("sendTripleFileToHalyard exceptionin SubscribeController.java : "+e.getLocalizedMessage());
+				log.debug("save_path_file : "+save_path_file);
+			}
+			log.debug("init jena sendTripleFileToHalyard end================>");
+
+
 		
 			/* */
 			//DM서버 초기화하기
