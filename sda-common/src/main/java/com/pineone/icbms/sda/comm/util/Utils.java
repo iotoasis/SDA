@@ -169,6 +169,23 @@ public class Utils {
 	public static final String DEVICE_SAVE_FILE_PATH = "/home/pineone/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl";
 	public static final String LECTURE_SAVE_FILE_PATH = "/home/pineone/svc/apps/sda/update-jena-data/icbms_update_lecture_triple.ttl";
 	
+	public static final String UPDATE_DEVICE_SAVE_FILE_PATH = "/home/pineone/svc/apps/sda/update-jena-data/temp_one_device/temp_";
+	public static final String UPDATE_QUERY_DEVICE_PATH = "/home/pineone/svc/apps/sda/update-jena-data/query/temp_one_device/update_query_device.sql";
+	public static final String UPDATE_QUERY_DEVICE_TEMP_FILE_PATH ="/home/pineone/svc/apps/sda/update-jena-data/query/temp_one_device/temp_";
+
+	
+/*	// Semantic Descriptor 쿼리 경로 - 이현화 테스트  
+	public static final String QUERY_LECTURE_PATH = "/Users/Lucia/sdaf/sda-common/src/main/resources/semantic/descriptor/query/query_lecture.sql";
+	public static final String QUERY_DEVICE_PATH = "/Users/Lucia/sdaf/sda-common/src/main/resources/semantic/descriptor/query/query_device.sql";
+	public static final String ALL_SAVE_FILE_PATH = "/Users/Lucia/semantic/icbms_update_triple.ttl";
+	public static final String DEVICE_SAVE_FILE_PATH = "/Users/Lucia/semantic/icbms_update_device_triple.ttl";
+	public static final String LECTURE_SAVE_FILE_PATH = "/Users/Lucia/semantic/icbms_update_lecture_triple.ttl";
+	
+		
+	public static final String UPDATE_DEVICE_SAVE_FILE_PATH = "/Users/Lucia/semantic/temp_one_device/temp_";
+	public static final String UPDATE_QUERY_DEVICE_PATH = "/Users/Lucia/sdaf/sda-common/src/main/resources/semantic/descriptor/query/temp_one_device/update_query_device.sql";
+	public static final String UPDATE_QUERY_DEVICE_TEMP_FILE_PATH ="/Users/Lucia/sdaf/sda-common/src/main/resources/semantic/descriptor/query/temp_one_device/temp_";
+	*/
 	//test용
 	public static final String CALLBACK_TEST = "occ";
 	
