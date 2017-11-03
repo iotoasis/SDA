@@ -349,7 +349,7 @@ public class SubscribeController {
 			        +"                     dc:creator ?o . } " ;
 			
 			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
-		    ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{"http://www.iotoasis.org/herit-in/herit-cse/"+argArr[2]}, Utils.QUERY_DEST.DM.toString()); 
+		    ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{"http://www.iotoasis.org/herit-in/herit-cse/"+argArr[2]}, Utils.QUERY_DEST.ALL.toString()); 
 		    
 			tripleService.sendTripleFileToDW(Utils.UPDATE_DEVICE_SAVE_FILE_PATH+argArr[2]+".ttl");
 		    
@@ -430,10 +430,38 @@ public class SubscribeController {
 					        +" WHERE   { ?s rdf:type b:Device ; "
 					        +"                     dc:creator ?o . } " ;
 			} else if(argArr[1].equals("lecture")) {
-				deleteql = "";
+				log.debug("lecture data delete================>");
+				deleteql = " PREFIX o: <http://www.iotoasis.org/ontology/> "
+							+" PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
+					        +" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+					        +" PREFIX b: <http://www.onem2m.org/ontology/Base_Ontology#> "
+					        +" PREFIX dc: <http://purl.org/dc/elements/1.1/> "
+					        +" DELETE  { ?s o:hasElectricPowerLimit ?o . } "
+					        +" WHERE   { ?s o:hasElectricPowerLimit . } ; " 
+					        +" DELETE  { ?s o:name ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:name ?o . } ; "
+					        +" DELETE  { ?s rdfs:label ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     rdfs:label ?o . } ; " 
+					        +" DELETE  { ?s o:numberOfAttendance ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:numberOfAttendance ?o . } ; " 
+					        +" DELETE  { ?s o:takePlace ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:takePlace ?o . } ; " 
+					        +" DELETE  { ?s o:hasEndTime ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:hasEndTime ?o . } ; " 
+					        +" DELETE  { ?s o:hasStartTime ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:hasStartTime ?o . } ; " 
+					        +" DELETE  { ?s o:hasLectureDaysOfWeek ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:hasLectureDaysOfWeek ?o . } " ;
 			}
 			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
-			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{""}, Utils.QUERY_DEST.DM.toString());
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{""}, Utils.QUERY_DEST.ALL.toString());
 			
 			log.debug("update jena data delete end================>");
 			
