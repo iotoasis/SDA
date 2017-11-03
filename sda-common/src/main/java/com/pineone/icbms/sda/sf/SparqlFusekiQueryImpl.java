@@ -147,11 +147,11 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 	private void  runModifySparql(String sparql, String[] idxVals, String dest) throws Exception {
 		String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint") + "/update";
 
-		String madeQl = makeFinal(sparql, idxVals);
-		UpdateRequest ur = UpdateFactory.create(madeQl);
-		UpdateProcessor up;
-
-		if( ! dest.equals("DMONLY")) {
+		if(dest.equals("ALL") || dest.equals("DW")) {
+			String madeQl = makeFinal(sparql, idxVals);
+			UpdateRequest ur = UpdateFactory.create(madeQl);
+			UpdateProcessor up;
+			
 			try {
 				log.debug("try (first).................................. ");
 				up = UpdateExecutionFactory.createRemote(ur, updateService);
@@ -196,7 +196,7 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 			} // 첫번째 try
 		}
 		
-		if(dest.equals("DM") || dest.equals("DMONLY") || dest.equals("ALL")) {
+		if(dest.equals("ALL") || dest.equals("DM")) {
 			//동일한(delete or insert) sparql를 DM서버에도 수행함(최근값 혹은 추론결과, subscription값등을 등록한다.)
 			log.debug("runModifySparql() on DM server start.................................. ");
 			String madeQl2 = makeFinal(sparql, idxVals);
@@ -364,7 +364,7 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 	*/
 
 	// update(delete, insert를 한트랜잭션에서 처리) - 해당 uri가 존재하지 않으면 작동하지 않음
-	public synchronized void updateSparql2(String deleteinsertql, String[] idxVals, String dest) throws Exception {
+	public void updateSparql2(String deleteinsertql, String[] idxVals, String dest) throws Exception {
 		log.debug("delete+insert sparql start............................");
 		// delete+insert
 		runModifySparql(deleteinsertql, idxVals, dest);

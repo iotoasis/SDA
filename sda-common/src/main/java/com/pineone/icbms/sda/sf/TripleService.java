@@ -283,6 +283,7 @@ public class TripleService implements Serializable{
 				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:double . }" ; 
 
+		/*
 		// hasContentValue, case #2
 		String deleteinsert_ql = ""
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
@@ -291,6 +292,7 @@ public class TripleService implements Serializable{
 				+" delete  { <@{arg0}> o:hasContentValue ?o . } "
 			    +" insert { <@{arg0}> o:hasContentValue <@{arg1}> . } "				
 				+" where   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
+		*/
 		
 		//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
 		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
@@ -312,8 +314,7 @@ public class TripleService implements Serializable{
 		// con에 숫자도 있지만 문자열도 있으므로 숫자 값만 처리함
 		try {
 			Double.parseDouble(this.getInstanceValue());
-			//((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DMONLY.toString());
-			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql2(deleteinsert_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DMONLY.toString());
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
 		} catch (NumberFormatException e) {
 		    // pass
 		}
