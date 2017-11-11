@@ -145,12 +145,14 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 
 	// update쿼리수행(sparql만 해당됨)
 	private void  runModifySparql(String sparql, String[] idxVals, String dest) throws Exception {
-		String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint") + "/update";
-
 		if(dest.equals("ALL") || dest.equals("DW")) {
+			String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint") + "/update";
 			String madeQl = makeFinal(sparql, idxVals);
 			UpdateRequest ur = UpdateFactory.create(madeQl);
 			UpdateProcessor up;
+			
+			//log.debug("sparql of "+dest+" in runModifySparql ===> "+madeQl);
+			log.debug("runModifySparql() on DW or ALL server start.................................. ");
 			
 			try {
 				log.debug("try (first).................................. ");
@@ -194,21 +196,25 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 					throw ee;
 				} // 두번째 try
 			} // 첫번째 try
+			
+			log.debug("runModifySparql() on DW or ALL server end.................................. ");
 		}
 		
 		if(dest.equals("ALL") || dest.equals("DM")) {
 			//동일한(delete or insert) sparql를 DM서버에도 수행함(최근값 혹은 추론결과, subscription값등을 등록한다.)
-			log.debug("runModifySparql() on DM server start.................................. ");
+			log.debug("runModifySparql() on DM or ALL server start.................................. ");
 			String madeQl2 = makeFinal(sparql, idxVals);
 			String updateService2 = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint") + "/update";
 			UpdateRequest ur2 = UpdateFactory.create(madeQl2);
+			
+			//log.debug("sparql of "+dest+" in runModifySparql ===> "+madeQl2);
 			
 			//log.debug("madeQl2  ============>"+ madeQl2);
 			//log.debug("query  ============>"+ ur2.toString());
 			
 			UpdateProcessor up2 = UpdateExecutionFactory.createRemote(ur2, updateService2);
 			up2.execute();
-			log.debug("runModifySparql() on DM server end.................................. ");
+			log.debug("runModifySparql() on DM or ALL server end.................................. ");
 		}
 	}
 	
@@ -239,7 +245,7 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 		//String result_str = "";
 		//String aware_group_id = Utils.dateFormat.format(new Date()) + "S"+String.format("%010d", ai.getAndIncrement());
 
-		log.debug("idxVals in getUniqueResultBySameColumn()================>" + Arrays.toString(idxVals));
+		//log.debug("idxVals in getUniqueResultBySameColumn()================>" + Arrays.toString(idxVals));
 
 		// 쿼리를 실행해서 구분자로 분리하여 list에 담는다.
 		// 1. 모든 줄에 있는 값을 찾아야 하므로 쿼리결과가 값이 없는 row가 있으면 다음 쿼리는 수행하지 않음
