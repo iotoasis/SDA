@@ -338,15 +338,24 @@ public class SubscribeController {
 			        +" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 			        +" PREFIX b: <http://www.onem2m.org/ontology/Base_Ontology#> "
 			        +" PREFIX dc: <http://purl.org/dc/elements/1.1/> "
-			        +" DELETE  { <@{arg0}> o:name ?o . } "
-			        +" WHERE   { <@{arg0}> rdf:type b:Device ; "
-			        +"                     o:name ?o . } ; " 
-			        +" DELETE  { <@{arg0}> rdfs:label ?o . } "
-			        +" WHERE   { <@{arg0}> rdf:type b:Device ; "
-			        +"                     rdfs:label ?o . } ; " 
-			        +" DELETE  { <@{arg0}> dc:creator ?o . } "
-			        +" WHERE   { <@{arg0}> rdf:type b:Device ; "
-			        +"                     dc:creator ?o . } " ;
+			        +" DELETE "
+			        +" WHERE   { <@{arg0}> ?p1 ?o1 . "
+			        +"                     ?o1 ?p2 ?o2 . "
+			        +"					   ?o2 ?p3 ?o3 . "
+			        +"                     ?o3 ?p4 ?o4 . "
+			        +"	 } ; " 
+			        +" DELETE "
+			        +" WHERE   { <@{arg0}> ?p1 ?o1 . "
+			        +"                     ?o1 ?p2 ?o2 . "
+			        +"					   ?o2 ?p3 ?o3 . "
+			        +"	 } ; " 
+			        +" DELETE "
+			        +" WHERE   { <@{arg0}> ?p1 ?o1 . "
+			        +"                     ?o1 ?p2 ?o2 . "
+			        +"	 } ; " 
+			        +" DELETE "
+			        +" WHERE   { <@{arg0}> ?p1 ?o1 . "
+			        +"	 } ; " ;
 			
 			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 		    ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{"http://www.iotoasis.org/herit-in/herit-cse/"+argArr[2]}, Utils.QUERY_DEST.ALL.toString()); 
