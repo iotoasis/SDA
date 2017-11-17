@@ -152,7 +152,7 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 			UpdateProcessor up;
 			
 			//log.debug("sparql of "+dest+" in runModifySparql ===> "+madeQl);
-			log.debug("runModifySparql() on DW or ALL server start.................................. ");
+			log.debug("runModifySparql() on DW server start.................................. ");
 			
 			try {
 				log.debug("try (first).................................. ");
@@ -197,12 +197,12 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 				} // 두번째 try
 			} // 첫번째 try
 			
-			log.debug("runModifySparql() on DW or ALL server end.................................. ");
+			log.debug("runModifySparql() on DW server end.................................. ");
 		}
 		
 		if(dest.equals("ALL") || dest.equals("DM")) {
 			//동일한(delete or insert) sparql를 DM서버에도 수행함(최근값 혹은 추론결과, subscription값등을 등록한다.)
-			log.debug("runModifySparql() on DM or ALL server start.................................. ");
+			log.debug("runModifySparql() on DM server start.................................. ");
 			String madeQl2 = makeFinal(sparql, idxVals);
 			String updateService2 = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint") + "/update";
 			UpdateRequest ur2 = UpdateFactory.create(madeQl2);
@@ -214,7 +214,7 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 			
 			UpdateProcessor up2 = UpdateExecutionFactory.createRemote(ur2, updateService2);
 			up2.execute();
-			log.debug("runModifySparql() on DM or ALL server end.................................. ");
+			log.debug("runModifySparql() on DM server end.................................. ");
 		}
 	}
 	
