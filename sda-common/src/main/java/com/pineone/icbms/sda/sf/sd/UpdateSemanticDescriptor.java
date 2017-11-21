@@ -145,7 +145,8 @@ public class UpdateSemanticDescriptor {
 	public String getLectureInfoFromRDBMSTriples() throws SQLException {
 		StringBuffer buffer = new StringBuffer();
 		String driver = "org.mariadb.jdbc.Driver";
-		String url = "jdbc:mariadb://" + Utils.getSdaProperty("com.pineone.icbms.sda.ss.db.server") + "/device";
+		String url = "jdbc:mariadb://" + Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.server") + ":" 
+				+ Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.port") + "/device";
 		String username = Utils.getSdaProperty("com.pineone.icbms.sda.ss.db.user");
 		String password = Utils.getSdaProperty("com.pineone.icbms.sda.ss.db.pass");
 

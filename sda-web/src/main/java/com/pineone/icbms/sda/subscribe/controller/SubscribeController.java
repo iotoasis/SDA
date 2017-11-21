@@ -1,5 +1,9 @@
 package com.pineone.icbms.sda.subscribe.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+
 import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
@@ -21,6 +26,7 @@ import com.pineone.icbms.sda.sf.QueryService;
 import com.pineone.icbms.sda.sf.QueryServiceFactory;
 import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 import com.pineone.icbms.sda.sf.TripleService;
+import com.pineone.icbms.sda.sf.sd.Configuration;
 import com.pineone.icbms.sda.sf.sd.UpdateSemanticDescriptor;
 import com.pineone.icbms.sda.subscribe.service.SubscribeService;
 
@@ -329,26 +335,109 @@ public class SubscribeController {
 			
 			updateSemanticDescriptor.makeUpdateDevice(argArr[2]);
 			
-			String deleteql =  " PREFIX o: <http://www.iotoasis.org/ontology/> "
-					+" PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
-			        +" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-			        +" PREFIX b: <http://www.onem2m.org/ontology/Base_Ontology#> "
-			        +" PREFIX dc: <http://purl.org/dc/elements/1.1/> "
-			        +" DELETE  { <@{arg0}> o:name ?o . } "
-			        +" WHERE   { <@{arg0}> rdf:type b:Device ; "
-			        +"                     o:name ?o . } ; " 
-			        +" DELETE  { <@{arg0}> rdfs:label ?o . } "
-			        +" WHERE   { <@{arg0}> rdf:type b:Device ; "
-			        +"                     rdfs:label ?o . } ; " 
-			        +" DELETE  { <@{arg0}> dc:creator ?o . } "
-			        +" WHERE   { <@{arg0}> rdf:type b:Device ; "
-			        +"                     dc:creator ?o . } " ;
+			String deleteql =  " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+						  + " prefix dc: <http://purl.org/dc/elements/1.1/> "
+						  + " prefix dul: <http://www.loa-cnr.it/ontologies/DUL.owl#> "
+						  + " prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+						  + " prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+						  + " prefix b: <http://www.onem2m.org/ontology/Base_Ontology#>  "
+						  + " prefix o: <http://www.iotoasis.org/ontology/> "
+						  + " DELETE { "
+						  + " 	?Aspect o:hasAspectValue ?AspectValue ; "
+						  + " 			o:hasActionValue ?ActionValue ; "
+						  + " 			o:hasUnit ?Unit . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasFunctionality ?Functionality ."
+						  + " 	?Functionality b:hasAspect ?Aspect . "
+						  + "   ?Aspect		   o:hasUnit ?Unit ; "
+						  + " 		   		   o:hasActionType ?ActionType ; "
+						  + " 	   			   o:hasActionValue ?ActionValue ; "
+						  + "    	   		   o:hasAspectValue ?AspectValue . "
+						  + " } ; "
+						  + " DELETE { "
+						  + "   ?Command o:hasCommandValue ?CommandValue ; "
+						  + "   		 b:isExposedByOperation ?Operation ; "
+						  + " 			 rdf:type ?Type . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasFunctionality ?Functionality . "
+						  + "   ?Functionality b:hasCommand ?Command . "
+						  + "   ?Command o:hasCommandValue ?CommandValue ; "
+						  + "   		 b:isExposedByOperation ?Operation ; "
+						  + " 			 rdf:type ?Type . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	?Operation rdf:type ?Type ; "
+						  + " 	   		   b:exposesCommand ?exposesCommand . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasService ?Service . "
+						  + "	?Service b:hasOperation ?Operation . "
+						  + " 	?Operation rdf:type ?Type ; "
+						  + " 			   b:exposesCommand ?exposesCommand . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	?Service o:isDiscovery ?isDiscovery ; "
+						  + " 		  	 b:hasOperation ?Operation ; "
+						  + "  		   	 o:isDiscovery ?isDiscovery ; "
+						  + " 		 	 rdfs:label ?label ; "
+						  + " 		  	 rdf:type ?Type ; "
+						  + " 		 	  b:exposesFunctionality ?exposesFunctionality . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasService ?Service . "
+						  + " 	?Service o:isDiscovery ?isDiscovery ; "
+						  + "			 b:hasOperation ?Operation ; "
+						  + " 			 o:isDiscovery ?isDiscovery ; "
+						  + " 			 rdfs:label ?label ; "
+						  + " 			 rdf:type ?Type ; "
+						  + " 			 b:exposesFunctionality ?exposesFunctionality . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	?Functionality b:hasCommand ?Command ; "
+						  + " 				   rdf:type ?Type ; "
+						  + " 				   b:hasAspect ?Aspect ; "
+						  + " 				   b:isExposeedByService ?ExposeedService ; "
+						  + " 			       b:refersTo ?refersTo . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasFunctionality ?Functionality . "
+						  + " 	?Functionality b:hasCommand ?Command ; "
+						  + " 		   		   rdf:type ?Type ; "
+						  + "  				   b:hasAspect ?Aspect ; "
+						  + " 				   b:isExposeedByService ?ExposeedService ; "
+						  + " 		   		   b:refersTo ?refersTo . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	<@{arg0}> b:hasService ?Service ; "
+						  + " 	          o:hasCreateDate ?CreateDate ; "
+						  + " 	          dul:hasLocation ?Location ; "
+						  + " 	          o:hasDeviceType ?DeviceType ; "
+						  + " 	          b:hasFunctionality ?Functionality ; "
+						  + " 	 	      o:hasPhysicalDeviceType ?PhysicalDeviceType ; "
+						  + "    	      o:name ?Name ; "
+						  + " 		      dc:creator ?Creator ; "
+						  + " 		      rdfs:label ?Label ; "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasService ?Service ; "
+						  + "  	   		  o:hasCreateDate ?CreateDate ; "
+						  + " 	  		  dul:hasLocation ?Location ; "
+						  + " 	 	  	  o:hasDeviceType ?DeviceType ; "
+						  + " 		      b:hasFunctionality ?Functionality ; "
+						  + " 		      o:hasPhysicalDeviceType ?PhysicalDeviceType ; "
+						  + "             o:name ?Name ; "
+						  + " 	  		  dc:creator ?Creator ; "
+						  + " 	  		  rdfs:label ?Label ; "
+						  + " } " ;
 			
 			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
-		    ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{"http://www.iotoasis.org/herit-in/herit-cse/"+argArr[2]}, Utils.QUERY_DEST.DM.toString()); 
+		    ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{"http://www.iotoasis.org/herit-in/herit-cse/"+argArr[2]}, Utils.QUERY_DEST.ALL.toString()); 
 		    
-			tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
-		    
+			tripleService.sendTripleFileToDW(Utils.UPDATE_DEVICE_SAVE_FILE_PATH+argArr[2]+".ttl");
+			tripleService.sendTripleFileToDM(Utils.UPDATE_DEVICE_SAVE_FILE_PATH+argArr[2]+".ttl");
+
 		    if(!updateSemanticDescriptor.deleteTempFile(argArr[2])) {
 		    	log.debug("temp device files deletion failed");
 		    	throw new UserDefinedException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -411,42 +500,158 @@ public class SubscribeController {
 			//  Device 관련 항목 DELETE Query: o:name, rdfs:label, dc:creator
 			if(argArr[1].equals("device")) {
 				log.debug("device data delete================>");
-				deleteql =  " PREFIX o: <http://www.iotoasis.org/ontology/> "
+				deleteql =  " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+						  + " prefix dc: <http://purl.org/dc/elements/1.1/> "
+						  + " prefix dul: <http://www.loa-cnr.it/ontologies/DUL.owl#> "
+						  + " prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+						  + " prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+						  + " prefix b: <http://www.onem2m.org/ontology/Base_Ontology#>  "
+						  + " prefix o: <http://www.iotoasis.org/ontology/> "
+						  + " DELETE { "
+						  + " 	?Aspect o:hasAspectValue ?AspectValue ; "
+						  + " 			o:hasActionValue ?ActionValue ; "
+						  + " 			o:hasUnit ?Unit . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	?s a o:ApplicationEntity ; "
+						  + "      b:hasFunctionality ?Functionality ."
+						  + " 	?Functionality b:hasAspect ?Aspect . "
+						  + "   ?Aspect		   o:hasUnit ?Unit ; "
+						  + " 		   		   o:hasActionType ?ActionType ; "
+						  + " 	   			   o:hasActionValue ?ActionValue ; "
+						  + "    	   		   o:hasAspectValue ?AspectValue . "
+						  + " } ; "
+						  + " DELETE { "
+						  + "   ?Command o:hasCommandValue ?CommandValue ; "
+						  + "   		 b:isExposedByOperation ?Operation ; "
+						  + " 			 rdf:type ?Type . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	?s a o:ApplicationEntity ; "
+						  + " 	   b:hasFunctionality ?Functionality . "
+						  + "   ?Functionality b:hasCommand ?Command . "
+						  + "   ?Command o:hasCommandValue ?CommandValue ; "
+						  + "   		 b:isExposedByOperation ?Operation ; "
+						  + " 			 rdf:type ?Type . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	?Operation rdf:type ?Type ; "
+						  + " 	   		   b:exposesCommand ?exposesCommand . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	?s a o:ApplicationEntity ; "
+						  + "  	   b:hasService ?Service . "
+						  + "	?Service b:hasOperation ?Operation . "
+						  + " 	?Operation rdf:type ?Type ; "
+						  + " 			   b:exposesCommand ?exposesCommand . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	?Service o:isDiscovery ?isDiscovery ; "
+						  + " 		  	 b:hasOperation ?Operation ; "
+						  + "  		   	 o:isDiscovery ?isDiscovery ; "
+						  + " 		 	 rdfs:label ?label ; "
+						  + " 		  	 rdf:type ?Type ; "
+						  + " 		 	  b:exposesFunctionality ?exposesFunctionality . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	?s a o:ApplicationEntity ; "
+						  + " 	   b:hasService ?Service . "
+						  + " 	?Service o:isDiscovery ?isDiscovery ; "
+						  + "			 b:hasOperation ?Operation ; "
+						  + " 			 o:isDiscovery ?isDiscovery ; "
+						  + " 			 rdfs:label ?label ; "
+						  + " 			 rdf:type ?Type ; "
+						  + " 			 b:exposesFunctionality ?exposesFunctionality . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	?Functionality b:hasCommand ?Command ; "
+						  + " 				   rdf:type ?Type ; "
+						  + " 				   b:hasAspect ?Aspect ; "
+						  + " 				   b:isExposeedByService ?ExposeedService ; "
+						  + " 			       b:refersTo ?refersTo . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	?s a o:ApplicationEntity ; "
+						  + " 	   b:hasFunctionality ?Functionality . "
+						  + " 	?Functionality b:hasCommand ?Command ; "
+						  + " 		   		   rdf:type ?Type ; "
+						  + "  				   b:hasAspect ?Aspect ; "
+						  + " 				   b:isExposeedByService ?ExposeedService ; "
+						  + " 		   		   b:refersTo ?refersTo . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	?s b:hasService ?Service ; "
+						  + " 	   o:hasCreateDate ?CreateDate ; "
+						  + " 	   dul:hasLocation ?Location ; "
+						  + " 	   o:hasDeviceType ?DeviceType ; "
+						  + " 	   b:hasFunctionality ?Functionality ; "
+						  + " 	   o:hasPhysicalDeviceType ?PhysicalDeviceType ; "
+						  + "      o:name ?Name ; "
+						  + " 	   dc:creator ?Creator ; "
+						  + " 	   rdfs:label ?Label ; "
+						  + " } "
+						  + " WHERE { "
+						  + " 	?s a o:ApplicationEntity ; "
+						  + " 	   b:hasService ?Service ; "
+						  + "  	   o:hasCreateDate ?CreateDate ; "
+						  + " 	   dul:hasLocation ?Location ; "
+						  + " 	   o:hasDeviceType ?DeviceType ; "
+						  + " 	   b:hasFunctionality ?Functionality ; "
+						  + " 	   o:hasPhysicalDeviceType ?PhysicalDeviceType ; "
+						  + " 	   o:name ?Name ; "
+						  + " 	   dc:creator ?Creator ; "
+						  + " 	   rdfs:label ?Label ; "
+						  + " } " ;
+							
+		
+			} else if(argArr[1].equals("lecture")) {
+				log.debug("lecture data delete================>");
+				deleteql = " PREFIX o: <http://www.iotoasis.org/ontology/> "
 							+" PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
 					        +" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 					        +" PREFIX b: <http://www.onem2m.org/ontology/Base_Ontology#> "
 					        +" PREFIX dc: <http://purl.org/dc/elements/1.1/> "
+					        +" DELETE  { ?s o:hasElectricPowerLimit ?o . } "
+					        +" WHERE   { ?s o:hasElectricPowerLimit . } ; " 
 					        +" DELETE  { ?s o:name ?o . } "
-					        +" WHERE   { ?s rdf:type b:Device ; "
-					        +"                     o:name ?o . } ; " 
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:name ?o . } ; "
 					        +" DELETE  { ?s rdfs:label ?o . } "
-					        +" WHERE   { ?s rdf:type b:Device ; "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
 					        +"                     rdfs:label ?o . } ; " 
-					        +" DELETE  { ?s dc:creator ?o . } "
-					        +" WHERE   { ?s rdf:type b:Device ; "
-					        +"                     dc:creator ?o . } " ;
-			} else if(argArr[1].equals("lecture")) {
-				deleteql = "";
+					        +" DELETE  { ?s o:numberOfAttendance ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:numberOfAttendance ?o . } ; " 
+					        +" DELETE  { ?s o:takePlace ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:takePlace ?o . } ; " 
+					        +" DELETE  { ?s o:hasEndTime ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:hasEndTime ?o . } ; " 
+					        +" DELETE  { ?s o:hasStartTime ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:hasStartTime ?o . } ; " 
+					        +" DELETE  { ?s o:hasLectureDaysOfWeek ?o . } "
+					        +" WHERE   { ?s rdf:type o:Lecture ; "
+					        +"                     o:hasLectureDaysOfWeek ?o . } " ;
 			}
 			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
-			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{""}, Utils.QUERY_DEST.DM.toString());
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{""}, Utils.QUERY_DEST.ALL.toString());
 			
 			log.debug("update jena data delete end================>");
 			
-			
-			
 
-			//tripleService.sendTripleFileToDW("filepath");
-			//tripleService.sendTripleFileToDM("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
-			//tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
 			// 리턴값 확인 정상 일때 아래 resultMsg
 			
 			if (argArr[1].equals("device")) {
-				tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_device_triple.ttl");
+				tripleService.sendTripleFileToDW(Utils.DEVICE_SAVE_FILE_PATH);
+				tripleService.sendTripleFileToDM(Utils.DEVICE_SAVE_FILE_PATH);
 			} else if (argArr[1].equals("lecture")) {
-				tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_lecture_triple.ttl");
+				tripleService.sendTripleFileToDW(Utils.LECTURE_SAVE_FILE_PATH);
+				tripleService.sendTripleFileToDM(Utils.LECTURE_SAVE_FILE_PATH);
 			} else if (argArr[1].equals("all")) {
-				tripleService.sendTripleFileToDW("/svc/apps/sda/update-jena-data/icbms_update_triple.ttl");
+				tripleService.sendTripleFileToDW(Utils.ALL_SAVE_FILE_PATH);
+				tripleService.sendTripleFileToDM(Utils.ALL_SAVE_FILE_PATH);
 			}
 			
 			
@@ -468,6 +673,5 @@ public class SubscribeController {
 		log.info("update jena data end================>");
 		return entity;
 	}
-	
 	
 }
