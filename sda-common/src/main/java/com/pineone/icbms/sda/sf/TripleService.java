@@ -12,8 +12,10 @@ import java.util.Arrays;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.springframework.http.HttpStatus;
@@ -277,114 +279,48 @@ public class TripleService implements Serializable{
 				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "  
 				+" delete  { <@{arg0}> o:hasContentValue ?o . } "
 				+" where   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
-		String insert_val_ql =   ""
+		String insert_val_ql_string =   ""
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
 				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
 				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:double . }" ; 
+				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:string . }" ;
 
-		/*
-		// hasContentValue, case #2
-		String deleteinsert_ql = ""
+		String insert_val_ql_float =   ""
 				+" prefix o: <http://www.iotoasis.org/ontology/> "
+				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
 				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "  
-				+" delete  { <@{arg0}> o:hasContentValue ?o . } "
-			    +" insert { <@{arg0}> o:hasContentValue <@{arg1}> . } "				
-				+" where   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
-		*/
-		
-		//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
-		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
+				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:float . }" ; 
 
-		//log.debug("this.getParentResourceUri() ====> "+this.getParentResourceUri());
-		//log.debug("this.getInstanceUri() =====>"+this.getInstanceUri());
-		//log.debug("this.getInstanceValue() =====>"+this.getInstanceValue());
-		
-		// hasLatestContentInstance 생성(DW, DM)
-		((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(deleteql, insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.ALL.toString());
-	
-		// DM에 hasContentInstance를 생성(DM)
-		//sparqlService.updateSparql(delete_ci_ql, insert_ci_ql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.DM.toString());
-		
-		// DM에 isContentInstanceOf를 생성(DM)
-		((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_ici_ql, insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.DM.toString());
-
-		// DM에 hasContentValue 생성(DM)
-		// con에 숫자도 있지만 문자열도 있으므로 숫자 값만 처리함
 		try {
-			Double.parseDouble(this.getInstanceValue());
-			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
-		} catch (NumberFormatException e) {
-		    // pass
+			//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
+			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
+			
+			// hasLatestContentInstance 생성(DW, DM)
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(deleteql, insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.ALL.toString());
+		
+			// DM에 hasContentInstance를 생성(DM)
+			//sparqlService.updateSparql(delete_ci_ql, insert_ci_ql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.DM.toString());
+			
+			// DM에 isContentInstanceOf를 생성(DM)->ALL
+			//((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_ici_ql, insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.DM.toString());
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_ici_ql, insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.ALL.toString());
+	
+			// DM에 hasContentValue 생성(DM)
+			// con값을 숫자로 변활 수 있는 값만 처리함->모두 처리함
+			try {
+				Float.parseFloat(this.getInstanceValue());
+				((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql_float, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());				
+			} catch (Exception e) {
+				((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql_string, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
+			}
+		} catch (Exception e) {
+		    log.debug("exception in addLatestContentInstance() : "+e.getMessage());
 		}
 	}
 	
 	// Halyard에는 최근값을 입력하지 않음...
 	/*
 	public void addLatestContentInstanceIntoHalyard() throws Exception {
-		// hasLatestContentInstance
-		String deleteql =  ""
-				                +" prefix o: <http://www.iotoasis.org/ontology/> "
-								+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-								+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-								+" delete  { <@{arg0}> o:hasLatestContentInstance ?o . } "
-								+" where   { <@{arg0}> o:hasLatestContentInstance  ?o  .} "   ;
-		
-		String insertql =   ""
-				                +" prefix o: <http://www.iotoasis.org/ontology/> "
-								+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-								+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-								+" insert data { <@{arg0}> o:hasLatestContentInstance <@{arg1}> . }" ;
-		
-		
-		// isContentInstanceOf (형식: ?ci   o:isContentInstanceOf ?con2 .)
-		String delete_ici_ql =  ""
-				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
-				+" delete  { <@{arg0}> o:isContentInstanceOf ?o . } "
-				+" where   { <@{arg0}> o:isContentInstanceOf  ?o  .} "   ;
-		String insert_ici_ql =   ""
-				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
-				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" insert data { <@{arg0}> o:isContentInstanceOf <@{arg1}> . }" ;
-
-		
-		//  hasContentValue
-		String delete_val_ql =  ""
-				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "  
-				+" delete  { <@{arg0}> o:hasContentValue ?o . } "
-				+" where   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
-		String insert_val_ql =   ""
-				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:double . }" ;
-
-		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.HALYARDSPARQL);
-
-		//log.debug("this.getParentResourceUri() ====> "+this.getParentResourceUri());
-		//log.debug("this.getInstanceUri() =====>"+this.getInstanceUri());
-		//log.debug("this.getInstanceValue() =====>"+this.getInstanceValue());
-		
-		// Halyard에 hasLatestContentInstance 생성
-		//((SparqlHalyardQueryImpl)sparqlService.getImplementClass()).updateSparql(deleteql, insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.ALL.toString());
-		
-		// Halyard에 isContentInstanceOf 생성
-		//((SparqlHalyardQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_ici_ql, insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.DM.toString());
-
-		// halyard에 hasContentValue 생성
-		// con에 숫자도 있지만 문자열도 있으므로 숫자 값만 처리함
-		try {
-			Double.parseDouble(this.getInstanceValue());
-			((SparqlHalyardQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
-		} catch (NumberFormatException e) {
-		    // pass
-		}
 	}
 	*/
 	
