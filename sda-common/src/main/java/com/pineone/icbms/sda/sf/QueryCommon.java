@@ -111,11 +111,8 @@ public class QueryCommon {
 				}
 			} else if (argStr.startsWith("now")) {
 
-				String[] split = argStr.split(","); // @{now+3, second,
-													// "YYYYMM"}
-				int val = Integer.parseInt(split[0].substring(3)); // "now"이후의
-																	// 연산자(+,
-																	// -)를 취함
+				String[] split = argStr.split(","); // @{now+3, second, "YYYYMM"}
+				int val = Integer.parseInt(split[0].substring(3)); // "now"이후의 연산자(+, -)를 취함
 
 				// 날짜계산
 				Calendar cal = new GregorianCalendar();
