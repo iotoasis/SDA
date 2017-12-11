@@ -46,6 +46,25 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 	private String content;
 	private String contentType;
 	int isEncoded = 0;
+	
+	private String createDate;
+	private String lastModifiedDate;
+	
+	public String getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(String createDate) {
+		this.createDate = createDate;
+	}
+
+	public String getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(String lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
 
 	public enum EnumContentType {
 		userinout, survey, normal, presence, present
@@ -54,23 +73,27 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 	public OneM2MContentInstanceMapper(OneM2MContentInstanceDTO dto) {
 		this.dto = dto;
 		this.baseuri = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.uri");
-		this.setContetnType();
+		this.setContentType();
 	}
 
 	public OneM2MContentInstanceMapper(OneM2MContentInstanceDTO dto, Configuration config) {
 		this.dto = dto;
 		this.baseuri = config.getStringProperty("com.pineone.icbms.sda.knowledgebase.uri");
-		this.setContetnType();
+		this.setContentType();
 	}
 
 	@Override
 	public void initResource() {
 		// contentInstance = model.createResource(baseuri + "/" + dto.getRi());
 		contentInstance = model.createResource(baseuri + this.dto.get_uri());
-		parentResource = model.createResource(baseuri + Utils.getParentURI(dto.get_uri()));
+		parentResource = model.createResource(baseuri + Utils.getParentURI(this.dto.get_uri()));
 		contentInfo = dto.getCnf();
 		resourceName = dto.getRn();
-		contentInfo = dto.getCnf();
+		
+		// gooper
+		this.setCreateDate(this.dto.getCt());
+		this.setLastModifiedDate(this.dto.getLt());
+		
 		label = "";
 		for (int i = 0; i < dto.getLbl().length; i++) {
 			label = label + "," + dto.getLbl()[i];
@@ -80,7 +103,6 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		// getDecodedContent
 		if (contentInfo.contains("text/plain:0")) {
 			isEncoded = 0;
-			content = dto.getCon(0);
 		} else if (contentInfo.contains("application/json:1")) {
 			isEncoded = 1;
 		}
@@ -232,20 +254,28 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		// slist.add(normalStatement);\
 
 		// time
-		Statement stmtCreateTime = model.createStatement(contentInstance,
-				model.createProperty(ICBMSResource.baseuri_ont + "/hasCreateDate"), model.createTypedLiteral(
-						StrUtils.makeXsdDateFromOnem2mDate(this.dto.getCt()), XSDDateType.XSDdateTime));
-		slist.add(stmtCreateTime);
+		if(this.dto.getCt() != null && ! this.dto.getCt().equals("")) {
+			Statement stmtCreateTime = model.createStatement(contentInstance,
+					model.createProperty(ICBMSResource.baseuri_ont + "/hasCreateDate"), 
+					  	//model.createTypedLiteral(StrUtils.makeXsdDateFromOnem2mDate(this.dto.getCt()), XSDDateType.XSDdateTime));
+					 //"\""+dto.getCt()+"\"");
+					this.dto.getCt());
+			slist.add(stmtCreateTime);
+		}
 
-		Statement stmtLastModifiedTime = model.createStatement(contentInstance,
-				model.createProperty(ICBMSResource.baseuri_ont + "/hasLastModifiedDate"),
-				model.createTypedLiteral(StrUtils.makeXsdDateFromOnem2mDate(dto.getLt()), XSDDateType.XSDdateTime));
-		slist.add(stmtLastModifiedTime);
+		if(this.dto.getLt() != null || ! this.dto.getLt().equals("")) {
+			Statement stmtLastModifiedTime = model.createStatement(contentInstance,
+					model.createProperty(ICBMSResource.baseuri_ont + "/hasLastModifiedDate"),
+						//model.createTypedLiteral(StrUtils.makeXsdDateFromOnem2mDate(dto.getLt()), XSDDateType.XSDdateTime));
+					    //"\""+dto.getLt()+"\"");
+					    this.dto.getLt());
+			slist.add(stmtLastModifiedTime);
+		}
 
 		return slist;
 	}
 
-	public void setContetnType() {
+	public void setContentType() {
 		this.setContentType(EnumContentType.normal);
 		/*
 		if (this.dto.get_uri().toLowerCase().contains(EnumContentType.survey.toString())) {
@@ -301,7 +331,7 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 	
 	public static void main(String[] args) throws IOException {
 
-		File f = new File("/Users/rosenc/Documents/business/[2016]icbms2/json1.txt");
+		File f = new File("c:/tmp/test.json");
 		BufferedReader br = new BufferedReader(new FileReader(f));
 		String line = null;
 		String s = "";

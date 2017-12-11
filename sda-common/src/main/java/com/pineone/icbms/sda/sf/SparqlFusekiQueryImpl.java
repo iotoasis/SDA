@@ -44,6 +44,11 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 
 		log.info("runQuery of sparql start ======================>");
 		
+		// gooper
+		if(Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.hostname"))) {
+			serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint");
+		}
+		
 		// 가용 메모리를 확인해서  상태를 체크해서 fuseki서버를 재기동해줌
 		//Utils.checkMem();
 
@@ -144,7 +149,7 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 	}
 
 	// update쿼리수행(sparql만 해당됨)
-	private void  runModifySparql(String sparql, String[] idxVals, String dest) throws Exception {
+	public void  runModifySparql(String sparql, String[] idxVals, String dest) throws Exception {
 		if(dest.equals("ALL") || dest.equals("DW")) {
 			String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint") + "/update";
 			String madeQl = makeFinal(sparql, idxVals);
@@ -152,8 +157,8 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 			UpdateProcessor up;
 			
 			//log.debug("sparql of "+dest+" in runModifySparql ===> "+madeQl);
-			log.debug("runModifySparql() on DW server start.................................. ");
-			
+			log.debug("runModifySparql() on DatWarehouse server start.................................. ");
+		
 			try {
 				log.debug("try (first).................................. ");
 				up = UpdateExecutionFactory.createRemote(ur, updateService);
@@ -197,12 +202,12 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 				} // 두번째 try
 			} // 첫번째 try
 			
-			log.debug("runModifySparql() on DW server end.................................. ");
+			log.debug("runModifySparql() on DataWarehouse server end.................................. ");
 		}
 		
 		if(dest.equals("ALL") || dest.equals("DM")) {
 			//동일한(delete or insert) sparql를 DM서버에도 수행함(최근값 혹은 추론결과, subscription값등을 등록한다.)
-			log.debug("runModifySparql() on DM server start.................................. ");
+			log.debug("runModifySparql() on DataMart server start.................................. ");
 			String madeQl2 = makeFinal(sparql, idxVals);
 			String updateService2 = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint") + "/update";
 			UpdateRequest ur2 = UpdateFactory.create(madeQl2);
@@ -214,7 +219,7 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 			
 			UpdateProcessor up2 = UpdateExecutionFactory.createRemote(ur2, updateService2);
 			up2.execute();
-			log.debug("runModifySparql() on DM server end.................................. ");
+			log.debug("runModifySparql() on DataMart server end.................................. ");
 		}
 	}
 	

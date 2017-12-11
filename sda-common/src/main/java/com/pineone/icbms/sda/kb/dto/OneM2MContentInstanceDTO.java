@@ -1,11 +1,11 @@
 package com.pineone.icbms.sda.kb.dto;
 
-import java.util.Base64;
-import java.util.List;
+//import java.util.Base64;
+import org.apache.commons.codec.binary.Base64;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Statement;
@@ -13,7 +13,9 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 
 import com.google.gson.Gson;
-import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MContainerMapper;
+import com.pineone.icbms.sda.comm.util.Utils;
+import com.pineone.icbms.sda.kb.dto.id_object.SmartBand;
+import com.pineone.icbms.sda.kb.dto.id_object.SmartLocker;
 import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MContentInstanceMapper;
 import com.pineone.icbms.sda.kb.model.TripleMap;
 
@@ -48,10 +50,20 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 		return "";
 	}
 
-
 	public id_object get_id() {
 		return _id;
 	}
+
+	/*
+	public Object get_id() {
+		return _id;
+	}
+
+
+	public void set_id(Object _id) {
+		this._id = _id;
+	}
+	*/
 
 
 	public void set_id(id_object _id) {
@@ -124,18 +136,53 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 	}
 
 	public String getCon() {
-		return con;
+		int isEncoded = 0;
+		if (this.getCnf().contains("text/plain:0")) {
+			isEncoded = 0;
+		} else if (this.getCnf().contains("application/json:1")) {
+			isEncoded = 1;
+		}
+		if(Utils.isBase64Encoded(this.con)) {
+			isEncoded = 1;
+		} else {
+			isEncoded = 0;
+		}
+		return this.getCon(isEncoded);
 	}
 	
 	public String getCon(int encoded){
+		String ret = "error : encode option must be 1 or 0";
 		switch (encoded) {
 		case 1 :
-			byte[] encodedContent = this.getCon().getBytes();
-			return Base64.getDecoder().decode(encodedContent).toString();
+			byte[] encodedContent = this.con.getBytes();
+			System.out.println("====="+this.get_uri()+"====1==before str====> "+new String(encodedContent));	
+			//ret = new String(Base64.getDecoder().decode(encodedContent));
+			String tmp_ret = new String(Base64.decodeBase64(encodedContent));
+			
+			//json형태의 데이타를 분석해서 필요한 값만 리턴함
+			if(	this.get_uri().contains("EXDA_SmartLocker01") ||
+				this.get_uri().contains("EXDA_SmartLocker02") ||
+				this.get_uri().contains("EXDA_SmartLocker03") 					) {
+					Gson gson = new Gson();
+					SmartLocker sl = gson.fromJson(tmp_ret, SmartLocker.class);
+					ret = sl.getEnd_date().replace(" ", "T").replace(":","").replace("-", "");
+			} else if(this.get_uri().contains("EXSA_Smartband01") ||
+					 	this.get_uri().contains("EXSA_Smartband02")				) {
+							Gson gson = new Gson();
+							SmartBand sb = gson.fromJson(tmp_ret, SmartBand.class);
+							ret = sb.getHeartrate();
+			} else {
+				ret = this.con;
+			}
+			break;
 		case 0 :
-			return this.getCon();
+			System.out.println("====="+this.get_uri()+"====0==before str====> "+this.con);
+			ret =  this.con;
+			break;
 		}
-		return "error : encode option must 1 or 0";
+		System.out.println("===="+this.get_uri()+"======after str====> "+ret);
+		
+		return ret;
 	}
 
 	public void setCon(String con) {
@@ -232,9 +279,11 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 				"	        \"cnt-temperature\""+
 				"	    ],"+
 				"	    \"cr\" : \"C_AE-D-GASLOCK1001\","+
-				"	    \"cnf\" : \"text/plain:0\","+
+//				"	    \"cnf\" : \"text/plain:0\","+
+"	    \"cnf\" : \"application/json:1\","+
 				"	    \"cs\" : 2,"+
-				"	    \"con\" : \"13\","+
+//				"	    \"con\" : \"13\","+
+"	    \"con\" : \"eyJib3hfbm8iOiIxMTEifQ==\","+
 				"	    \"_uri\" : \"/herit-in/herit-cse/ae-gaslock1001/cnt-temperature/CONTENT_INST_0\","+
 				"	    \"ct\" : \"20151001T113158\","+
 				"	    \"lt\" : \"20151001T113158\" "+
@@ -312,5 +361,89 @@ class id_object {
 				+ ", _inc=" + _inc + ", _new=" + _new + "]";
 	}
 	
+	
+	class SmartLocker {
+		String box_no;
+		String event;
+		String status;
+		String start_date;
+		String end_date;
+		public String getBox_no() {
+			return box_no;
+		}
+		public void setBox_no(String box_no) {
+			this.box_no = box_no;
+		}
+		public String getEvent() {
+			return event;
+		}
+		public void setEvent(String event) {
+			this.event = event;
+		}
+		public String getStatus() {
+			return status;
+		}
+		public void setStatus(String status) {
+			this.status = status;
+		}
+		public String getStart_date() {
+			return start_date;
+		}
+		public void setStart_date(String start_date) {
+			this.start_date = start_date;
+		}
+		public String getEnd_date() {
+			return end_date;
+		}
+		public void setEnd_date(String end_date) {
+			this.end_date = end_date;
+		}
+		
+	}
+	
+	class SmartBand {
+		String user_id;
+		String heartrate;
+		String step;
+		String floor;
+		String km;
+		String kcal;
+		public String getUser_id() {
+			return user_id;
+		}
+		public void setUser_id(String user_id) {
+			this.user_id = user_id;
+		}
+		public String getHeartrate() {
+			return heartrate;
+		}
+		public void setHeartrate(String heartrate) {
+			this.heartrate = heartrate;
+		}
+		public String getStep() {
+			return step;
+		}
+		public void setStep(String step) {
+			this.step = step;
+		}
+		public String getFloor() {
+			return floor;
+		}
+		public void setFloor(String floor) {
+			this.floor = floor;
+		}
+		public String getKm() {
+			return km;
+		}
+		public void setKm(String km) {
+			this.km = km;
+		}
+		public String getKcal() {
+			return kcal;
+		}
+		public void setKcal(String kcal) {
+			this.kcal = kcal;
+		}
+	}
 	
 }

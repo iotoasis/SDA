@@ -108,7 +108,8 @@ public class OneM2MContainerMapper implements OneM2MMapper {
 		slist.add(stmtLabel);
 
 		// createtime xsd datetime
-		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		//SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		SimpleDateFormat sd = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 		Calendar cal1 = Calendar.getInstance();
 		try {
 			cal1.setTime(sd.parse(StrUtils.makeXsdDateFromOnem2mDate(this.dto.getCt())));

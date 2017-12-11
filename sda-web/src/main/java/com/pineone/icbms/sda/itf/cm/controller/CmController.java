@@ -318,7 +318,7 @@ public class CmController {
 				if(cm_rtn_cnt==1 ) {
 					resultMsg.setCode(Utils.OK_CODE);
 					resultMsg.setMessage(Utils.OK_MSG);
-					resultMsg.setContents(ciMap.get(strArr[1]).toString());
+					resultMsg.setContents("");
 					entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
 				} else {
 					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "INSERT_FAILED");
@@ -428,7 +428,7 @@ public class CmController {
 				if(cm_rtn_cnt==1 ) {
 					resultMsg.setCode(Utils.OK_CODE);
 					resultMsg.setMessage(Utils.OK_MSG);
-					resultMsg.setContents(ciMap.get(strArr[1]).toString());
+					resultMsg.setContents("");
 					entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
 				} else {
 					throw new UserDefinedException(HttpStatus.BAD_REQUEST, "UPDATE_FAILED");
@@ -450,7 +450,6 @@ public class CmController {
 		return entity;
 	}
 
-	
 
 
 /*	

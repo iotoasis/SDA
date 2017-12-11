@@ -7,15 +7,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.springframework.http.HttpStatus;
@@ -34,7 +34,96 @@ public class TripleService implements Serializable{
 	private String parentResourceUri;
 	private String instanceUri;
 	private String instanceValue;
+	private String createDate;
+	private String lastModifiedDate;
 	
+	// hasLatestContentInstance
+	private String deleteql =  ""
+			                +" prefix o: <http://www.iotoasis.org/ontology/> "
+							+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+							+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+							+" delete  { <@{arg0}> o:hasLatestContentInstance ?o . } "
+							+" where   { <@{arg0}> o:hasLatestContentInstance  ?o  .} "   ;
+	
+	private String insertql =   ""
+			                +" prefix o: <http://www.iotoasis.org/ontology/> "
+							+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+							+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+							+" insert data { <@{arg0}> o:hasLatestContentInstance <@{arg1}> . }" ;
+	
+	// isContentInstanceOf (	 ?ci   o:isContentInstanceOf ?con2 .)
+	private String delete_ici_ql =  ""
+			+" prefix o: <http://www.iotoasis.org/ontology/> "
+			+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+			+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
+			+" delete  { <@{arg0}> o:isContentInstanceOf ?o . } "
+			+" where   { <@{arg0}> o:isContentInstanceOf  ?o  .} "   ;
+	private String insert_ici_ql =   ""
+			+" prefix o: <http://www.iotoasis.org/ontology/> "
+			+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
+			+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+			+" insert data { <@{arg0}> o:isContentInstanceOf <@{arg1}> . }" ;
+
+	
+	//  hasContentValue
+	private String delete_cv_ql =  ""
+			+" prefix o: <http://www.iotoasis.org/ontology/> "
+			+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+			+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "  
+			+" delete  { <@{arg0}> o:hasContentValue ?o . } "
+			+" where   { <@{arg0}> o:hasContentValue  ?o  .} "   
+            +" ; "
+			+" delete  { <@{arg0}> o:hasCreateDate ?o . } "
+			+" where   { <@{arg0}> o:hasCreateDate  ?o  .} "   
+			+" ; "
+			+" delete  { <@{arg0}> o:hasLastModifiedDate ?o . } "
+			+" where   { <@{arg0}> o:hasLastModifiedDate  ?o  .} "   
+
+			;
+	
+	private String insert_cv_ql_string =   ""
+			+" prefix o: <http://www.iotoasis.org/ontology/> "
+			+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+			+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+			+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:string . }" 
+            +" ; "				
+			+" insert data { <@{arg0}> o:hasCreateDate \"@{arg2}\"^^xsd:string . }"
+            +" ; "				
+			+" insert data { <@{arg0}> o:hasLastModifiedDate \"@{arg3}\"^^xsd:string . }"
+			;
+
+	private String insert_cv_ql_float =   ""
+			+" prefix o: <http://www.iotoasis.org/ontology/> "
+			+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+			+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+			+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:float . }"
+            +" ; "				
+			+" insert data { <@{arg0}> o:hasCreateDate \"@{arg2}\"^^xsd:string . }"
+            +" ; "				
+			+" insert data { <@{arg0}> o:hasLastModifiedDate \"@{arg3}\"^^xsd:string . }"
+			;
+	
+	private List<String> ci_ql_statements = new ArrayList<String>();
+	private List<String> ici_ql_statements = new ArrayList<String>();
+	private List<String> cv_ql_statements = new ArrayList<String>();
+	
+
+	public String getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(String createDate) {
+		this.createDate = createDate;
+	}
+
+	public String getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(String lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
+
 	public String getParentResourceUri() {
 		return parentResourceUri;
 	}
@@ -101,14 +190,9 @@ public class TripleService implements Serializable{
 			this.setInstanceUri(mapper.getInstanceUri());
 			this.setInstanceValue(mapper.getContent());
 			
-			// container별로 최근의 contentinstance를 가지도록 함... 시작 
-			//log.debug("delete->insert o:hasLatestContentInstance start....................");
-			//addLatestContentInstance(mapper.getParentResourceUri(), mapper.getInstanceUri());
-			//log.debug("delete->insert o:hasLatestContentInstance end....................");
-			// container별로 최근의 contentinstance를 가지도록 함... 끝
-			
-			// 스트링 변환부분(test)
-		    //RDFDataMgr.write(System.out, model, RDFFormat.NTRIPLES);
+			//gooper
+			this.setCreateDate(mapper.getCreateDate());
+			this.setLastModifiedDate(mapper.getLastModifiedDate());
 
 			// 스트링 변환부분
 			RDFDataMgr.write(sw, model, RDFFormat.NTRIPLES);
@@ -217,101 +301,85 @@ public class TripleService implements Serializable{
 		return returnStr;
 	}
 	
+	public void makeFinalSparql() throws Exception {
+		QueryCommon qc = new QueryCommon();
+		
+		ci_ql_statements.add(qc.makeFinal(this.deleteql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}));
+		ci_ql_statements.add(qc.makeFinal(this.insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}));
+		
+		ici_ql_statements.add(qc.makeFinal(this.delete_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}));
+		ici_ql_statements.add(qc.makeFinal(this.insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}));
+		
+		cv_ql_statements.add(qc.makeFinal(this.delete_cv_ql, new String[]{this.getInstanceUri(), this.getInstanceValue()}));
+		try {
+			Float.parseFloat(this.getInstanceValue());
+			cv_ql_statements.add(qc.makeFinal(this.insert_cv_ql_float, new String[]{this.getInstanceUri(), this.getInstanceValue(), this.getCreateDate(), this.getLastModifiedDate()}));
+		} catch (Exception e) {
+			cv_ql_statements.add(qc.makeFinal(this.insert_cv_ql_string, new String[]{this.getInstanceUri(), this.getInstanceValue(), this.getCreateDate(), this.getLastModifiedDate()}));
+		}
+	}
+
+	public void addLatestContentInstanceMany() throws Exception {
+		int MAX_SIZE = 3000;
+		int bundle_count = 0;
+
+		//test
+		// log.debug("String.join(\" ; \", this.delete_ici_ql_statements) ===>" + String.join("\n ; \n", this.ici_ql_statements));
+
+		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
+
+		//ci_statements(ci의 delete및 insert를 모두 가지고 있음)
+		bundle_count = this.ci_ql_statements.size() / MAX_SIZE;
+		for(int m = 1; m <= bundle_count; m++) {
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).runModifySparql(String.join(" ; ", 
+					this.ci_ql_statements.subList(MAX_SIZE*(m-1), MAX_SIZE*m)), new String[]{}, Utils.QUERY_DEST.ALL.toString());
+		}
+		((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).runModifySparql(String.join(" ; ", 
+				this.ci_ql_statements.subList(MAX_SIZE*bundle_count, ci_ql_statements.size())), new String[]{}, Utils.QUERY_DEST.ALL.toString());
+
+		//ici_ql_statements(ici의 delete및 insert를 모두 가지고 있음)
+		bundle_count = this.ici_ql_statements.size() / MAX_SIZE;
+		for(int m = 1; m <= bundle_count; m++) {
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).runModifySparql(String.join(" ; ", 
+					this.ici_ql_statements.subList(MAX_SIZE*(m-1), MAX_SIZE*m)), new String[]{}, Utils.QUERY_DEST.ALL.toString());
+		}
+		((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).runModifySparql(String.join(" ; ", 
+				this.ici_ql_statements.subList(MAX_SIZE*bundle_count, ici_ql_statements.size())), new String[]{}, Utils.QUERY_DEST.ALL.toString());
+
+
+		//cv_ql_statements(cv의 delete및 insert를 모두 가지고 있음)
+		bundle_count = this.cv_ql_statements.size() / MAX_SIZE;
+		for(int m = 1; m <= bundle_count; m++) {
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).runModifySparql(String.join(" ; ", 
+					this.cv_ql_statements.subList(MAX_SIZE*(m-1), MAX_SIZE*m)), new String[]{}, Utils.QUERY_DEST.DM.toString());
+		}
+		((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).runModifySparql(String.join(" ; ", 
+				this.cv_ql_statements.subList(MAX_SIZE*bundle_count, cv_ql_statements.size())), new String[]{}, Utils.QUERY_DEST.DM.toString());
+	}
+	
+	
 	//public void addLatestContentInstance(String parentResourceUri,  String instanceUri) throws Exception {
 	public void addLatestContentInstance() throws Exception {
 		// this.getParentResourceUri() 	: http://www.iotoasis.org/herit-in/herit-cse/CAMPUS_HUB01/hub/status
 		// this.getInstanceUri()     			: http://www.iotoasis.org/herit-in/herit-cse/CAMPUS_HUB01/hub/status/CONTENT_INST_1103475
 		// his.getInstanceValue()  			: 35 or ONSB_Alcohol01_001(00:15:83:00:96:0E), ONSB_Butane01_001(00:15:83:00:43:33)
 
-		// hasLatestContentInstance
-		String deleteql =  ""
-				                +" prefix o: <http://www.iotoasis.org/ontology/> "
-								+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-								+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-								+" delete  { <@{arg0}> o:hasLatestContentInstance ?o . } "
-								+" where   { <@{arg0}> o:hasLatestContentInstance  ?o  .} "   ;
-		
-		String insertql =   ""
-				                +" prefix o: <http://www.iotoasis.org/ontology/> "
-								+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-								+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-								+" insert data { <@{arg0}> o:hasLatestContentInstance <@{arg1}> . }" ;
-		
-		/*
-		// ContentInstance
-		String delete_ci_ql =  " prefix o: <http://www.iotoasis.org/ontology/> "
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" delete  { <@{arg0}> o:hasContentInstance ?o . } "
-				+" WHERE   { <@{arg0}> o:hasContentInstance  ?o  .} "   ;
-		String insert_ci_ql =   " prefix o: <http://www.iotoasis.org/ontology/> "
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" insert data { <@{arg0}> o:hasContentInstance <@{arg1}> . }" ;
-
-		// ContentInstance
-		String delete_ci_ql =  " prefix o: <http://www.iotoasis.org/ontology/> "
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" delete  { <@{arg0}> o:hasContentInstance ?o . } "
-				+" WHERE   { <@{arg0}> o:hasContentInstance  ?o  .} "   ;
-		String insert_ci_ql =   " prefix o: <http://www.iotoasis.org/ontology/> "
-				+" PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" insert data { <@{arg0}> o:hasContentInstance <@{arg1}> . }" ;
-		*/
-
-		
-		// isContentInstanceOf (	 ?ci   o:isContentInstanceOf ?con2 .)
-		String delete_ici_ql =  ""
-				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
-				+" delete  { <@{arg0}> o:isContentInstanceOf ?o . } "
-				+" where   { <@{arg0}> o:isContentInstanceOf  ?o  .} "   ;
-		String insert_ici_ql =   ""
-				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
-				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" insert data { <@{arg0}> o:isContentInstanceOf <@{arg1}> . }" ;
-
-		
-		//  hasContentValue, case #1
-		String delete_val_ql =  ""
-				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "  
-				+" delete  { <@{arg0}> o:hasContentValue ?o . } "
-				+" where   { <@{arg0}> o:hasContentValue  ?o  .} "   ;
-		String insert_val_ql_string =   ""
-				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:string . }" ;
-
-		String insert_val_ql_float =   ""
-				+" prefix o: <http://www.iotoasis.org/ontology/> "
-				+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
-				+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+" insert data { <@{arg0}> o:hasContentValue \"@{arg1}\"^^xsd:float . }" ; 
-
 		try {
-			//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
 			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 			
 			// hasLatestContentInstance 생성(DW, DM)
-			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(deleteql, insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.ALL.toString());
-		
-			// DM에 hasContentInstance를 생성(DM)
-			//sparqlService.updateSparql(delete_ci_ql, insert_ci_ql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.DM.toString());
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(this.deleteql, this.insertql, new String[]{this.getParentResourceUri(), this.getInstanceUri()}, Utils.QUERY_DEST.ALL.toString());
 			
 			// DM에 isContentInstanceOf를 생성(DM)->ALL
-			//((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_ici_ql, insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.DM.toString());
-			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_ici_ql, insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.ALL.toString());
+			((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(this.delete_ici_ql, this.insert_ici_ql, new String[]{this.getInstanceUri(), this.getParentResourceUri()}, Utils.QUERY_DEST.ALL.toString());
 	
-			// DM에 hasContentValue 생성(DM)
+			// DM에 hasContentValue 생성(DM)(DW는 ContentInstanceMapper에서 Model API를 통해서 입력하고 있으므로 여기서 입력하지 않음)
 			// con값을 숫자로 변활 수 있는 값만 처리함->모두 처리함
 			try {
 				Float.parseFloat(this.getInstanceValue());
-				((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql_float, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());				
+				((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(this.delete_cv_ql, this.insert_cv_ql_float, new String[]{this.getInstanceUri(), this.getInstanceValue(), this.getCreateDate(), this.getLastModifiedDate()}, Utils.QUERY_DEST.DM.toString());				
 			} catch (Exception e) {
-				((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_val_ql, insert_val_ql_string, new String[]{this.getInstanceUri(), this.getInstanceValue()}, Utils.QUERY_DEST.DM.toString());
+				((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(this.delete_cv_ql, this.insert_cv_ql_string, new String[]{this.getInstanceUri(), this.getInstanceValue(), this.getCreateDate(), this.getLastModifiedDate()}, Utils.QUERY_DEST.DM.toString());
 			}
 		} catch (Exception e) {
 		    log.debug("exception in addLatestContentInstance() : "+e.getMessage());
