@@ -12,6 +12,7 @@ import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.derby.impl.sql.catalog.SYSROUTINEPERMSRowFactory;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
@@ -26,6 +27,7 @@ import com.pineone.icbms.sda.comm.SchComm;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M;
 import com.pineone.icbms.sda.comm.util.Utils;
+import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 import com.pineone.icbms.sda.sf.TripleService;
 
 
@@ -34,7 +36,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 	private final String TOPIC = Utils.KafkaTopics.COL_ONEM2M.toString();
 	private static final Log log = LogFactory.getLog(AvroOneM2MDataSparkSubscribe.class);
 	
-	private final TripleService tripleService = new TripleService();	
+	//private final TripleService tripleService = new TripleService();	
 	private final int NUM_THREADS = Integer.parseInt(Utils.getSdaProperty ("com.pineone.icbms.sda.kafka.thread.count"));
 		
 	private final String user_id =this.getClass().getName();
@@ -153,6 +155,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 				 } 
 	
 				 if(processing_ok) {
+					 TripleService tripleService = new TripleService();
 					 for(int i = 0; i < data.size(); i++) {
 						 
 						try { 
@@ -160,6 +163,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 							
 							eachTriple = tripleService.getTriple(data.get(i).toString());
 						} catch (Exception e) {
+							e.printStackTrace();
 							error_count++;
 							log.debug("malformed data exception : "+e.getMessage());
 							log.debug("malformed data : "+data.get(i).toString());
@@ -168,7 +172,8 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 						if(calcuate_latest_yn.equals("Y")) {
 							//log.debug("calcuate_latest_yn is Y =gooper==>"+eachTriple);
 							try {
-								tripleService.addLatestContentInstance();
+								//tripleService.addLatestContentInstance();
+								tripleService.makeFinalSparql();
 							} catch (Exception e) { 
 								log.debug("tripleService.addLatestContentInstance() exception : "+e.getMessage());
 							}
@@ -177,6 +182,10 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 						}
 						sb.append(eachTriple);
 					 }
+					 
+					 // 최근값 관련 triple을 일괄 처리함
+					 tripleService.addLatestContentInstanceMany();
+					 tripleService = null;
 				 }
 				 
 				 // task_group_id, task_id, start_time을 key로 work_result값을 update해줌
@@ -241,6 +250,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 		String triple_check_result = "";
 		String work_time = Utils.dateFormat.format(new Date());
 		String save_path  = Utils.getSdaProperty("com.pineone.icbms.sda.triple.save_path");
+		TripleService tripleService = new TripleService();
 		
 		// 폴더가 없으면 생성
 		save_path = Utils.makeSavePath(save_path);

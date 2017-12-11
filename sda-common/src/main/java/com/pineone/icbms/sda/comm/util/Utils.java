@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -1028,4 +1029,17 @@ public class Utils {
 		return InetAddress.getLocalHost().getHostName().trim().toLowerCase();
 	}
 	
+	public static boolean isBase64Encoded(String str) 	{
+	    try {
+	        // If no exception is caught, then it is possibly a base64 encoded string
+	        //byte[] data = Convert.FromBase64String(str);
+	    	Base64.getDecoder().decode(str);
+	        // The part that checks if the string was properly padded to the
+	        // correct length was borrowed from d@anish's solution
+	        return (str.replace(" ","").length() % 4 == 0);
+	    }   catch (Exception e)    {
+	        // If exception is caught, then it is not a base64 encoded string
+	       return false;
+	    }
+	}
 }
