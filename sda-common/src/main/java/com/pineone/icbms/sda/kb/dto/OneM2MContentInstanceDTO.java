@@ -2,7 +2,9 @@ package com.pineone.icbms.sda.kb.dto;
 
 //import java.util.Base64;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringEscapeUtils;
 
+import java.io.StringReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +15,8 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.kb.dto.id_object.SmartBand;
 import com.pineone.icbms.sda.kb.dto.id_object.SmartLocker;
@@ -154,21 +158,26 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 		String ret = "error : encode option must be 1 or 0";
 		switch (encoded) {
 		case 1 :
-			byte[] encodedContent = this.con.getBytes();
+			//byte[] encodedContent = this.con.getBytes();
+			byte[] encodedContent = StringEscapeUtils.unescapeJava(this.con).getBytes();
 			System.out.println("====="+this.get_uri()+"====1==before str====> "+new String(encodedContent));	
 			//ret = new String(Base64.getDecoder().decode(encodedContent));
 			String tmp_ret = new String(Base64.decodeBase64(encodedContent));
+			
+			System.out.println("====="+this.get_uri()+"====1==after str====> "+tmp_ret);
 			
 			//json형태의 데이타를 분석해서 필요한 값만 리턴함
 			if(	this.get_uri().contains("EXDA_SmartLocker01") ||
 				this.get_uri().contains("EXDA_SmartLocker02") ||
 				this.get_uri().contains("EXDA_SmartLocker03") 					) {
-					Gson gson = new Gson();
+					Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+					//Gson gson =new Gson();
 					SmartLocker sl = gson.fromJson(tmp_ret, SmartLocker.class);
 					ret = sl.getEnd_date().replace(" ", "T").replace(":","").replace("-", "");
 			} else if(this.get_uri().contains("EXSA_Smartband01") ||
 					 	this.get_uri().contains("EXSA_Smartband02")				) {
-							Gson gson = new Gson();
+							Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+							//Gson gson = new Gson();
 							SmartBand sb = gson.fromJson(tmp_ret, SmartBand.class);
 							ret = sb.getHeartrate();
 			} else {
