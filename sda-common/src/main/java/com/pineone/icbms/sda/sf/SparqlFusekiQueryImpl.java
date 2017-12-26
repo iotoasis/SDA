@@ -150,9 +150,11 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 
 	// update쿼리수행(sparql만 해당됨)
 	public void  runModifySparql(String sparql, String[] idxVals, String dest) throws Exception {
+		String madeQl = makeFinal(sparql, idxVals);
+		
 		if(dest.equals("ALL") || dest.equals("DW")) {
 			String updateService = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint") + "/update";
-			String madeQl = makeFinal(sparql, idxVals);
+			//String madeQl = makeFinal(sparql, idxVals);
 			UpdateRequest ur = UpdateFactory.create(madeQl);
 			UpdateProcessor up;
 			
@@ -208,9 +210,9 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 		if(dest.equals("ALL") || dest.equals("DM")) {
 			//동일한(delete or insert) sparql를 DM서버에도 수행함(최근값 혹은 추론결과, subscription값등을 등록한다.)
 			log.debug("runModifySparql() on DataMart server start.................................. ");
-			String madeQl2 = makeFinal(sparql, idxVals);
+			//String madeQl = makeFinal(sparql, idxVals);
 			String updateService2 = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint") + "/update";
-			UpdateRequest ur2 = UpdateFactory.create(madeQl2);
+			UpdateRequest ur2 = UpdateFactory.create(madeQl);
 			
 			//log.debug("sparql of "+dest+" in runModifySparql ===> "+madeQl2);
 			
