@@ -21,7 +21,6 @@ import org.apache.jena.riot.RDFFormat;
 import org.springframework.http.HttpStatus;
 
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 import com.mongodb.DBObject;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;

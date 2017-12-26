@@ -17,6 +17,7 @@ public class ICBMSResource {
 	public static final String reserved = "reserved";
 	public static final String siren = "siren";
 	public static final String silent = "silent";
+	public static final String inhouse = "dormapp_temperature";
 	public static final String baseuri_ont = "http://www.iotoasis.org/ontology";
 	
 	public static final String openUri = baseuri_ont + "/openCondition";
@@ -35,5 +36,6 @@ public class ICBMSResource {
 	public static final String reservedUri = baseuri_ont + "/reserved";
 	public static final String sirenUri = baseuri_ont + "/sirenCondition";
 	public static final String silentUri = baseuri_ont + "/sirentCondition";
+	public static final String inhouseUri = baseuri_ont + "/inhouseCondition";
 	public static final String undefiendResourceUri = baseuri_ont+"/undefinedResource";
 }

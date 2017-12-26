@@ -1,13 +1,11 @@
 package com.pineone.icbms.sda.kb.dto;
 
 //import java.util.Base64;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringEscapeUtils;
-
-import java.io.StringReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Statement;
@@ -16,10 +14,6 @@ import org.apache.jena.riot.RDFFormat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
-import com.pineone.icbms.sda.comm.util.Utils;
-import com.pineone.icbms.sda.kb.dto.id_object.SmartBand;
-import com.pineone.icbms.sda.kb.dto.id_object.SmartLocker;
 import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MContentInstanceMapper;
 import com.pineone.icbms.sda.kb.model.TripleMap;
 
@@ -139,7 +133,7 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 		this.cs = cs;
 	}
 
-	public String getCon() {
+/*	public String getCon() {
 		int isEncoded = 0;
 		if (this.getCnf().contains("text/plain:0")) {
 			isEncoded = 0;
@@ -153,6 +147,11 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 		}
 		return this.getCon(isEncoded);
 	}
+	*/
+	public String getCon() {
+		return this.con;
+	}
+
 	
 	public String getCon(int encoded){
 		String ret = "error : encode option must be 1 or 0";
@@ -171,15 +170,70 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 				this.get_uri().contains("EXDA_SmartLocker02") ||
 				this.get_uri().contains("EXDA_SmartLocker03") 					) {
 					Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-					//Gson gson =new Gson();
-					SmartLocker sl = gson.fromJson(tmp_ret, SmartLocker.class);
+					SmartLockerDTO sl = gson.fromJson(tmp_ret, SmartLockerDTO.class);
 					ret = sl.getEnd_date().replace(" ", "T").replace(":","").replace("-", "");
 			} else if(this.get_uri().contains("EXSA_Smartband01") ||
-					 	this.get_uri().contains("EXSA_Smartband02")				) {
+					 	this.get_uri().contains("EXSA_Smartband02")			) {
 							Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-							//Gson gson = new Gson();
-							SmartBand sb = gson.fromJson(tmp_ret, SmartBand.class);
+							SmartBandDTO sb = gson.fromJson(tmp_ret, SmartBandDTO.class);
 							ret = sb.getHeartrate();
+			} else if(this.get_uri().contains("Classapp_vote")    				) {
+						Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+						VoteDTO vote = gson.fromJson(tmp_ret, VoteDTO.class);
+						if (vote.getGood() >= vote.getCold() && vote.getGood() >= vote.getHot()) { 
+							ret = "good";
+						} else {
+							if(vote.getCold() == vote.getHot()) ret =  "good";
+							else if (vote.getCold() > vote.getHot()) ret = "cold";
+							else if (vote.getCold() < vote.getHot()) ret = "hot";
+						}
+						
+			} else if(this.get_uri().contains("Dormapp_temperature") 		) {
+						Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+						DomappTempDTO dt = gson.fromJson(tmp_ret, DomappTempDTO.class);
+						int avg = 0; 
+						int sum = 0;
+						int cnt  = 0;
+						for(int m = 0; m < dt.student.length; m++) {
+							if(dt.student[m].getInhouse().equals("Y")) {
+								sum += dt.student[m].getTemperature();
+								cnt++;
+							}
+						}
+						if(cnt > 0) {
+							avg = sum / cnt;
+							ret =  String.valueOf(avg);
+						} else {
+							for(int m = 0; m < dt.student.length; m++) {
+								sum += dt.student[m].getTemperature();
+								cnt++;
+							}
+							avg = sum / cnt;
+							ret =  String.valueOf(avg);
+						}
+			/*} else if(this.get_uri().contains("Dormapp_inhouse") 		) {
+				Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+				DomappTemp dt = gson.fromJson(tmp_ret, DomappTemp.class);
+				int inCnt  = 0;
+				int outCnt = 0;
+				for(int m = 0; m < dt.student.length; m++) {
+					if(dt.student[m].getInhouse().equals("Y")) {
+						inCnt++;
+					} else if(dt.student[m].getInhouse().equals("N")) {
+						outCnt++;
+					}
+				}
+				if(dt.student != null && dt.student.length != 0) {
+					if(inCnt > 0)
+						ret = "Y";
+					else 
+						ret = "N";
+				} else {
+					ret =  "N";
+				}
+				*/
+						
+						
 			} else {
 				ret = this.con;
 			}
@@ -189,7 +243,7 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 			ret =  this.con;
 			break;
 		}
-		System.out.println("===="+this.get_uri()+"======after str====> "+ret);
+		System.out.println("===="+this.get_uri()+"======after str(final)====> "+ret);
 		
 		return ret;
 	}
@@ -335,124 +389,38 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 	}
 }
 
-class id_object {
-	String _time;
-	String _machine;
-	String _inc;
-	String _new;
-	public String get_time() {
-		return _time;
-	}
-	public void set_time(String _time) {
-		this._time = _time;
-	}
-	public String get_machine() {
-		return _machine;
-	}
-	public void set_machine(String _machine) {
-		this._machine = _machine;
-	}
-	public String get_inc() {
-		return _inc;
-	}
-	public void set_inc(String _inc) {
-		this._inc = _inc;
-	}
-	public String get_new() {
-		return _new;
-	}
-	public void set_new(String _new) {
-		this._new = _new;
-	}
-	@Override
-	public String toString() {
-		return "id_object [_time=" + _time + ", _machine=" + _machine
-				+ ", _inc=" + _inc + ", _new=" + _new + "]";
-	}
-	
-	
-	class SmartLocker {
-		String box_no;
-		String event;
-		String status;
-		String start_date;
-		String end_date;
-		public String getBox_no() {
-			return box_no;
+	class id_object {
+		String _time;
+		String _machine;
+		String _inc;
+		String _new;
+		public String get_time() {
+			return _time;
 		}
-		public void setBox_no(String box_no) {
-			this.box_no = box_no;
+		public void set_time(String _time) {
+			this._time = _time;
 		}
-		public String getEvent() {
-			return event;
+		public String get_machine() {
+			return _machine;
 		}
-		public void setEvent(String event) {
-			this.event = event;
+		public void set_machine(String _machine) {
+			this._machine = _machine;
 		}
-		public String getStatus() {
-			return status;
+		public String get_inc() {
+			return _inc;
 		}
-		public void setStatus(String status) {
-			this.status = status;
+		public void set_inc(String _inc) {
+			this._inc = _inc;
 		}
-		public String getStart_date() {
-			return start_date;
+		public String get_new() {
+			return _new;
 		}
-		public void setStart_date(String start_date) {
-			this.start_date = start_date;
+		public void set_new(String _new) {
+			this._new = _new;
 		}
-		public String getEnd_date() {
-			return end_date;
-		}
-		public void setEnd_date(String end_date) {
-			this.end_date = end_date;
-		}
-		
-	}
-	
-	class SmartBand {
-		String user_id;
-		String heartrate;
-		String step;
-		String floor;
-		String km;
-		String kcal;
-		public String getUser_id() {
-			return user_id;
-		}
-		public void setUser_id(String user_id) {
-			this.user_id = user_id;
-		}
-		public String getHeartrate() {
-			return heartrate;
-		}
-		public void setHeartrate(String heartrate) {
-			this.heartrate = heartrate;
-		}
-		public String getStep() {
-			return step;
-		}
-		public void setStep(String step) {
-			this.step = step;
-		}
-		public String getFloor() {
-			return floor;
-		}
-		public void setFloor(String floor) {
-			this.floor = floor;
-		}
-		public String getKm() {
-			return km;
-		}
-		public void setKm(String km) {
-			this.km = km;
-		}
-		public String getKcal() {
-			return kcal;
-		}
-		public void setKcal(String kcal) {
-			this.kcal = kcal;
+		@Override
+		public String toString() {
+			return "id_object [_time=" + _time + ", _machine=" + _machine
+					+ ", _inc=" + _inc + ", _new=" + _new + "]";
 		}
 	}
-	
-}
