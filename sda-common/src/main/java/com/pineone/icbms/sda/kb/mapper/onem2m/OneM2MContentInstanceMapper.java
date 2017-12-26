@@ -5,11 +5,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.jena.datatypes.xsd.impl.XSDDateType;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -23,16 +25,22 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.pineone.icbms.sda.comm.conf.Configuration;
-import com.pineone.icbms.sda.comm.util.StrUtils;
 import com.pineone.icbms.sda.comm.util.Utils;
+import com.pineone.icbms.sda.kb.dto.DomappTempDTO;
 import com.pineone.icbms.sda.kb.dto.OneM2MContentInstanceDTO;
 import com.pineone.icbms.sda.kb.mapper.OneM2MMapper;
 import com.pineone.icbms.sda.kb.mapper.service.SurveyServiceMapper;
 import com.pineone.icbms.sda.kb.mapper.service.UserInOutServiceMapper;
 import com.pineone.icbms.sda.kb.model.ICBMSResource;
+import com.pineone.icbms.sda.sf.QueryService;
+import com.pineone.icbms.sda.sf.QueryServiceFactory;
+import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
+
 
 public class OneM2MContentInstanceMapper implements OneM2MMapper {
+	private final Log log = LogFactory.getLog(this.getClass());
 	// private Configuration config = null;
 	private List<Statement> slist = new ArrayList<Statement>();
 	private Model model = ModelFactory.createDefaultModel();;
@@ -67,7 +75,7 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 	}
 
 	public enum EnumContentType {
-		userinout, survey, normal, presence, present
+		userinout, survey, normal, presence, present, dormapp_temperature
 	}
 
 	public OneM2MContentInstanceMapper(OneM2MContentInstanceDTO dto) {
@@ -98,7 +106,7 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		for (int i = 0; i < dto.getLbl().length; i++) {
 			label = label + "," + dto.getLbl()[i];
 		}
-		Resource Content = recognizeContentResource();
+		//Resource Content = recognizeContentResource();
 
 		// getDecodedContent
 		if (contentInfo.contains("text/plain:0")) {
@@ -199,7 +207,8 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		} else {
 			stmtContent = model.createStatement(contentInstance,
 					model.createProperty("http://www.iotoasis.org/ontology/hasContentValue"),
-					this.getTypedContent(dto.getCon()));
+					//this.getTypedContent(dto.getCon()));
+					this.getTypedContent(this.content));
 		}
 		slist.add(stmtContent);
 
@@ -217,13 +226,65 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 			try {
 
 				slist.addAll(
-						new UserInOutServiceMapper(new String(Base64.getDecoder().decode(encodedContent)), userinout)
+						new UserInOutServiceMapper(new String(Base64.decodeBase64(encodedContent)), userinout)
 								.from());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			break;
-
+			
+		case "dormapp_temperature":
+			String ret = "";
+			String delete_hasInHouse_ql =  ""
+					+" prefix o: <http://www.iotoasis.org/ontology/> "
+					+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+					+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
+					+" delete  { <@{arg0}> o:hasInHouse ?o . } "
+					+" where   { <@{arg0}> o:hasInHouse  ?o  .} "   ;
+			String insert_hasInHouse_ql =   ""
+					+" prefix o: <http://www.iotoasis.org/ontology/> "
+					+" prefix xsd: <http://www.w3.org/2001/XMLSchema#> "				
+					+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+					+" insert data { <@{arg0}> o:hasInHouse \"@{arg1}\"^^xsd:string . }" ;
+			
+			// 필요한 값 추출 시작
+			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+			encodedContent = StringEscapeUtils.unescapeJava(this.dto.getCon()).getBytes();
+			String tmp_ret = new String(Base64.decodeBase64(encodedContent));
+			
+			DomappTempDTO dt = gson.fromJson(tmp_ret, DomappTempDTO.class);
+			int inCnt  = 0;
+			int outCnt = 0;
+			for(int m = 0; m < dt.student.length; m++) {
+				if(dt.student[m].getInhouse().equals("Y")) {
+					inCnt++;
+				} else if(dt.student[m].getInhouse().equals("N")) {
+					outCnt++;
+				}
+			}
+			if(dt.student != null && dt.student.length != 0) {
+				if(inCnt > 0)
+					ret = "Y";
+				else 
+					ret = "N";
+			} else {
+				ret =  "N";
+			}
+			// 필요한 값 추출 끝			
+			
+			Literal inhouse = model.createLiteral(ret);
+			slist.add(model.createStatement(contentInstance,
+					model.createProperty("http://www.iotoasis.org/ontology/hasInHouse"), inhouse));
+			
+			//hasInHouse값을 DM에 입력함
+			try {
+				QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
+				((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_hasInHouse_ql, insert_hasInHouse_ql, new String[]{this.getInstanceUri(), ret}, Utils.QUERY_DEST.DM.toString());
+			} catch (Exception e) {
+				log.debug("Exception in updating hasInHouse ====>"+e.toString());
+			}
+			break;
+			
 		case "survey":
 			String con1 = this.dto.getCon();
 			SurveyServiceMapper mapper1 = new SurveyServiceMapper(contentInstance, con1);
@@ -246,6 +307,7 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 				slist.add(presenceStatement);
 			}
 			break;
+			
 		}
 		// case "normal":
 		// Statement normalStatement = model.createStatement(contentInstance,
@@ -276,19 +338,17 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 	}
 
 	public void setContentType() {
-		this.setContentType(EnumContentType.normal);
-		/*
 		if (this.dto.get_uri().toLowerCase().contains(EnumContentType.survey.toString())) {
 			this.setContentType(EnumContentType.survey);
 		} else if (this.dto.get_uri().toLowerCase().contains(EnumContentType.userinout.toString())) {
 			this.setContentType(EnumContentType.userinout);
 		} else if (this.dto.get_uri().toLowerCase().contains(EnumContentType.presence.toString())) {
 			this.setContentType(EnumContentType.present);
+		} else if (this.dto.get_uri().toLowerCase().contains(EnumContentType.dormapp_temperature.toString())) {
+			this.setContentType(EnumContentType.dormapp_temperature);			
 		} else {
 			this.setContentType(EnumContentType.normal);
 		}
-		*/
-
 	}
 
 	public String getContentType() {
@@ -331,7 +391,7 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 	
 	public static void main(String[] args) throws IOException {
 
-		File f = new File("c:/tmp/test.json");
+		File f = new File("c:/tmp/test2.json");
 		BufferedReader br = new BufferedReader(new FileReader(f));
 		String line = null;
 		String s = "";
@@ -346,7 +406,9 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 
 		Model model = ModelFactory.createDefaultModel();
 		model.add(mapper.from());
-		System.out.println("content type ; " + mapper.getContentType());
+		System.out.println("content type => " + mapper.getContentType());
+		
+		System.out.println("this.dto.get_uri().toLowerCase() => " + mapper.dto.get_uri().toLowerCase());
 		// 스트링 변환부분
 		RDFDataMgr.write(System.out, model, RDFFormat.NTRIPLES);
 		// System.out.println(mapper.getTypedContent("2k42kk"));

@@ -163,8 +163,7 @@ public class TripleService implements Serializable{
 			ty = (Integer) docT.get("ty");
 		} else if (doc instanceof String) {
 			// ty값을 확인하기 위해서 특정 객체에 매핑해봄(ty=4)
-			
-			contextInstanceDTO = gson.fromJson((String) doc, OneM2MContentInstanceDTO.class);
+			contextInstanceDTO = gson.fromJson((String)doc, OneM2MContentInstanceDTO.class);
 			ty = Integer.parseInt(contextInstanceDTO.getTy());
 		}
 
@@ -176,7 +175,7 @@ public class TripleService implements Serializable{
 				contextInstanceDTO = gson.fromJson(gson.toJson(doc), OneM2MContentInstanceDTO.class);
 				
 			} else if (doc instanceof String) {
-				contextInstanceDTO = gson.fromJson((String) doc, OneM2MContentInstanceDTO.class);
+				contextInstanceDTO = gson.fromJson((String)doc, OneM2MContentInstanceDTO.class);
 			}
 			//log.debug("=== ri : "+contextInstanceDTO.getRi()+",  ty : "+ty+" ====>include");		
 			

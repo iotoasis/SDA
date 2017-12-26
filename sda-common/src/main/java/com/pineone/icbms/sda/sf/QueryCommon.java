@@ -32,8 +32,10 @@ public class QueryCommon {
 		if (idxVals == null) {
 			log.debug("idxVals is null");
 		} else {
-			log.debug("count of idxVals : " + idxVals.length);
-			log.debug("values of idxVals : " + Arrays.toString(idxVals));
+//			log.debug("count of idxVals : " + idxVals.length);
+//			log.debug("values of idxVals : " + Arrays.toString(idxVals));
+			//log.debug(String.format("Count : %s , Vals : %s , Query : %s", idxVals.length, Arrays.toString(idxVals), qlStringl));
+			log.debug(String.format("Count : %s , Vals : %s ", idxVals.length, Arrays.toString(idxVals)));
 		}
 
 		if (qlStringl == null || qlStringl.equals("")) {

@@ -23,7 +23,7 @@ import com.pineone.icbms.sda.sch.service.SchService;
 @Service
 public class SchedulerMainService implements ApplicationContextAware {
 	private static ApplicationContext context;
-	private SchedulerFactory schedulFactoty = null;
+	private SchedulerFactory schedulerFactory = null;
 	private Scheduler scheduler = null;
 	private JobDetail jobDetail = null;
 	private CronTrigger trigger = null;
@@ -39,8 +39,8 @@ public class SchedulerMainService implements ApplicationContextAware {
 			if (scheduler != null && scheduler.isStarted())
 				return;
 
-			schedulFactoty = new StdSchedulerFactory();
-			scheduler = schedulFactoty.getScheduler();
+			schedulerFactory = new StdSchedulerFactory();
+			scheduler = schedulerFactory.getScheduler();
 			scheduler.start();
 			JobRegist();
 		} catch (Exception e) {
@@ -51,8 +51,8 @@ public class SchedulerMainService implements ApplicationContextAware {
 	public Scheduler getScheduler() throws Exception {
 
 		if (scheduler == null) {
-			schedulFactoty = new StdSchedulerFactory();
-			scheduler = schedulFactoty.getScheduler();
+			schedulerFactory = new StdSchedulerFactory();
+			scheduler = schedulerFactory.getScheduler();
 		}
 		return scheduler;
 	}

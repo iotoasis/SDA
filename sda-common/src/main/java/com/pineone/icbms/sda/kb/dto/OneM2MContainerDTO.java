@@ -21,7 +21,8 @@ import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MContainerMapper;
 import com.pineone.icbms.sda.kb.model.TripleMap;
 
 public class OneM2MContainerDTO implements OneM2MDTO {
-	private Object _id; // not standard
+	//private Object _id; // not standard
+	private id_object _id; // not standard
 	private String ty=""; // resourceType;
 	private String ri=""; // resourceID **;
 	private String rn=""; // resourceName **;
@@ -58,6 +59,14 @@ public class OneM2MContainerDTO implements OneM2MDTO {
 		this.cbs = cbs;
 	}
 
+	public id_object get_id() {
+		return _id;
+	}
+
+	public void set_id(id_object _id) {
+		this._id = _id;
+	}
+
 	public String get_uri() {
 		return _uri;
 	}
@@ -66,6 +75,7 @@ public class OneM2MContainerDTO implements OneM2MDTO {
 		this._uri = _uri;
 	}
 
+	/*
 	public Object get_id() {
 		return _id;
 	}
@@ -73,6 +83,7 @@ public class OneM2MContainerDTO implements OneM2MDTO {
 	public void set_id(String _id) {
 		this._id = _id;
 	}
+	*/
 
 	public String getTy() {
 		return ty;
@@ -300,5 +311,5 @@ public class OneM2MContainerDTO implements OneM2MDTO {
 		}
 		return "";
 	}
-
+		
 }
