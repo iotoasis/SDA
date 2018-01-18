@@ -77,6 +77,7 @@ public class Utils {
 		COL_EMP,
 		
 		COL_ONEM2M,
+		COL_LWM2M,
 		COL_RDBMS,
 		
 		CMD_REQUEST,				// 작업요청
@@ -141,9 +142,12 @@ public class Utils {
 	public static final String SchNotInit= "Scheduler is not initiated....";
 	
 	// 수집구분
-	public static final String COL_SI_STATUS_DATA = "COL-SI-STATUS-DATA";
-	public static final String COL_SI_ZONE_DATA = "COL-SI-ZONE-DATA";
-	public static final String COL_SI_DATA = "COL-SI-DATA";
+	public static final String COL_ONEM2M_STATUS_DATA = "COL-ONEM2M-STATUS-DATA";
+	public static final String COL_ONEM2M_ZONE_DATA = "COL-ONEM2M-ZONE-DATA";
+	
+	public static final String COL_ONEM2M_DATA = "COL-ONEM2M-DATA";
+	
+	public static final String COL_LWM2M_DATA = "COL-LWM2M-DATA";
 	
 	public static final String COL_SS_USER_DATA= "COL-SS-USER-DATA";
 	public static final String COL_SS_ALARM_DATA= "COL-SS-ALARM-DATA";
