@@ -192,7 +192,7 @@ public class CollectZoneDataFromSIJobService extends SchedulerJobComm implements
 		
 		com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M oneM2M = new com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M();
 		
-		oneM2M.setColFrom(Utils.COL_SI_ZONE_DATA);
+		oneM2M.setColFrom(Utils.COL_ONEM2M_ZONE_DATA);
 		oneM2M.setReadFromTime(String.format("%s", new Date().getTime()));
 		oneM2M.setWriteQueueTime(String.format("%s", new Date().getTime()));
 		oneM2M.setTaskGroupId(jec.getJobDetail().getGroup());

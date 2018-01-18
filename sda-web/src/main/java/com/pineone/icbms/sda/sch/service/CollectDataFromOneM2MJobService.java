@@ -27,7 +27,7 @@ import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sch.comm.SchedulerJobComm;
 
 @Service
-public class CollectDataFromSIJobService extends SchedulerJobComm implements Job {
+public class CollectDataFromOneM2MJobService extends SchedulerJobComm implements Job {
 	private final Log log = LogFactory.getLog(this.getClass());
 	private MongoClient mongoClient;
 	private DB db = null;
@@ -53,7 +53,7 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		start_time = start_time + "S"+String.format("%010d", ai.getAndIncrement());
 		//start_time = start_time + "S"+String.format("%010d", String.valueOf(ai.getAndIncrement()));
 		
-		log.info("CollectDataFromSIJobService(id : "+jec.getJobDetail().getName()+") start.......................");
+		log.info("CollectDataFromOneM2MJobService(id : "+jec.getJobDetail().getName()+") start.......................");
 		
 		String startDate = "";
 		String endDate = "";
@@ -249,7 +249,7 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		
 		com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M oneM2M = new com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M();
 		
-		oneM2M.setColFrom(Utils.COL_SI_DATA);
+		oneM2M.setColFrom(Utils.COL_ONEM2M_DATA);
 		oneM2M.setReadFromTime(String.format("%s", new Date().getTime()));
 		oneM2M.setWriteQueueTime(String.format("%s", new Date().getTime()));
 		oneM2M.setTaskGroupId(jec.getJobDetail().getGroup());
@@ -293,7 +293,7 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		String finish_time = Utils.dateFormat.format(new Date());
 		updateFinishTime(jec, start_time, finish_time, triple_check_result_file, triple_path_file, triple_check_result);
 		
-		log.info("CollectDataFromSIJobService(id : "+jec.getJobDetail().getName()+") end.......................");
+		log.info("CollectDataFromOneM2MJobService(id : "+jec.getJobDetail().getName()+") end.......................");
 	}
 
 	public void execute(JobExecutionContext arg0)  throws JobExecutionException{

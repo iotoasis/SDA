@@ -104,7 +104,7 @@ public class AvroOneM2MZoneDataSubscribe implements Serializable  {
 							 
 							 // 작업진행여부 판단
 							 boolean processing_ok = false;
-							 if(colFrom.equals(Utils.COL_SI_ZONE_DATA)) {
+							 if(colFrom.equals(Utils.COL_ONEM2M_ZONE_DATA)) {
 								 processing_ok = true;
 							 } 
 

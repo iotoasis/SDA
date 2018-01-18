@@ -2,6 +2,7 @@ package com.pineone.icbms.sda.kafka.onem2m;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,9 +23,11 @@ import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaPairReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.kafka.KafkaUtils;
+import org.springframework.http.HttpStatus;
 
 import com.pineone.icbms.sda.comm.SchComm;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
+import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
@@ -76,7 +79,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 				conf.put("fetch.message.max.bytes", "31457280");		// 30MB		
 				conf.put("auto.offset.reset", "smallest");
 		
-		jssc.checkpoint("/tmp");
+		jssc.checkpoint("/tmp/onem2m");
 		Map<String, Integer> topic = new HashMap<String, Integer>();
 		topic.put(TOPIC, NUM_THREADS);
 		
@@ -135,6 +138,8 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 			String colFrom =  "";
 			String calcuate_latest_yn =  "";
 			
+			int error_count = 0;
+			 
 			try {
 				 List<java.lang.CharSequence> data= read.getData();
 				 log.debug("count data from kafka broker stream in AvroOneM2MDataSparkSubscribe: "+data.size());
@@ -146,11 +151,10 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 				 calcuate_latest_yn = read.getCalcuateLatestYn().toString();
 					
 				 String eachTriple = "";
-				 int error_count = 0;
 				 
 				 // 작업 진행여부 판단
 				 boolean processing_ok = false;
-				 if(colFrom.equals(Utils.COL_SI_DATA)) {
+				 if(colFrom.equals(Utils.COL_ONEM2M_DATA)) {
 					 processing_ok = true;
 				 } 
 	
@@ -184,8 +188,10 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 					 }
 					 
 					 // 최근값 관련 triple을 일괄 처리함
-					 tripleService.addLatestContentInstanceMany();
-					 tripleService = null;
+					 if(data.size() > 0) {
+						 tripleService.addLatestContentInstanceMany();
+						 tripleService = null;
+					 }
 				 }
 				 
 				 // task_group_id, task_id, start_time을 key로 work_result값을 update해줌
@@ -222,7 +228,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 					 log.debug("data.size() is 0, does not send triple ......");
 				 }
 	
-				 work_result =  "message " + data.size() + " counts from kafka broker have done with error data of "+error_count+" ! ";
+				 work_result =  "message " + data.size() + " counts from kafka broker have done with "+error_count+" error ! ";
 				 
 				 SchComm schComm = new SchComm();					 
 				 schComm.updateFinishTime(task_group_id, task_id, start_time, finish_time, work_result, triple_path_file, triple_check_result);
@@ -236,7 +242,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 				e.printStackTrace();
 				try {
 					SchComm schComm2 = new SchComm();
-					schComm2.updateFinishTime(task_group_id, task_id, start_time, Utils.dateFormat.format(new Date()), "#2"+e.getMessage());
+					schComm2.updateFinishTime(task_group_id, task_id, start_time, Utils.dateFormat.format(new Date()), "#2:"+Arrays.deepToString(e.getStackTrace()));
 				} catch (Exception ex) {
 					log.debug("ex ==>"+ex.getMessage());
 				}

@@ -197,7 +197,7 @@ public class CollectStatusDataFromSIJobService extends SchedulerJobComm implemen
 		
 		com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M oneM2M = new com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M();
 		
-		oneM2M.setColFrom(Utils.COL_SI_STATUS_DATA);
+		oneM2M.setColFrom(Utils.COL_ONEM2M_STATUS_DATA);
 		oneM2M.setReadFromTime(String.format("%s", new Date().getTime()));
 		oneM2M.setWriteQueueTime(String.format("%s", new Date().getTime()));
 		oneM2M.setTaskGroupId(jec.getJobDetail().getGroup());
