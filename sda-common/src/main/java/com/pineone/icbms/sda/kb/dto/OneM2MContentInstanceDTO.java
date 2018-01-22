@@ -157,12 +157,9 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 		String ret = "error : encode option must be 1 or 0";
 		switch (encoded) {
 		case 1 :
-			//byte[] encodedContent = this.con.getBytes();
 			byte[] encodedContent = StringEscapeUtils.unescapeJava(this.con).getBytes();
 			System.out.println("====="+this.get_uri()+"====1==before str====> "+new String(encodedContent));	
-			//ret = new String(Base64.getDecoder().decode(encodedContent));
 			String tmp_ret = new String(Base64.decodeBase64(encodedContent));
-			
 			System.out.println("====="+this.get_uri()+"====1==after str====> "+tmp_ret);
 			
 			//json형태의 데이타를 분석해서 필요한 값만 리턴함
@@ -211,29 +208,12 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 							avg = sum / cnt;
 							ret =  String.valueOf(avg);
 						}
-			/*} else if(this.get_uri().contains("Dormapp_inhouse") 		) {
+						
+			} else if(this.get_uri().contains("lwm2m_ipe/Distance")  ) {
 				Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-				DomappTemp dt = gson.fromJson(tmp_ret, DomappTemp.class);
-				int inCnt  = 0;
-				int outCnt = 0;
-				for(int m = 0; m < dt.student.length; m++) {
-					if(dt.student[m].getInhouse().equals("Y")) {
-						inCnt++;
-					} else if(dt.student[m].getInhouse().equals("N")) {
-						outCnt++;
-					}
-				}
-				if(dt.student != null && dt.student.length != 0) {
-					if(inCnt > 0)
-						ret = "Y";
-					else 
-						ret = "N";
-				} else {
-					ret =  "N";
-				}
-				*/
-						
-						
+				LWM2MDistanceDTO lwm2mDistance = gson.fromJson(tmp_ret, LWM2MDistanceDTO.class);
+				
+				ret = lwm2mDistance.getContent().getValue();
 			} else {
 				ret = this.con;
 			}

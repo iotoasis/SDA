@@ -21,13 +21,13 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
-import com.pineone.icbms.sda.comm.kafka.onem2m.AvroOneM2MDataPublish;
+import com.pineone.icbms.sda.comm.kafka.onem2m.AvroLWM2MDataPublish;
 import com.pineone.icbms.sda.comm.sch.dto.SchDTO;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sch.comm.SchedulerJobComm;
 
 @Service
-public class CollectDataFromSIJobService extends SchedulerJobComm implements Job {
+public class CollectDataFromLWM2MJobService extends SchedulerJobComm implements Job {
 	private final Log log = LogFactory.getLog(this.getClass());
 	private MongoClient mongoClient;
 	private DB db = null;
@@ -53,7 +53,7 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		start_time = start_time + "S"+String.format("%010d", ai.getAndIncrement());
 		//start_time = start_time + "S"+String.format("%010d", String.valueOf(ai.getAndIncrement()));
 		
-		log.info("CollectDataFromSIJobService(id : "+jec.getJobDetail().getName()+") start.......................");
+		log.info("CollectDataFromLWM2MJobService(id : "+jec.getJobDetail().getName()+") start.......................");
 		
 		String startDate = "";
 		String endDate = "";
@@ -245,28 +245,28 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		} 
 		
 		// kafka 전송
-		AvroOneM2MDataPublish avroOneM2MDataPublish = new AvroOneM2MDataPublish(Utils.BROKER_LIST);
+		AvroLWM2MDataPublish avroLWM2MDataPublish = new AvroLWM2MDataPublish(Utils.BROKER_LIST);
 		
-		com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M oneM2M = new com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M();
+		com.pineone.icbms.sda.comm.kafka.avro.COL_LWM2M lwM2M = new com.pineone.icbms.sda.comm.kafka.avro.COL_LWM2M();
 		
-		oneM2M.setColFrom(Utils.COL_SI_DATA);
-		oneM2M.setReadFromTime(String.format("%s", new Date().getTime()));
-		oneM2M.setWriteQueueTime(String.format("%s", new Date().getTime()));
-		oneM2M.setTaskGroupId(jec.getJobDetail().getGroup());
-		oneM2M.setTaskId(jec.getJobDetail().getName());
-		oneM2M.setStartTime(start_time);
+		lwM2M.setColFrom(Utils.COL_LWM2M_DATA);
+		lwM2M.setReadFromTime(String.format("%s", new Date().getTime()));
+		lwM2M.setWriteQueueTime(String.format("%s", new Date().getTime()));
+		lwM2M.setTaskGroupId(jec.getJobDetail().getGroup());
+		lwM2M.setTaskId(jec.getJobDetail().getName());
+		lwM2M.setStartTime(start_time);
 		if(haveToMakeLatestContentInstance) {
-			oneM2M.setCalcuateLatestYn("Y");
+			lwM2M.setCalcuateLatestYn("Y");
 		} else if(haveToMakeLatestContentInstance  == false) {
-			oneM2M.setCalcuateLatestYn("N");
+			lwM2M.setCalcuateLatestYn("N");
 		}
-		oneM2M.setData(list);
+		lwM2M.setData(list);
 		
 		// 전송시작
-		log.debug("Sending OneM2MData start ......................");		
-		avroOneM2MDataPublish.send(oneM2M);
-		avroOneM2MDataPublish.close();
-		log.debug("Sending OneM2MData end ......................");
+		log.debug("Sending LWM2MData start ......................");		
+		avroLWM2MDataPublish.send(lwM2M);
+		avroLWM2MDataPublish.close();
+		log.debug("Sending LWM2MData end ......................");
 		// 전송끝
 		
 		// mongodb관련 커넥션 닫기(최종)
@@ -293,7 +293,7 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		String finish_time = Utils.dateFormat.format(new Date());
 		updateFinishTime(jec, start_time, finish_time, triple_check_result_file, triple_path_file, triple_check_result);
 		
-		log.info("CollectDataFromSIJobService(id : "+jec.getJobDetail().getName()+") end.......................");
+		log.info("CollectDataFromLWM2MJobService(id : "+jec.getJobDetail().getName()+") end.......................");
 	}
 
 	public void execute(JobExecutionContext arg0)  throws JobExecutionException{
@@ -304,9 +304,10 @@ public class CollectDataFromSIJobService extends SchedulerJobComm implements Job
 		String user_name;
 		String password;
 		
-		mongodb_server = Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.server");
-		mongodb_port = Integer.parseInt(Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.port"));
-		mongodb_db = Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.db");
+		mongodb_server = Utils.getSdaProperty("com.pineone.icbms.sda.lwm2m.mongodb.server");
+		mongodb_port = Integer.parseInt(Utils.getSdaProperty("com.pineone.icbms.sda.lwm2m.mongodb.port"));
+		mongodb_db = Utils.getSdaProperty("com.pineone.icbms.sda.lwm2m.mongodb.db");
+		
 		save_path = Utils.getSdaProperty("com.pineone.icbms.sda.triple.save_path");
 		user_name = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.user_name");
 		password = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.password");

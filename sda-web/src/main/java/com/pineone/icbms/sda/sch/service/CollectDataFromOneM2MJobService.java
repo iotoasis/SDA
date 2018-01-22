@@ -21,31 +21,39 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
-import com.pineone.icbms.sda.comm.kafka.onem2m.AvroOneM2MStatusDataPublish;
+import com.pineone.icbms.sda.comm.kafka.onem2m.AvroOneM2MDataPublish;
 import com.pineone.icbms.sda.comm.sch.dto.SchDTO;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sch.comm.SchedulerJobComm;
 
 @Service
-public class CollectStatusDataFromSIJobService extends SchedulerJobComm implements Job {
+public class CollectDataFromOneM2MJobService extends SchedulerJobComm implements Job {
 	private final Log log = LogFactory.getLog(this.getClass());
 	private MongoClient mongoClient;
 	private DB db = null;
 	private SchDTO schDTO;
 	private static AtomicInteger ai = new AtomicInteger();
-	private final String m = "status/Data";
+	
+	// latestContentInstance값을 구해야 할지 여부
+	private static boolean haveToMakeLatestContentInstance = false;
+	
+	// latestContentInstance 산출하기 변경 기준 날짜(이 시간 전까지는 산출하지 않음)
+	private static String splitDate;
+	
+	// 전부 수집하도록 수정
+	//private final String m = "status/Data";
+	
+	// _uri에 /status/만 수집하도록 다시 수정
+	private final String m = "/status/";
 	private final int maxLimit = Integer.parseInt(Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.read_limit"));
 	
-	public void collect(String ip, int port, String dbname, String save_path, JobExecutionContext jec)
-			throws Exception {
+	public void collect(String ip, int port, String dbname, String save_path, JobExecutionContext jec, String user_name, String password) throws Exception {
 		String start_time = Utils.dateFormat.format(new Date());
 		// 중복방지
 		start_time = start_time + "S"+String.format("%010d", ai.getAndIncrement());
+		//start_time = start_time + "S"+String.format("%010d", String.valueOf(ai.getAndIncrement()));
 		
-		log.info("CollectStatusDataFromSIJobService(id : "+jec.getJobDetail().getName()+") start.......................");
-		
-		mongoClient = new MongoClient(new ServerAddress(ip, port));
-		db = mongoClient.getDB(dbname);
+		log.info("CollectDataFromOneM2MJobService(id : "+jec.getJobDetail().getName()+") start.......................");
 		
 		String startDate = "";
 		String endDate = "";
@@ -53,19 +61,55 @@ public class CollectStatusDataFromSIJobService extends SchedulerJobComm implemen
 		String triple_check_result = "";
 		String triple_check_result_file = "";
 		int cnt = 0;
+		DBCollection table=null;
+		
+		// MongoDB연결
+		try {
+			mongoClient = new MongoClient(new ServerAddress(ip, port));
+			db = mongoClient.getDB(dbname);
+			//boolean auth = db.authenticate(user_name, password.toCharArray());
+			table = db.getCollection("resource");
+		} catch (Exception ex) {
+			log.debug("MongoDB connection error : "+ex.getMessage());
 
-		DBCollection table = db.getCollection("resource");
-	
+			if(db != null) {
+				db.cleanCursors(true);
+				db = null;				
+			}
+			if(table != null) {table = null;}
+			if(mongoClient != null ) {
+				mongoClient.close();
+			}
+			throw ex;
+		} 
+		
 		// task_group_id, task_id에 대한 schDTO정보
 		schDTO = getSchDTO(jec);
 
 		// startdate구하기
 		if (schDTO.getLast_work_time() == null || schDTO.getLast_work_time().equals("")) {
 			startDate = "";
+			haveToMakeLatestContentInstance = false;
+			// latestContentInstance를 구하지 않는 기준 일자를 구함(예, 현재시간 - adjust.ms초 전까지는 구하지 않음)
+			long adjustMs = Long.parseLong(Utils.getSdaProperty("com.pineone.icbms.sda.init.adjust.ms"));
+			
+			splitDate = Utils.dateFormat.format(new Date().getTime() - adjustMs);
+			
+			log.debug("schDTO.getLast_work_time() is null or \"\" ================================");
 		} else {
 			startDate = schDTO.getLast_work_time();
 		}
-
+		
+		
+		//splitDate가 없을때(war가 재기동 되는 경우) splitDate설정
+		if(splitDate == null || splitDate.equals("")) {
+			log.debug("splitDate is null or \"\" ================================");
+			long adjustMs = Long.parseLong(Utils.getSdaProperty("com.pineone.icbms.sda.init.adjust.ms"));
+			long lastWorkTime_tmp = Utils.dateFormat.parse(schDTO.getLast_work_time()).getTime();
+			
+			splitDate = Utils.dateFormat.format(lastWorkTime_tmp - adjustMs);
+		}
+		
 		// enddate구하기
 		BasicDBObject searchQuery = new BasicDBObject("ct", new BasicDBObject("$gte", startDate));
 
@@ -80,7 +124,7 @@ public class CollectStatusDataFromSIJobService extends SchedulerJobComm implemen
 				break;
 			}
 			*/
-			log.debug("size of cursor ==> "+cursor.size());
+			log.debug("Size of cursor ==> "+cursor.size());
 			log.debug("maxLimit  ==> "+maxLimit);
 			
 			cursor.sort(new BasicDBObject("ct", 1)); // 1: 정순, -1 : 역순
@@ -103,19 +147,11 @@ public class CollectStatusDataFromSIJobService extends SchedulerJobComm implemen
 				endDate = (String) doc.get("ct");
 			}
 			
-		} catch (MongoException e) {
-			e.printStackTrace();
-			if(db != null) {
-				db.cleanCursors(true);
-				table = null;
-				db = null;				
-			}
-			if(mongoClient != null ) {
-				mongoClient.close();
-			}
-			throw e;
+			// endDate값을 sch테이블의 last_work_time에 update
+			updateLastWorkTime(jec, endDate);
 		} catch (Exception e) {
 			e.printStackTrace();
+			updateFinishTime(jec, start_time, Utils.dateFormat.format(new Date()), e.getMessage());			
 			if(db != null) {
 				db.cleanCursors(true);
 				table = null;
@@ -125,19 +161,46 @@ public class CollectStatusDataFromSIJobService extends SchedulerJobComm implemen
 				mongoClient.close();
 			}
 			throw e;
-		} finally {
-			if (cursor != null) {
-				cursor.close();
+		}
+		
+		// latestContentInstance계산여부 판단
+		long startDate_tmp = 0L;
+		long endDate_tmp = Utils.dateFormat.parse(endDate).getTime();
+		long splitDate_tmp = Utils.dateFormat.parse(splitDate).getTime();
+		
+		// 초기화하는 경우 최초에 startDate가 ""이므로 splitDate값으로 설정한다.
+		if(startDate.equals("")) {
+			startDate_tmp = splitDate_tmp;
+		} else {
+			startDate_tmp = Utils.dateFormat.parse(startDate).getTime();
+		}
+		
+		// endDate가 splitDate를 넘어가는 경우는 최근인스턴스를 구함
+		if(splitDate_tmp <= startDate_tmp) {
+			haveToMakeLatestContentInstance = true;
+		} else {
+			if(endDate_tmp > splitDate_tmp) {
+				haveToMakeLatestContentInstance = true;
+			} else {
+				haveToMakeLatestContentInstance = false;
 			}
 		}
 
 		log.debug("startDate : " + startDate);
 		log.debug("endDate : " + endDate);
+		log.debug("splitDate : " + splitDate);
+		
+		log.debug("startDate_tmp : " + startDate_tmp);
+		log.debug("endDate_tmp : " + endDate_tmp);
+		log.debug("splitDate_tmp : " + splitDate_tmp);
+		
+		log.debug("haveToMakeLatestContentInstance : " + haveToMakeLatestContentInstance);
 
 		// triple생성 대상 범위의 데이타 가져오기
-		BasicDBObject searchQuery2 = new BasicDBObject("ct",
-				new BasicDBObject("$gte", startDate).append("$lt", endDate));
+		BasicDBObject searchQuery2 = new BasicDBObject("ct", new BasicDBObject("$gte", startDate).append("$lt", endDate));
 		
+		// 전부 수집하도록 수정
+		// _uri에 /status/만 수집하도록 다시 수정
 		searchQuery2.put("_uri",  java.util.regex.Pattern.compile(m));
 		
 		DBCursor cursor2 = null;
@@ -164,61 +227,54 @@ public class CollectStatusDataFromSIJobService extends SchedulerJobComm implemen
 				}
 				err_cnt++;
 			}
-		} catch (MongoException e) {
-			e.printStackTrace();
-			if(db != null) {
-				db.cleanCursors(true);
-				table = null;
-				db = null;				
-			}
-			if(mongoClient != null ) {
-				mongoClient.close();
-			}
-			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
+			updateFinishTime(jec, start_time, Utils.dateFormat.format(new Date()), e.getMessage());
+
+			if (cursor2 != null) cursor2.close();
+			
 			if(db != null) {
 				db.cleanCursors(true);
-				table = null;
 				db = null;				
 			}
+			if(table != null) table = null;
 			if(mongoClient != null ) {
 				mongoClient.close();
-			}
+			}		
 			throw e;
-		} finally {
-			if (cursor2 != null) {
-				cursor2.close();
-			}
-		}
+		} 
 		
 		// kafka 전송
-		AvroOneM2MStatusDataPublish avroOneM2MStatusDataPublish = new AvroOneM2MStatusDataPublish(Utils.BROKER_LIST);
+		AvroOneM2MDataPublish avroOneM2MDataPublish = new AvroOneM2MDataPublish(Utils.BROKER_LIST);
 		
 		com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M oneM2M = new com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M();
 		
-		oneM2M.setColFrom(Utils.COL_ONEM2M_STATUS_DATA);
+		oneM2M.setColFrom(Utils.COL_ONEM2M_DATA);
 		oneM2M.setReadFromTime(String.format("%s", new Date().getTime()));
 		oneM2M.setWriteQueueTime(String.format("%s", new Date().getTime()));
 		oneM2M.setTaskGroupId(jec.getJobDetail().getGroup());
 		oneM2M.setTaskId(jec.getJobDetail().getName());
 		oneM2M.setStartTime(start_time);
+		if(haveToMakeLatestContentInstance) {
+			oneM2M.setCalcuateLatestYn("Y");
+		} else if(haveToMakeLatestContentInstance  == false) {
+			oneM2M.setCalcuateLatestYn("N");
+		}
 		oneM2M.setData(list);
 		
 		// 전송시작
-		log.debug("Sending OneM2MStatusData start ......................");		
-		avroOneM2MStatusDataPublish.send(oneM2M);
-
-		// 전송끝 
-		avroOneM2MStatusDataPublish.close();
-		log.debug("Sending OneM2MStatusData end ......................");		
+		log.debug("Sending OneM2MData start ......................");		
+		avroOneM2MDataPublish.send(oneM2M);
+		avroOneM2MDataPublish.close();
+		log.debug("Sending OneM2MData end ......................");
+		// 전송끝
 		
-		// mongodb관련 커넥션 닫기
+		// mongodb관련 커넥션 닫기(최종)
 		if(db != null) {
 			db.cleanCursors(true);
-			table = null;
 			db = null;				
 		}
+		if(table != null) table = null;
 		if(mongoClient != null ) {
 			mongoClient.close();
 		}
@@ -237,9 +293,7 @@ public class CollectStatusDataFromSIJobService extends SchedulerJobComm implemen
 		String finish_time = Utils.dateFormat.format(new Date());
 		updateFinishTime(jec, start_time, finish_time, triple_check_result_file, triple_path_file, triple_check_result);
 		
-		// endDate값을 sch테이블의 last_work_time에 update
-		updateLastWorkTime(jec, endDate);
-		log.info("CollectStatusDataFromSIJobService(id : "+jec.getJobDetail().getName()+") end.......................");
+		log.info("CollectDataFromOneM2MJobService(id : "+jec.getJobDetail().getName()+") end.......................");
 	}
 
 	public void execute(JobExecutionContext arg0)  throws JobExecutionException{
@@ -247,17 +301,21 @@ public class CollectStatusDataFromSIJobService extends SchedulerJobComm implemen
 		int mongodb_port;
 		String mongodb_db;
 		String save_path;
-
+		String user_name;
+		String password;
+		
 		mongodb_server = Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.server");
 		mongodb_port = Integer.parseInt(Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.port"));
 		mongodb_db = Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.db");
 		save_path = Utils.getSdaProperty("com.pineone.icbms.sda.triple.save_path");
+		user_name = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.user_name");
+		password = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.password");
 
 		// 폴더가 없으면 생성
 		save_path = Utils.makeSavePath(save_path);
 
 		try {
-			collect(mongodb_server, mongodb_port, mongodb_db, save_path, arg0);
+			collect(mongodb_server, mongodb_port, mongodb_db, save_path, arg0, user_name, password);
 			//collect("120.0.0.1", mongodb_port, mongodb_db, save_path, arg0);
 		} catch (Exception e) {
 			e.printStackTrace();

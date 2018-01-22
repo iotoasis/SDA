@@ -28,16 +28,16 @@ import org.springframework.http.HttpStatus;
 import com.pineone.icbms.sda.comm.SchComm;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
-import com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M;
+import com.pineone.icbms.sda.comm.kafka.avro.COL_LWM2M;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 import com.pineone.icbms.sda.sf.TripleService;
 
 
-public class AvroOneM2MDataSparkSubscribe implements Serializable {
-	private static final long serialVersionUID = 1333478786266564011L;
-	private final String TOPIC = Utils.KafkaTopics.COL_ONEM2M.toString();
-	private static final Log log = LogFactory.getLog(AvroOneM2MDataSparkSubscribe.class);
+public class AvroLWM2MDataSparkSubscribe implements Serializable {
+	private static final long serialVersionUID = 1333478786266564012L;
+	private final String TOPIC = Utils.KafkaTopics.COL_LWM2M.toString();
+	private static final Log log = LogFactory.getLog(AvroLWM2MDataSparkSubscribe.class);
 	
 	//private final TripleService tripleService = new TripleService();	
 	private final int NUM_THREADS = Integer.parseInt(Utils.getSdaProperty ("com.pineone.icbms.sda.kafka.thread.count"));
@@ -46,18 +46,18 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 	private final String group_id = this.getClass().getSimpleName();
 	
 	public static void main(String[] args) {
-		AvroOneM2MDataSparkSubscribe avroOneM2MDataSparkSubscribe = new AvroOneM2MDataSparkSubscribe();
+		AvroLWM2MDataSparkSubscribe avroLWM2MDataSparkSubscribe = new AvroLWM2MDataSparkSubscribe();
 		try {
-			avroOneM2MDataSparkSubscribe.collect();
+			avroLWM2MDataSparkSubscribe.collect();
 		} catch (Exception ex) {
 			log.debug("exception in main() :"+ex.getStackTrace());
 		}
 	}
 
 	public void collect() throws Exception{
-		SparkConf sc=new SparkConf().setAppName("AvroOneM2MDataSparkSubscribe")
-				 .set("spark.ui.port", "4042")
-				 .set("spark.blockManager.port", "38020")
+		SparkConf sc=new SparkConf().setAppName("AvroLWM2MDataSparkSubscribe")
+				 .set("spark.ui.port", "4142")
+				 .set("spark.blockManager.port", "38121")
 				 .set("spark.broadcast.port", "38021")
 				 .set("spark.driver.port", "38022")
 				 .set("spark.executor.port", "38023")
@@ -79,7 +79,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 				conf.put("fetch.message.max.bytes", "31457280");		// 30MB		
 				conf.put("auto.offset.reset", "smallest");
 		
-		jssc.checkpoint("/tmp/onem2m");
+		jssc.checkpoint("/tmp/lwm2m");
 		Map<String, Integer> topic = new HashMap<String, Integer>();
 		topic.put(TOPIC, NUM_THREADS);
 		
@@ -95,9 +95,9 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 
 						public String call(byte[] x) {
 							BinaryDecoder binaryDecoder = DecoderFactory.get().binaryDecoder(x, null);
-							SpecificDatumReader<COL_ONEM2M> specificDatumReader = new SpecificDatumReader<COL_ONEM2M>(COL_ONEM2M.class);
+							SpecificDatumReader<COL_LWM2M> specificDatumReader = new SpecificDatumReader<COL_LWM2M>(COL_LWM2M.class);
 							try {
-								COL_ONEM2M read = specificDatumReader.read(null, binaryDecoder);								
+								COL_LWM2M read = specificDatumReader.read(null, binaryDecoder);								
 								new ConsumerT(read).go();
 							} catch (Exception e) {
 								log.debug("xxx=>"+e.getMessage());
@@ -122,9 +122,9 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 	//public class ConsumerT implements Runnable {
 	public class ConsumerT implements Serializable {
 		private static final long serialVersionUID = 7697840079748720000L;
-		private COL_ONEM2M read;
+		private COL_LWM2M read;
 		
-		public ConsumerT(COL_ONEM2M read) {
+		public ConsumerT(COL_LWM2M read) {
 			super();
 			this.read = read;
 		}
@@ -142,7 +142,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 			 
 			try {
 				 List<java.lang.CharSequence> data= read.getData();
-				 log.debug("count data from kafka broker stream in AvroOneM2MDataSparkSubscribe: "+data.size());
+				 log.debug("count data from kafka broker stream in AvroLWM2MDataSparkSubscribe: "+data.size());
 				 
 				 task_group_id = read.getTaskGroupId().toString();
 				 task_id = read.getTaskId().toString();
@@ -154,7 +154,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 				 
 				 // 작업 진행여부 판단
 				 boolean processing_ok = false;
-				 if(colFrom.equals(Utils.COL_ONEM2M_DATA)) {
+				 if(colFrom.equals(Utils.COL_LWM2M_DATA)) {
 					 processing_ok = true;
 				 } 
 	
@@ -297,7 +297,7 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 			try { 
 				tripleService.sendTripleFileToHalyard(new File(triple_path_file));
 			} catch (Exception e) {
-				log.debug("sendTripleFileToHalyard exception in AvroOneM2MDataSparkSubscribe.java : "+e.getLocalizedMessage());
+				log.debug("sendTripleFileToHalyard exception in AvroLWM2MDataSparkSubscribe.java : "+e.getLocalizedMessage());
 				log.debug("triple_path_file : "+triple_path_file);
 
 			}

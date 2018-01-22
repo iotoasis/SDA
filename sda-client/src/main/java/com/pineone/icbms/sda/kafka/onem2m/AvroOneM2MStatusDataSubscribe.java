@@ -105,7 +105,7 @@ public class AvroOneM2MStatusDataSubscribe implements Serializable  {
 							 
 							 // 작업 진행여부 판단
 							 boolean processing_ok = false;
-							 if(colFrom.equals(Utils.COL_SI_STATUS_DATA)) {
+							 if(colFrom.equals(Utils.COL_ONEM2M_STATUS_DATA)) {
 								 processing_ok = true;
 							 } 
 
