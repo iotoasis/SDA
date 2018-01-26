@@ -20,9 +20,9 @@
 * 실시간 상황인지를 위한 추론 기능
 
 ## Documents
- - [Quick Start](./sda-doc/quick-start.md)
- - [SDA 설정방법](./sda-doc/configuration.md)
- - [SDA Build 방법](./sda-doc/build_eclipse.md)
+ - [Quick Start](https://github.com/iotoasis/SDA/blob/master/sda-doc/quick-start.md)
+ - [SDA 설정방법](https://github.com/iotoasis/SDA/blob/master/sda-doc/configuration.md)
+ - [SDA Build 방법](https://github.com/iotoasis/SDA/blob/master/sda-doc/build_eclipse.md)
 
 ## Downloads
  - [릴리즈 페이지](https://github.com/iotoasis/SDA/releases)
