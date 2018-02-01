@@ -27,7 +27,6 @@ import com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sf.TripleService;
 
-
 /**
  *   OneM2M 데이타 수집기
  */

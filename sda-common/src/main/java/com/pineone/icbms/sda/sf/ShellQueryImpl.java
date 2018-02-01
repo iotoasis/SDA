@@ -9,11 +9,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import scala.NotImplementedError;
-
-import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.util.Utils;
-/*
+
+import scala.NotImplementedError;
+/**
  * MongoDB에 접속하여 쿼리수행
  */
 public class ShellQueryImpl extends QueryCommon implements QueryItf {
@@ -44,7 +43,6 @@ public class ShellQueryImpl extends QueryCommon implements QueryItf {
 				log.debug("Exception 1====>"+ee.getMessage());
 				waitTime = 30*1000;
 				if(ee.getMessage().contains("Service Unavailable")|| ee.getMessage().contains("java.net.ConnectException")
-						// || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error")
 						) {					
 					try {
 						// restart fuseki
@@ -70,18 +68,20 @@ public class ShellQueryImpl extends QueryCommon implements QueryItf {
 		return list;
 	}
 	
+	/**
+	 * 쿼리 수행 결과
+	 * @param query
+	 * @param idxVals
+	 * @return
+	 * @throws Exception
+	 */
 	private final List<Map<String, String>> getResult (String query, String[] idxVals) throws Exception {
-		// 변수치환(예, , python3 /svc/apps/sda/ml/predict_.py @{arg0} @{arg1})
 		query = makeFinal(query, idxVals);
-	
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
-		
 		String[] result = new String[]{""};
 
 		// query문자열 에서 필요한 실행에 필요한 부분 추출(예, python3 /svc/apps/sda/ml/predict_.py @{arg0} @{arg1})
-		//	String[] args = { "python3","/svc/apps/sda/ml/predict_.py", "0000000003", "dinner"};
 		String[] args = query.split("\\s+");
-		
 		StringBuilder sb = new StringBuilder();
 
 		for (String str : args) {
@@ -99,16 +99,25 @@ public class ShellQueryImpl extends QueryCommon implements QueryItf {
 		return list;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.lang.String)
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(String query) throws Exception {
 		return runQuery(query, new String[]{""});
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.util.List)
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(List<String> queryList) throws Exception {
 		return runQuery(queryList, new String[]{""});
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.util.List, java.lang.String[])
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(List<String> queryList, String[] idxVals) throws Exception {
 		if(queryList.size() == 1) {

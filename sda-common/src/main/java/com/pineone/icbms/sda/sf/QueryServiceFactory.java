@@ -5,10 +5,11 @@ import org.apache.commons.logging.LogFactory;
 
 import com.pineone.icbms.sda.comm.util.Utils;
 
+/**
+ * 쿼리 수행 팩토리
+ */
 public class QueryServiceFactory {
 	static final Log log = LogFactory.getLog(QueryServiceFactory.class);
-	
-	//static QueryItf queryItf; 
 	
 	private QueryServiceFactory() {
 	}
@@ -16,6 +17,12 @@ public class QueryServiceFactory {
 	private QueryServiceFactory(QueryItf queryItf) {
 	}
 	
+	/**
+	 * 구분에 따른 쿼리생성
+	 * @param queryGubun
+	 * @return
+	 * @throws Exception
+	 */
 	static public QueryService create(Utils.QUERY_GUBUN queryGubun) throws Exception {
 		QueryService queryService;
 			if(queryGubun == Utils.QUERY_GUBUN.MARIADBOFGRIB){

@@ -3,7 +3,6 @@ package com.pineone.icbms.sda.sf;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,20 +10,21 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Literal;
-
-import scala.NotImplementedError;
 
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.util.Utils;
+
+import scala.NotImplementedError;
+/**
+ * Halyard의 Endpoint를 이용한 Sparql처러
+ */
 public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 	
 	private final Log log = LogFactory.getLog(this.getClass());
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.lang.String, java.lang.String[])
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.halyard.sparql.endpoint");
@@ -72,15 +72,19 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 		log.info("runQuery of halyard sparql end ======================>");
 		return list;
 	}
-	
-	// delete->insert(인수가 sparql인 경우)
+
+	/**
+	 * delete->insert(인수가 sparql인 경우)
+	 * @param query
+	 * @return
+	 * @throws Exception
+	 */
 	public ResponseMessage updateByQuery(String query) throws Exception {
 		log.debug("------------------------updateByQuery-----start-------------------");
-		if(query == null || query.equals("")) { throw new NullPointerException("query is null or query is space"); }
+		if(query == null || query.equals("")) { throw new NullPointerException("query is null or space"); }
 		
 		// select
 		List<Map<String, String>> list;
-		//QueryService sparqlService= new QueryService(new SparqlHalyardQueryImpl());
 		QueryService sparqlService= QueryServiceFactory.create(Utils.QUERY_GUBUN.HALYARDSPARQL);
 		list = sparqlService.runQuery(query, new String[]{""});
 		
@@ -117,8 +121,13 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 		log.debug("------------------------updateByData-----end-----------------------");
 		return returnResponse;
 	}
-	
-	// delete->insert(인수가 List인경우)
+
+	/**
+	 * delete->insert(인수가 List인경우)
+	 * @param dataList
+	 * @return
+	 * @throws Exception
+	 */
 	public ResponseMessage updateByList(List<Map<String, String>> dataList) throws Exception {
 		log.debug("------------------------updateByList-----start-----------------------");		
 		if(dataList == null || dataList.size() == 0) { throw new NullPointerException("dataList is null or dataList.size() is 0"); }
@@ -145,13 +154,18 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 		return returnResponse;
 	}
 
-	
-	// DELETE(s, p)
+	/**
+	 * DELETE(s, p)
+	 * @param s
+	 * @param p
+	 * @return
+	 * @throws Exception
+	 */
 	public ResponseMessage delete(String s, String p) throws Exception {
 		log.debug("------------------------delete(s, o)-----start-----------------------");
 
-		if(s == null || s.equals("")) { throw new NullPointerException("s is null or s is space"); }
-		if(p == null || p.equals("")) { throw new NullPointerException("p is null or s is space"); }
+		if(s == null || s.equals("")) { throw new NullPointerException("s is null or space"); }
+		if(p == null || p.equals("")) { throw new NullPointerException("p is null or space"); }
 		
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.halyard.statement.endpoint");
 		String url = serviceURI+
@@ -163,13 +177,20 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 		log.debug("------------------------delete(s, o)-----end-----------------------");
 		return Utils.requestDelete(url, new HashMap<String, String>());
 	}
-
-	// DELETE(s, p, o)
+ 
+	/**
+	 * DELETE(s, p, o)
+	 * @param s
+	 * @param p
+	 * @param o
+	 * @return
+	 * @throws Exception
+	 */
 	public ResponseMessage delete(String s, String p, String o) throws Exception {
 		log.debug("------------------------delete(s, p, o)-----start-----------------------");
-		if(s == null || s.equals("")) { throw new NullPointerException("s is null or s is space"); }
-		if(p == null || p.equals("")) { throw new NullPointerException("p is null or p is space"); }
-		if(o == null || o.equals("")) { throw new NullPointerException("o is null or o is space"); }
+		if(s == null || s.equals("")) { throw new NullPointerException("s is null or space"); }
+		if(p == null || p.equals("")) { throw new NullPointerException("p is null or space"); }
+		if(o == null || o.equals("")) { throw new NullPointerException("o is null or space"); }
 		
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.halyard.statement.endpoint");
 		String url = serviceURI+
@@ -184,10 +205,15 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 		return Utils.requestDelete(url, new HashMap<String, String>());			
 	}
 
-	// POST로 insert(?s ?p ?o가 모두 일치하는 triple은 skip하고 나머지의 경우는 모두 insert함)
+	/**
+	 * POST로 insert(?s ?p ?o가 모두 일치하는 triple은 skip하고 나머지의 경우는 모두 insert함)
+	 * @param data
+	 * @return
+	 * @throws Exception
+	 */
 	public ResponseMessage insertByPost(String data) throws Exception {
 		log.debug("------------------------insertByPost-----start-----------------------");
-		if(data == null || data.equals("")) { throw new NullPointerException("data is null or data is space");	}
+		if(data == null || data.equals("")) { throw new NullPointerException("data is null or space");	}
 		
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.halyard.statement.endpoint");
 		String contentType = "text/turtle;charset=UTF-8";
@@ -198,11 +224,15 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 		log.debug("------------------------insertByPost-----end-----------------------");
 		return Utils.requestPost(serviceURI, data, map);	
 	}
-	
-	// 문자열의 triple data를 List<Map<String, String>>형태로 변경함
+
+	/**
+	 * 문자열의 triple data를 List<Map<String, String>>형태로 변경함
+	 * @param data
+	 * @return
+	 */
 	private List<Map<String, String>> makeListData(String data) {
 		log.debug("------------------------makeListData-----start-----------------------");
-		if(data == null || data.equals("")) { throw new NullPointerException("data is null or data is space");	}
+		if(data == null || data.equals("")) { throw new NullPointerException("data is null or space");	}
 		
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 		StringTokenizer lines = new StringTokenizer(data, "\n");
@@ -221,16 +251,25 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 		return list;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.lang.String)
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(String query) throws Exception {
 		return runQuery(query, new String[]{""});
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.util.List)
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(List<String> queryList) throws Exception {
 		return runQuery(queryList, new String[]{""});
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.util.List, java.lang.String[])
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(List<String> queryList, String[] idxVals) throws Exception {
 		if(queryList.size() == 1) {

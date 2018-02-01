@@ -31,6 +31,13 @@ public class UpdateSemanticDescriptor {
 	PreparedStatement pstmt = null;
 	ResultSet rs = null;
 	
+	/**
+	 * Device용 Triple파일 생성
+	 * @param name
+	 * @throws UserDefinedException
+	 * @throws IOException
+	 * @throws SQLException
+	 */
 	private void getMergedFileForDevice(String name) throws UserDefinedException, IOException, SQLException {
 
 		StringBuffer buffer = new StringBuffer();

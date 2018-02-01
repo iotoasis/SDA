@@ -1,9 +1,7 @@
 package com.pineone.icbms.sda.sf;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -22,21 +20,26 @@ import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
 
-import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.util.Utils;
-import com.pineone.icbms.sda.sf.QueryCommon.CntCompare;
 
+/**
+ * Fuseki Endpoint를 이용한 Sparql처리
+ */
 public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 	
 	private final Log log = LogFactory.getLog(this.getClass());
 
-	// 인수없음
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.lang.String)
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(String query) throws Exception {
 		return  runQuery(query, new String[]{""});
 	}
 	
-	// 인수있음
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.lang.String, java.lang.String[])
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint");
@@ -48,9 +51,6 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 		if(Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.hostname"))) {
 			serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint");
 		}
-		
-		// 가용 메모리를 확인해서  상태를 체크해서 fuseki서버를 재기동해줌
-		//Utils.checkMem();
 
 		log.debug("try (first) .................................. ");
 		madeQl = makeFinal(query, idxVals);
@@ -80,7 +80,6 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 				log.debug("Exception 1====>"+ee.getMessage());
 				waitTime = 30*1000;
 				if(ee.getMessage().contains("Service Unavailable")|| ee.getMessage().contains("java.net.ConnectException")
-						// || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error")
 						) {					
 					try {
 						// restart fuseki
@@ -119,12 +118,10 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 					log.debug("this is Literal type ............................");
 					Literal literal = qs.getLiteral(vName);
 					String vValue = String.valueOf(literal.getValue());
-					// vValue = replaceUriWithPrefix(vValue);
 					map.put(vName, vValue);
 				} else if (qs.get(vName).isResource()) {
 					log.debug("this is Resource type ............................");
 					String vValue = qs.getResource(vName).toString();
-					// vValue = replaceUriWithPrefix(vValue);
 					map.put(vName, vValue);
 
 				} else {
@@ -139,6 +136,14 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 		return list;
 	}
 	
+	/**
+	 * update수행
+	 * @param deleteql
+	 * @param insertql
+	 * @param idxVals
+	 * @param dest
+	 * @throws Exception
+	 */
 	public synchronized void updateSparql(String deleteql, String insertql, String[] idxVals, String dest) throws Exception {
 		log.debug("delete->insert sparql start............................");
 		// delete
@@ -148,7 +153,13 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 		log.debug("delete->insert sparql end............................");		
 	}
 
-	// update쿼리수행(sparql만 해당됨)
+	/**
+	 * update쿼리수행(sparql만 해당됨)
+	 * @param sparql
+	 * @param idxVals
+	 * @param dest
+	 * @throws Exception
+	 */
 	public void  runModifySparql(String sparql, String[] idxVals, String dest) throws Exception {
 		String madeQl = makeFinal(sparql, idxVals);
 		
@@ -158,7 +169,6 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 			UpdateRequest ur = UpdateFactory.create(madeQl);
 			UpdateProcessor up;
 			
-			//log.debug("sparql of "+dest+" in runModifySparql ===> "+madeQl);
 			log.debug("runModifySparql() on DatWarehouse server start.................................. ");
 		
 			try {
@@ -167,7 +177,7 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 				up.execute();
 			} catch (Exception e) {
 				int waitTime = 15*1000;
-				log.debug("Exception message in runModifySparql() =====> "+e.getMessage());  // HTTP 500 error making the query: java.lang.StackOverflowError or...
+				log.debug("Exception message in runModifySparql() =====> "+e.getMessage());  
 				
 				try {
 					// 일정시간 대기 했다가 다시 수행함
@@ -181,7 +191,6 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 					log.debug("Exception 1====>"+ee.getMessage());
 					waitTime = 30*1000;
 					if(ee.getMessage().contains("Service Unavailable") || ee.getMessage().contains("java.net.ConnectException")			
-							 // || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error") 
 							 ) {
 						try {
 							// restart fuseki
