@@ -73,7 +73,7 @@ public class StrUtils {
 	}
 
 	/**
-	 * &#47672;와 같은 문자를 utf-8로 변환
+	 * utf-8로 변환
 	 * @param uni
 	 * @return String
 	 */

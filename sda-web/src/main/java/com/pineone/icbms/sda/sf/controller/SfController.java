@@ -33,6 +33,15 @@ import com.pineone.icbms.sda.sf.service.SfService;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+/**
+ * <pre>
+ * ICBMS(After JDK 1.8)
+ * 1. class name : SfController.java
+ * 2. work date : 2018. 1. 29.
+ * 3. author : gooper
+ * 4.   
+ * </pre>
+ */
 @RestController
 public class SfController {
 	private final Log log = LogFactory.getLog(this.getClass());
@@ -81,6 +90,11 @@ public class SfController {
 	
 	
 	//     http://sda1:20080/sda/ctx/cm-announcement-on/?p=, 혹은 http://sda1:20080/sda/ctx/cm-announcement-on?p= 
+	/**
+	 * @param cmid
+	 * @param args
+	 * @return
+	 */
 	@RequestMapping(value = "/ctx/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<Object> getContext(@PathVariable String cmid, @RequestParam(value="p")  String args){
 		log.debug("requested parameter(cmid) for getContext ==>" + cmid);

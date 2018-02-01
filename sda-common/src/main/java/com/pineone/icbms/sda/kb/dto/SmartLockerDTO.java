@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.kb.dto;
 
+/**
+ *   Smart Locker정보를 담은 DTO
+ */
 public class SmartLockerDTO {
 	String box_no;
 	String event;

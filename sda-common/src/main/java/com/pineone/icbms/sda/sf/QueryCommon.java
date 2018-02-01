@@ -16,10 +16,19 @@ import org.springframework.http.HttpStatus;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 
+/**
+ * 쿼리 공통 클래스
+ */
 public class QueryCommon {
 	private final Log log = LogFactory.getLog(this.getClass());
 
-	// 쿼리에 있는 변수를 적절한 값으로 치환하여 리턴함
+	/**
+	 * 쿼리에 있는 변수를 적절한 값으로 치환하여 리턴함
+	 * @param qlStringl
+	 * @param idxVals
+	 * @return
+	 * @throws Exception
+	 */
 	public final String makeFinal(String qlStringl, String[] idxVals) throws Exception {
 		StringBuffer parseQl = new StringBuffer();
 		Date now = new Date();
@@ -32,23 +41,19 @@ public class QueryCommon {
 		if (idxVals == null) {
 			log.debug("idxVals is null");
 		} else {
-//			log.debug("count of idxVals : " + idxVals.length);
-//			log.debug("values of idxVals : " + Arrays.toString(idxVals));
-			//log.debug(String.format("Count : %s , Vals : %s , Query : %s", idxVals.length, Arrays.toString(idxVals), qlStringl));
 			log.debug(String.format("Count : %s , Vals : %s ", idxVals.length, Arrays.toString(idxVals)));
 		}
 
 		if (qlStringl == null || qlStringl.equals("")) {
-			throw new UserDefinedException(HttpStatus.BAD_REQUEST, "sparql is null or none !");
+			//throw new UserDefinedException(HttpStatus.BAD_REQUEST, "sparql is null or none !");
+			// gooper2
+			return "";
 		}
-
-		//log.debug("sparql to make ===========>\n" + sparql);
 
 		while (! qlStringl.equals("")) {
 			try {
 				addStr = qlStringl.substring(0, qlStringl.indexOf("@{"));
-			} catch (StringIndexOutOfBoundsException e) { // 더이상 "@{"이 없다면 나머지
-															// 문자열은 그대로 적용
+			} catch (StringIndexOutOfBoundsException e) { 
 				parseQl.append(qlStringl);
 				break;
 			}
@@ -56,10 +61,6 @@ public class QueryCommon {
 			lastStr = qlStringl.substring(qlStringl.indexOf("@{"));
 			skipCnt += 2;
 			argStr = lastStr.substring(skipCnt, lastStr.indexOf("}"));
-
-			// log.debug("addStr[" + cnt + "]==========>" + addStr);
-			// log.debug("lastStr[" + cnt + "]==========>" + lastStr);
-			// log.debug("argStr[" + cnt + "]==========>" + argStr);
 
 			parseQl.append(addStr);
 			if (argStr.equals("systime")) {
@@ -104,7 +105,7 @@ public class QueryCommon {
 				}
 				parseQl.append(dStr);
 			} else if (argStr.startsWith("arg")) {
-				idx = argStr.substring(3); // "arg"이후의 숫자값을 취함
+				idx = argStr.substring(3); 	
 				for (int i = 0; i < 100; i++) {
 					if (Integer.parseInt(idx) == i) {
 						parseQl.append(idxVals[i]);
@@ -113,8 +114,8 @@ public class QueryCommon {
 				}
 			} else if (argStr.startsWith("now")) {
 
-				String[] split = argStr.split(","); // @{now+3, second, "YYYYMM"}
-				int val = Integer.parseInt(split[0].substring(3)); // "now"이후의 연산자(+, -)를 취함
+				String[] split = argStr.split(","); 		
+				int val = Integer.parseInt(split[0].substring(3)); 	// "now"이후의 연산자(+, -)를 취함
 
 				// 날짜계산
 				Calendar cal = new GregorianCalendar();
@@ -158,32 +159,38 @@ public class QueryCommon {
 			skipCnt = 0;
 			lastStr = "";
 			argStr = "";
-			// cnt++;
 		} // end of while
-
-		//log.debug("sparql made ===========>\n" + parseQl.toString());
 
 		return parseQl.toString();
 	}
 
-	// 숫자 비교용 클래스(내림차순, asc)
+	/**
+	 * 숫자 비교용 클래스(내림차순, asc)
+	 */
 	public final class CntCompare implements Comparator<IdxCnt> {
 		@Override
 		public int compare(IdxCnt arg0, IdxCnt arg1) {
-			//desc
-			//return arg0.getCnt() > arg1.getCnt() ? -1 : arg0.getCnt() < arg1.getCnt() ? 1 : 0;
-			
 			//asc
 			return arg0.getCnt() < arg1.getCnt() ? -1 : arg0.getCnt() > arg1.getCnt() ? 1 : 0;
 		}
 	}
 
+	/**
+	 * 쿼리 문장에서 구분자 제거
+	 * @param query
+	 * @return
+	 */
 	public String removeQueryGubun(String query) {
 		if(query.contains(Utils.SPLIT_STR)) {
 			return query.split(Utils.SPLIT_STR)[0];
 		} else return query;
 	}
 	
+	/**
+	 * 쿼리 문장에서 구분자 제거
+	 * @param queryList
+	 * @return
+	 */
 	public List<String> removeQueryGubun(List<String> queryList) {
 		List<String> newQuery = new ArrayList<String>();
 		

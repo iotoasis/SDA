@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.kb.dto;
 
+/**
+ *   투표정보를 담는 DTO
+ */
 public class SurveyInfoDTO {
 	String val;
 	String class_code;

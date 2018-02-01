@@ -198,15 +198,19 @@ public class TripleService implements Serializable{
 
 			returnStr = sw.toString();
 			sw.flush();
+			sw.close();
 			
-			// gooper
+			// gooper2
 			if(! model.isClosed()) {
 				model.close();
 			}
+			
 			if(model != null) {
 				model = null;
 			}
 			if(mapper != null) {
+				//gooper
+				mapper.close();
 				mapper = null;
 			}
 			if(doc != null) {
@@ -215,78 +219,9 @@ public class TripleService implements Serializable{
 		} else if (ty == 3) {
 			log.debug("=== ri: "+ri+",  ty : "+ty+" ====>exclude");			
 			sw.flush();
-
-			/*
-			 * OneM2MContainerDTO cont = null; if (doc instanceof DBObject) {
-			 * gson.toJson(doc)); cont = gson.fromJson(gson.toJson(doc),
-			 * OneM2MContainerDTO.class); } else if (doc instanceof String) {
-			 * (doc)); cont = gson.fromJson((String) doc,
-			 * OneM2MContainerDTO.class); } OneM2MContainerMapper mapper = new
-			 * OneM2MContainerMapper(cont); Model model =
-			 * ModelFactory.createDefaultModel(); model.add(mapper.from());
-			 * 
-			 * // 스트링 변환부분 RDFDataMgr.write(sw, model, RDFFormat.NTRIPLES);
-			 * 
-			 * log.debug("value from mongo ====3(json)====>" +
-			 * cont.toString()); log.debug(
-			 * "value from mongo ====3(sw)====>" + sw.toString());
-			 * 
-			 * returnStr = sw.toString(); sw.flush();
-			 * 
-			 * 					
-			// gooper
-			if(! model.isClosed()) {
-				model.close();
-			}
-			if(model != null) {
-			    model = null;
-		    }
-
-			if(mapper != null) {
-				mapper = null;
-			}
-			if(doc != null) {
-				doc = null;
-			}
-			 */
 		} else if (ty == 2) {
 			log.debug("=== ri : "+ri+",  ty : "+ty+" ====>exclude");			
 			sw.flush();
-
-			/*
-			 * OneM2MAEDTO cont = null; if (doc instanceof DBObject) {
-			 * gson.toJson(doc)); cont = gson.fromJson(gson.toJson(doc),
-			 * OneM2MAEDTO.class); } else if (doc instanceof String) {
-			 * (doc)); cont = gson.fromJson((String) (doc), OneM2MAEDTO.class);
-			 * } OneM2MAEMapper mapper = new OneM2MAEMapper(cont);
-			 * 
-			 * Model model = ModelFactory.createDefaultModel();
-			 * model.add(mapper.from());
-			 * 
-			 * // 스트링 변환부분 RDFDataMgr.write(sw, model, RDFFormat.NTRIPLES);
-			 * 
-			 * log.debug("value from mongo ====2(json)====>" +
-			 * cont.toString()); log.debug(
-			 * "value from mongo ====2(sw)====>" + sw.toString());
-			 * 
-			 * returnStr = sw.toString(); sw.flush();
-			 * 
-			// gooper
-			if(! model.isClosed()) {
-				model.close();
-			}
-			if(model != null) {
-				model = null;
-			}
-
-			if(mapper != null) {
-				mapper = null;
-			}
-			if(doc != null) {
-				doc = null;
-			}
-
-			 */
 		} else if (ty == 1) {
 			log.debug("=== ri : "+ri+",  ty : "+ty+" ====>exclude");			
 			sw.flush();
