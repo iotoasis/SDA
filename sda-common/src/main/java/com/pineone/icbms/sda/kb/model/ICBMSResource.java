@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.kb.model;
 
+/**
+ *   리소스 구분
+ */
 public class ICBMSResource {
 	public static final String open = "open";
 	public static final String close = "close";

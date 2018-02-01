@@ -5,13 +5,6 @@
 	<!-- DB접속정보 값을 가지고 있는 파일 설정 -->
 	<properties resource="mariadb/db.properties" />
 	
-	<!-- 별명 부여 -->
-	<!-- 
-	<typeAliases> 
-		<typeAlias type="pack.business.DataDto" alias="dto"/>
-	</typeAliases>
-	-->
-	
 	<!-- DB접속 정보 셋팅 -->
 	<environments default="development">
 		<environment id="development">
@@ -29,17 +22,12 @@
 	            <property name="poolPingQuery" value="select 1"/>
 	            <property name="poolPingConnectionsNotUsedFor" value="10000"/>
 	            <property name="poolTimeToWait" value="15000"/>
-	            <!-- property name="poolPreparedStatement" value="false" / -->
-	            
-				<!--  property name="poolPingQuery " value="select 1" />
-				<property name="poolPingEnabled " value="true" / -->
 			</dataSource>
 		</environment>
 	</environments>
 	
 	<!-- mapper.xml 파일 설정 -->
 	<mappers>
-		<!--  mapper resource="mariadb/mapper/DataMapper.xml" / -->
 		<mapper resource="mariadb/mapper/sch/Sch_SQL.xml" />
 		<mapper resource="mariadb/mapper/sch/Aggr_SQL.xml" />
 		<mapper resource="mariadb/mapper/sch/SchHist_SQL.xml" />		

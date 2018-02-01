@@ -7,9 +7,10 @@ import org.apache.jena.rdf.model.Statement;
 
 import com.pineone.icbms.sda.kb.model.TripleMap;
 
+/**
+ *   RemoteCSE의  DTO
+ */
 public class OneM2MRemoteCSEDTO implements OneM2MDTO {
-
-
 	private Object _id ="";
 	private	String ty=""; 	// resourceType;
 	private String ri="";	// resourceID;
@@ -31,8 +32,6 @@ public class OneM2MRemoteCSEDTO implements OneM2MDTO {
 	private String requestReachability="";
 	private String nl="";	//nodeLink;
 	private String _uri=""; // uri
-	
-	
 
 	public Object get_id() {
 		return _id;

@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 
+/**
+ *   쿼리수행 서비스 클래스
+ */
 public  class MultiPurposeQueryService extends QueryCommon {
 	private final Log log = LogFactory.getLog(this.getClass());
 
@@ -63,26 +66,48 @@ public  class MultiPurposeQueryService extends QueryCommon {
 			// pass
 		}
 	}
-
-	// 쿼리 실행(args없음)
+	
+	/**
+	 * 쿼리 실행
+	 * @param query
+	 * @return 
+	 * @throws Exception
+	 */
 	public List<Map<String, String>> runQuery(String query) throws Exception {
 		setImplementClass(query);
 		return queryItf.runQuery(removeQueryGubun(query), new String[] { "" });
 	}
 
-	// 쿼리 실행(args있음)
+	/**
+	 * 쿼리 실행(args있음)
+	 * @param query 
+	 * @param idxVals
+	 * @return
+	 * @throws Exception
+	 */
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
 		setImplementClass(query);
 		return queryItf.runQuery(removeQueryGubun(query), idxVals);
 	}
 	
-	// 다수의 쿼리 실행(args없음)
+	/**
+	 *   다수의 쿼리 실행(args없음)
+	 * @param queryList
+	 * @return
+	 * @throws Exception
+	 */
 	public List<Map<String, String>> runQuery(List<String> queryList) throws Exception {
 		setImplementClass(queryList);
 		return queryItf.runQuery(removeQueryGubun(queryList), new String[] { "" });
 	}
 	
-	// 다수의 쿼리 실행(args있음)
+	/**
+	 * 다수의 쿼리 실행(args있음)
+	 * @param queryList
+	 * @param idxVals
+	 * @return
+	 * @throws Exception
+	 */
 	public List<Map<String, String>> runQuery(List<String> queryList, String[] idxVals) throws Exception {
 		setImplementClass(queryList);
 		return queryItf.runQuery(removeQueryGubun(queryList), idxVals);

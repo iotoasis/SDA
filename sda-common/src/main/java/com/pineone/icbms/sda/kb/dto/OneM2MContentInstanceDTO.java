@@ -1,41 +1,38 @@
 package com.pineone.icbms.sda.kb.dto;
 
-//import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFFormat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MContentInstanceMapper;
 import com.pineone.icbms.sda.kb.model.TripleMap;
 
+/**
+ *   ContentInstance정보를 담고 있는  DTO
+ */
 public class OneM2MContentInstanceDTO implements OneM2MDTO {
-//	private Object _id=""; // not standard  v
-	private id_object _id; // not standard  v
-	private String ty=""; // resourceType;  v
-	private String ri=""; // resourceID; v
-	private String rn=""; // resourceName; v
-	private String pi=""; // parentID; v
-	private String[] lbl={""}; // labels; v
+	private id_object _id; // not standard  
+	private String ty=""; // resourceType;  
+	private String ri=""; // resourceID; 
+	private String rn=""; // resourceName; 
+	private String pi=""; // parentID; 
+	private String[] lbl={""}; // labels; 
 	private String cr=""; // creator;
 	private String cnf=""; // contentInfo
-	private String cs=""; // contentSize;  vvvvvvvvv(integer로 들어옴)
-	private String con=""; // content;    v
+	private String cs=""; // contentSize;  
+	private String con=""; // content;    
 	private String _uri=""; // not standard
-	private String ct=""; // creationTime;    v
-	private String lt=""; // lastModifiedTime;   v
+	private String ct=""; // creationTime;    
+	private String lt=""; // lastModifiedTime;   
 
 	private String or=""; // ontologyRef;
-	private String et=""; // expirationTime; v
-	private String st=""; // stateTag;    vvvvvvvvv(integer로 들어옴)
+	private String et=""; // expirationTime; 
+	private String st=""; // stateTag;   
 	private String[] at={""}; // announceTo;
 	private String[] aa={""}; // announcedAttribute;
 
@@ -51,18 +48,6 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 	public id_object get_id() {
 		return _id;
 	}
-
-	/*
-	public Object get_id() {
-		return _id;
-	}
-
-
-	public void set_id(Object _id) {
-		this._id = _id;
-	}
-	*/
-
 
 	public void set_id(id_object _id) {
 		this._id = _id;
@@ -133,21 +118,6 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 		this.cs = cs;
 	}
 
-/*	public String getCon() {
-		int isEncoded = 0;
-		if (this.getCnf().contains("text/plain:0")) {
-			isEncoded = 0;
-		} else if (this.getCnf().contains("application/json:1")) {
-			isEncoded = 1;
-		}
-		if(Utils.isBase64Encoded(this.con)) {
-			isEncoded = 1;
-		} else {
-			isEncoded = 0;
-		}
-		return this.getCon(isEncoded);
-	}
-	*/
 	public String getCon() {
 		return this.con;
 	}
@@ -158,9 +128,7 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 		switch (encoded) {
 		case 1 :
 			byte[] encodedContent = StringEscapeUtils.unescapeJava(this.con).getBytes();
-			System.out.println("====="+this.get_uri()+"====1==before str====> "+new String(encodedContent));	
 			String tmp_ret = new String(Base64.decodeBase64(encodedContent));
-			System.out.println("====="+this.get_uri()+"====1==after str====> "+tmp_ret);
 			
 			//json형태의 데이타를 분석해서 필요한 값만 리턴함
 			if(	this.get_uri().contains("EXDA_SmartLocker01") ||
@@ -219,12 +187,10 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 			}
 			break;
 		case 0 :
-			System.out.println("====="+this.get_uri()+"====0==before str====> "+this.con);
 			ret =  this.con;
 			break;
 		}
-		System.out.println("===="+this.get_uri()+"======after str(final)====> "+ret);
-		
+	
 		return ret;
 	}
 
@@ -309,51 +275,6 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 		return result;
 	}
 
-	public static void main(String[] args) {
-//		String sample = "{     \"_id\" : ObjectId(\"560c9d741ee8203c53a63569\"),     \"rn\" : \"CONTENT_INST_5\",     \"ty\" : 4,     \"ri\" : \"CONTENT_INST_5\",     \"pi\" : \"CONTAINER_37\",     \"lbl\" : [          \"cnt-switch\"     ],     \"cr\" : \"C_AE-D-GASLOCK1004\",     \"cnf\" : \"text/plain:0\",     \"cs\" : 3,     \"con\" : \"Off\",     \"_uri\" : \"/herit-in/herit-cse/ae-gaslock1004/cnt-switch/CONTENT_INST_5\",     \"ct\" : \"20151001T114156\",     \"lt\" : \"20151001T114156\" , \"or\":\"http://www.iotoasis.org/ontology/StateCondition\" }";
-		String sample = 
-				"{ "+
-				"	    \"_id\" : ObjectId(\"560c9b1e1ee8203c53a63554\"),"+
-				"	    \"rn\" : \"CONTENT_INST_0\","+
-				"	    \"ty\" : 4,"+
-				"	    \"ri\" : \"CONTENT_INST_0\","+
-				"	    \"pi\" : \"CONTAINER_15\","+
-				"	    \"lbl\" : [ "+
-				"	        \"cnt-temperature\""+
-				"	    ],"+
-				"	    \"cr\" : \"C_AE-D-GASLOCK1001\","+
-//				"	    \"cnf\" : \"text/plain:0\","+
-"	    \"cnf\" : \"application/json:1\","+
-				"	    \"cs\" : 2,"+
-//				"	    \"con\" : \"13\","+
-"	    \"con\" : \"eyJib3hfbm8iOiIxMTEifQ==\","+
-				"	    \"_uri\" : \"/herit-in/herit-cse/ae-gaslock1001/cnt-temperature/CONTENT_INST_0\","+
-				"	    \"ct\" : \"20151001T113158\","+
-				"	    \"lt\" : \"20151001T113158\" "+
-				"	} " ;
-		Gson gson = new Gson();
-		OneM2MContentInstanceDTO cont = gson.fromJson(sample, OneM2MContentInstanceDTO.class);
-		System.out.println(cont);
-
-
-		OneM2MContentInstanceMapper mapper = new OneM2MContentInstanceMapper(cont);
-		mapper = new OneM2MContentInstanceMapper(cont);
-		Model model = ModelFactory.createDefaultModel();
-		model.add(mapper.from());
-
-		// 스트링 변환부분
-		RDFDataMgr.write(System.out, model, RDFFormat.NTRIPLES);
-		
-		// gooper
-		if(! model.isClosed()) {
-			model.close();
-		}
-		if(model != null) {
-			model = null;
-		}
-
-	}
-
 	@Override
 	public void print() {
 
@@ -364,6 +285,10 @@ public class OneM2MContentInstanceDTO implements OneM2MDTO {
 		TripleMap<Statement> map = new TripleMap<Statement>();
 		OneM2MContentInstanceMapper mapper = new OneM2MContentInstanceMapper(this);
 		map.add(mapper.from());
+		
+		//gooper2
+		mapper.close();
+		
 		return map;
 
 	}

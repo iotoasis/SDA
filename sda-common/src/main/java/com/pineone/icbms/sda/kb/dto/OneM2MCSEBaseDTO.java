@@ -3,24 +3,13 @@ package com.pineone.icbms.sda.kb.dto;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFFormat;
 
-import com.google.gson.Gson;
 import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MCSEBaseMapper;
-import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MContentInstanceMapper;
 import com.pineone.icbms.sda.kb.model.TripleMap;
 
-
 /**
- * 
- * @author 동훈
- * CSEbase의 정보는 수집하지 않는다? 고정되어 있으므로...
- * remoteCSE, 역시 수집하지 않는다?
- * AE, Container, ContentInstance정보만 수집한다? 수정된다? 입력된다?
+ *   CSEBase정보를 담는 DTO
  */
 public class OneM2MCSEBaseDTO implements OneM2MDTO {
 
@@ -38,8 +27,6 @@ public class OneM2MCSEBaseDTO implements OneM2MDTO {
 	private String nl="";	//nodeLink;
 	private String ncp=""; //notificationCongestionPolicy;
 	private String _uri=""; // uri
-	
-	
 	
 	public String get_uri() {
 		return _uri;
@@ -173,31 +160,6 @@ public class OneM2MCSEBaseDTO implements OneM2MDTO {
 				+ "\n ********************* Content **********************";
 		return result;
 	}
-
-	public static void main(String[] args) {
-		String sample = "{     \"_id\" : ObjectId(\"560c9d741ee8203c53a63569\"),     \"rn\" : \"CONTENT_INST_5\",     \"ty\" : 4,     \"ri\" : \"CONTENT_INST_5\",     \"pi\" : \"CONTAINER_37\",     \"lbl\" : [          \"cnt-switch\"     ],     \"cr\" : \"C_AE-D-GASLOCK1004\",     \"cnf\" : \"text/plain:0\",     \"cs\" : 3,     \"con\" : \"Off\",     \"_uri\" : \"/herit-in/herit-cse/ae-gaslock1004/cnt-switch/CONTENT_INST_5\",     \"ct\" : \"20151001T114156\",     \"lt\" : \"20151001T114156\" , \"or\":\"http://www.iotoasis.org/ontology/StateCondition\" }";
-		Gson gson = new Gson();
-		OneM2MContentInstanceDTO cont = gson.fromJson(sample, OneM2MContentInstanceDTO.class);
-		System.out.println(cont);
-
-		OneM2MContentInstanceMapper mapper = new OneM2MContentInstanceMapper(cont);
-		Model model = ModelFactory.createDefaultModel();
-		model.add(mapper.from());
-
-		// 스트링 변환부분
-		RDFDataMgr.write(System.out, model, RDFFormat.NTRIPLES);
-		
-		// gooper
-		if(! model.isClosed()) {
-			model.close();
-		}
-		if(model != null) {
-			model = null;
-		}
-
-	}
-
-
 
 	@Override
 	public TripleMap<Statement> getTriples() {

@@ -3,11 +3,18 @@ package com.pineone.icbms.sda.kb.context.routine;
 import java.util.HashMap;
 import java.util.UUID;
 
+/**
+ *   Context클래스
+ */
 public class ICBMSContext {
 
 	private String observationId;
 	private HashMap<String, String> observationValue;
 
+	/**
+	 *   Id생성
+	 * @return
+	 */
 	private String createObservationId() {
 		return UUID.randomUUID().toString();
 	}

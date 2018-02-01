@@ -20,6 +20,9 @@ import com.pineone.icbms.sda.kb.dto.OneM2MAEDTO;
 import com.pineone.icbms.sda.kb.mapper.OneM2MMapper;
 import com.pineone.icbms.sda.kb.model.ICBMSResource;
 
+/**
+ *   AE의 mapper클래스
+ */
 public class OneM2MAEMapper implements OneM2MMapper {
 
 	private List<Statement> slist = new ArrayList<Statement>();
@@ -35,9 +38,7 @@ public class OneM2MAEMapper implements OneM2MMapper {
 
 	public OneM2MAEMapper(OneM2MAEDTO dto) {
 		this.dto = dto;
-
 		this.baseuri = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.uri");
-
 	}
 
 	public OneM2MAEMapper(OneM2MAEDTO dto, Configuration config) {
@@ -45,6 +46,9 @@ public class OneM2MAEMapper implements OneM2MMapper {
 		this.baseuri = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.uri");
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#initResource()
+	 */
 	@Override
 	public void initResource() {
 		applicationEntity = model.createResource(baseuri + this.dto.get_uri());
@@ -62,6 +66,9 @@ public class OneM2MAEMapper implements OneM2MMapper {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#from()
+	 */
 	@Override
 	public List<Statement> from() {
 		initResource();
@@ -101,8 +108,6 @@ public class OneM2MAEMapper implements OneM2MMapper {
 		Statement stmtLabel = model.createStatement(applicationEntity, RDFS.label, label);
 		slist.add(stmtLabel);
 
-		// createtime xsd datetime
-		//SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		SimpleDateFormat sd = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 		Calendar cal1 = Calendar.getInstance();
 		try {
@@ -170,10 +175,14 @@ public class OneM2MAEMapper implements OneM2MMapper {
 		Statement aeid = model.createStatement(applicationEntity, model.createProperty(ICBMSResource.baseuri_ont + "/hasApplicationEntityID"),
 				model.createResource(dto.getApi()));
 		slist.add(aeid);
-		
 
 		slist.add(stmtResourceId);
 		return slist;
+	}
+	
+	// gooper
+	public void close() {
+		if(! model.isClosed()) model.close();
 	}
 
 }

@@ -69,7 +69,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * 파일 확장자에 따른 온톨로지 파일 유형 판단.
+	 *   파일 확장자에 따른 온톨로지 파일 유형 판단.
 	 * @param name
 	 * @param otherwise
 	 * @return
@@ -92,7 +92,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * 아스키 체크
+	 *   아스키 체크
 	 * @param ch
 	 * @return
 	 */
@@ -102,7 +102,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * OS에 따른 폴더 구분자 
+	 *   OS에 따른 폴더 구분자 
 	 * @param dir
 	 * @return
 	 */
@@ -173,10 +173,10 @@ public class FileUtil {
 	}
 
 	/**
-	 * 파일로딩(인코딩), BOM(byte order mark)에 대한 체크 수행함.
+	 *   파일로딩(인코딩), BOM(byte order mark)에 대한 체크 수행함.
 	 * @param source
 	 * @param encoding
-	 * @return InputStream 객체를 리턴한다.
+	 * @return
 	 */
 	public static InputStream fileInputStream(File source, String encoding) {
 		try {
@@ -203,32 +203,6 @@ public class FileUtil {
 		return null;
 	}
 	
-//	/**
-//	 * 인코딩에 따라 파일을 읽어 드림.
-//	 * @param source
-//	 * @param sz
-//	 * @param encoding
-//	 * @return
-//	 */
-//	public static BufferedReader fileModelReader(File source, int sz, String encoding){
-//		BufferedReader br = null;
-//		try {
-//			InputStream is = checkForUtf8ByteOrderMark(new FileInputStream(source));
-//			if(sz == 0)
-//				br = new BufferedReader( new InputStreamReader(is, encoding));	
-//			else
-//				br = new BufferedReader( new InputStreamReader(is, encoding), sz);
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (UnsupportedEncodingException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//
-//		return br;
-//	}
-	
 	static byte[] getInputStreamToBytes(InputStream is) {
 		int read = 0;
 		byte[] bytes = new byte[1024*1024*2];
@@ -245,14 +219,14 @@ public class FileUtil {
 	public static BufferedReader fileModelReader(File source, int sz, String encoding){
 		return fileModelReader(source, sz, encoding, false);
 	}
-	
+
 	/**
 	 * 인코딩에 따라 파일을 읽어 드림.
-	 * 
 	 * @param source
 	 * @param sz
 	 * @param encoding
-	 * @return BufferedReader
+	 * @param force
+	 * @return
 	 */
 	public static BufferedReader fileModelReader(File source, int sz, String encoding, boolean force){
 		BufferedReader br = null;
@@ -272,7 +246,6 @@ public class FileUtil {
 					}
 				}
 			}
-//			is = checkForUtf8ByteOrderMark(bis);			
 			if(sz == 0) {
 				br = new BufferedReader( new InputStreamReader(bis, encoding));	
 			} else {
@@ -308,32 +281,6 @@ public class FileUtil {
 		return br;
 	}
 	
-//	public static BufferedReader fileReader(File source, int sz, String encoding){
-//		BufferedReader br = null;
-//		FileInputStream fis = null;
-//		try {
-//			fis = new FileInputStream(source);
-//			final InputStream is = checkForUtf8ByteOrderMark(fis);			
-//			if(sz == 0) {
-//				br = new BufferedReader( new InputStreamReader(is, encoding));	
-//			} else {
-//				br = new BufferedReader( new InputStreamReader(is, encoding), sz);
-//			}
-//		} catch (final FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} finally {
-////			try {
-////				fis.close();
-////			} catch (IOException e) {
-////				e.printStackTrace();
-////			}
-//		}
-//
-//		return br;
-//	}
-	
 	public static InputStream fileModelInputStream(File source, String encoding){
 		FileInputStream fis = null;
 		InputStream is = null;
@@ -356,12 +303,12 @@ public class FileUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-//			try {
-//				fis.close();
-//				is.close();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+			try {
+				fis.close();
+				is.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		return null;
@@ -369,22 +316,14 @@ public class FileUtil {
 
 	
 	public static CharsetMatch checkCharset(byte[] input) {
-		//		BufferedInputStream bis = new BufferedInputStream(input);
 		CharsetDetector cd = new CharsetDetector();
 		cd.setText(input);
 		CharsetMatch cm = cd.detect();
 
-		//		if (cm != null) {
-		//			//reader = cm.getReader();
-		//			return cm.getName();
-		//		} else {
-		//			throw new UnsupportedCharsetException(null);
-		//		}
 		return cm;
 	}
 	
 	public static CharsetMatch checkCharset(InputStream input) {
-		//		BufferedInputStream bis = new BufferedInputStream(input);
 		CharsetDetector cd = new CharsetDetector();
 		try {
 			cd.setText(input);
@@ -398,12 +337,6 @@ public class FileUtil {
 		}
 		CharsetMatch cm = cd.detect();
 
-		//		if (cm != null) {
-		//			//reader = cm.getReader();
-		//			return cm.getName();
-		//		} else {
-		//			throw new UnsupportedCharsetException(null);
-		//		}
 		return cm;
 	}
 	/**
@@ -512,72 +445,6 @@ public class FileUtil {
 			subdir.delete();//모든 파일을 삭제한 후, 폴더를 삭제함.
 		}
 	}
-
-//	public static boolean writeObject(SORTransaction st, String path) {
-//		ObjectOutputStream oos = null;
-//		boolean success = false;
-//		File f = new File(path);
-//		try {
-//			if(!f.exists())
-//				f.mkdirs();
-//
-//			String file = path + "/transation_" + (System.nanoTime()) + ".t";
-//			st.setFile(file);
-//			FileOutputStream fOut = new FileOutputStream(new File(file));
-//			oos = new ObjectOutputStream(new BufferedOutputStream(fOut));
-//			oos.writeObject(st);
-//			oos.flush();
-//			success = true;
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} finally {		
-//			try {
-//				oos.close();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}			
-//		}
-//		return success;
-//	}
-//
-//	public static List<SORTransaction> readObject(String path){
-//		List<SORTransaction> slist = new ArrayList<SORTransaction>();
-//		File fPath = new File(path);
-//		if(!fPath.exists())
-//			fPath.mkdir();
-//
-//		if(fPath.canRead()){		
-//			List<File> flist = getFiles(path, new String[]{".t", "trans"});
-//			for(Iterator<File> it = flist.iterator(); it.hasNext();){
-//				ObjectInputStream ois = null;
-//				try {
-//					File f = it.next();
-//					if(f.canRead()){
-//						FileInputStream fis = new FileInputStream(f);
-//						ois = new ObjectInputStream(fis);
-//						SORTransaction st = (SORTransaction) ois.readObject();
-//						slist.add(st);
-//					}
-//				} catch (FileNotFoundException e) {
-//					e.printStackTrace();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				} catch (ClassNotFoundException e) {
-//					e.printStackTrace();
-//				} finally {
-//					try {
-//						ois.close();
-//					} catch (IOException e) {
-//						e.printStackTrace();
-//					}
-//				}			
-//			}
-//		}
-//
-//		return slist;
-//	}
 
 	public static List<File> getFiles(String path, String[] allowedExtension) {
 		List<File> r = new ArrayList<File>();
@@ -875,21 +742,4 @@ public class FileUtil {
 		}
 	}
 	
-	public static void main(String[] args) throws IOException {
-//		long s = System.nanoTime();
-//		System.out.println(fileModelReader(new File("D:/TOOLS/workspace_2013k/STORM_SOR_R/data_source/yago2/yago2_big/yagoWikipediaInfo.ttl"), 256*1024*1024, "utf-8").read());
-//		long e = System.nanoTime();
-//		System.out.println(e-s);
-		
-		List<String> path_ds = FileUtil.getDirs(new ArrayList<String>(),"./data_source/geospatial");
-		
-		for(String p: path_ds)
-			System.out.println(p);
-		
-		if(path_ds.size()>0) {
-			//data_source 파일 리스트
-			for(String sf: FileUtil.getCanonicalFiles2List(path_ds, new String[]{}))
-					System.out.println(sf);
-		}
-	}
 }

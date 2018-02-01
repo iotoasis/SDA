@@ -1,27 +1,16 @@
 package com.pineone.icbms.sda.kb.dto;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.jena.query.DatasetAccessor;
-import org.apache.jena.query.DatasetAccessorFactory;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFormatter;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFFormat;
 
-import com.google.gson.Gson;
-import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MContainerMapper;
 import com.pineone.icbms.sda.kb.model.TripleMap;
 
+/**
+ *   Container정보를 담고 있는 DTO
+ */
 public class OneM2MContainerDTO implements OneM2MDTO {
-	//private Object _id; // not standard
 	private id_object _id; // not standard
 	private String ty=""; // resourceType;
 	private String ri=""; // resourceID **;
@@ -74,16 +63,6 @@ public class OneM2MContainerDTO implements OneM2MDTO {
 	public void set_uri(String _uri) {
 		this._uri = _uri;
 	}
-
-	/*
-	public Object get_id() {
-		return _id;
-	}
-
-	public void set_id(String _id) {
-		this._id = _id;
-	}
-	*/
 
 	public String getTy() {
 		return ty;
@@ -249,47 +228,6 @@ public class OneM2MContainerDTO implements OneM2MDTO {
 				+ "\n aa 	" + ": " + this.getAa() +
 				 "\n or 	" + ": " + this.getOr() +"\n ********************* Container **********************";
 		return result;
-	}
-
-	public static void main(String[] args) {
-		String sample = "{     \"_id\" : ObjectId(\"561f27831ee8202c5e307d37\"),     \"rn\" : \"CONTAINER_268\",     \"ty\" : 3,     \"ri\" : \"CONTAINER_268\",     \"pi\" : \"SAE_0\",     \"lbl\" : [          \"switch\",          \"key1\",          \"key2\"     ],     \"et\" : \"20151203T122321\",     \"cr\" : \"//onem2m.herit.net/herit-cse/SAE_5\",     \"mni\" : 100,     \"mbs\" : 1.024e+006,     \"mia\" : 36000,     \"cni\" : 1,     \"cbs\" : 2,     \"_uri\" : \"/herit-in/herit-cse/SAE_0/CONTAINER_268\",     \"ct\" : \"20151015T131147\",     \"lt\" : \"20151015T131147\", \"or\":\"http://www.iotoasis.org/ontology/SwitchStatusSensor\" }";
-		Gson gson = new Gson();
-		OneM2MContainerDTO cont = gson.fromJson(sample, OneM2MContainerDTO.class);
-
-
-		System.out.println(cont);
-		
-		OneM2MContainerMapper mapper = new OneM2MContainerMapper(cont);
-		Model model = ModelFactory.createDefaultModel();
-		model.add(mapper.from());
-		
-		//스트링 변환부분
-		RDFDataMgr.write(System.out, model, RDFFormat.NTRIPLES);
-
-		//스트링 변환부분
-//		String serviceURI = "http://219.248.137.7:13030/icbms";
-//
-//		DatasetAccessor	accessor = DatasetAccessorFactory.createHTTP(serviceURI);
-//		accessor.deleteDefault();
-//		accessor.add(model);
-//		
-//		
-//		QueryExecution q = QueryExecutionFactory.sparqlService(serviceURI	,"select * {?s ?p ?o}"	);
-//		ResultSet rs = q.execSelect();
-//		ResultSetFormatter.out(rs);;
-		
-//		model = DatasetAccessorFactory.createHTTP(serviceURI).getModel();
-//		System.out.println(model.size());
-		
-		// gooper
-		if(! model.isClosed()) {
-			model.close();
-		}
-		if(model != null) {
-			model = null;
-		}
-
-
 	}
 
 	@Override

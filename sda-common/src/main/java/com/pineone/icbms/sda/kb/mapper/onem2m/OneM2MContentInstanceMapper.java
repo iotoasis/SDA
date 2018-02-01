@@ -1,9 +1,5 @@
 package com.pineone.icbms.sda.kb.mapper.onem2m;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,8 +14,6 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
@@ -39,9 +33,11 @@ import com.pineone.icbms.sda.sf.QueryServiceFactory;
 import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 
 
+/**
+ *   ContentInstance용 Mapper클래스
+ */
 public class OneM2MContentInstanceMapper implements OneM2MMapper {
 	private final Log log = LogFactory.getLog(this.getClass());
-	// private Configuration config = null;
 	private List<Statement> slist = new ArrayList<Statement>();
 	private Model model = ModelFactory.createDefaultModel();;
 	private String baseuri = "";
@@ -90,15 +86,16 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		this.setContentType();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#initResource()
+	 */
 	@Override
 	public void initResource() {
-		// contentInstance = model.createResource(baseuri + "/" + dto.getRi());
 		contentInstance = model.createResource(baseuri + this.dto.get_uri());
 		parentResource = model.createResource(baseuri + Utils.getParentURI(this.dto.get_uri()));
 		contentInfo = dto.getCnf();
 		resourceName = dto.getRn();
-		
-		// gooper
+
 		this.setCreateDate(this.dto.getCt());
 		this.setLastModifiedDate(this.dto.getLt());
 		
@@ -106,7 +103,6 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		for (int i = 0; i < dto.getLbl().length; i++) {
 			label = label + "," + dto.getLbl()[i];
 		}
-		//Resource Content = recognizeContentResource();
 
 		// getDecodedContent
 		if (contentInfo.contains("text/plain:0")) {
@@ -117,6 +113,10 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		content = dto.getCon(isEncoded);
 	}
 
+	/**
+	 *   Content Resource 확인
+	 * @return
+	 */
 	private Resource recognizeContentResource() {
 		String contentString = dto.getCon().trim().toLowerCase();
 		Resource resource = null;
@@ -157,6 +157,9 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		return resource;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#from()
+	 */
 	@Override
 	public List<Statement> from() {
 
@@ -166,15 +169,6 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		Statement stmtType = model.createStatement(contentInstance, RDF.type,
 				model.createResource("http://www.iotoasis.org/ontology/ContentInstance"));
 		slist.add(stmtType);
-
-		// type2
-//
-//		if (dto.getOr() != null || dto.getOr().equals("")) {
-//			System.out.println("***"+dto.getOr()+"***");
-//			Statement stmtOntologyReferenceType = model.createStatement(contentInstance, RDF.type,
-//					model.createResource(dto.getOr()));
-//			slist.add(stmtOntologyReferenceType);
-//		}
 
 		// name
 		Statement stmtName = model.createStatement(contentInstance,
@@ -207,15 +201,10 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		} else {
 			stmtContent = model.createStatement(contentInstance,
 					model.createProperty("http://www.iotoasis.org/ontology/hasContentValue"),
-					//this.getTypedContent(dto.getCon()));
 					this.getTypedContent(this.content));
 		}
 		slist.add(stmtContent);
 
-		// call UserInoutServiceMapper when _uri contain "UserInOut"
-		// officially service depended mapper
-
-		//System.out.println("contentType : " + this.getContentType());
 		switch (this.getContentType()) {
 
 		case "userinout":
@@ -254,12 +243,11 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 			
 			DomappTempDTO dt = gson.fromJson(tmp_ret, DomappTempDTO.class);
 			int inCnt  = 0;
-			int outCnt = 0;
 			for(int m = 0; m < dt.student.length; m++) {
 				if(dt.student[m].getInhouse().equals("Y")) {
 					inCnt++;
 				} else if(dt.student[m].getInhouse().equals("N")) {
-					outCnt++;
+					// pass
 				}
 			}
 			if(dt.student != null && dt.student.length != 0) {
@@ -309,18 +297,11 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 			break;
 			
 		}
-		// case "normal":
-		// Statement normalStatement = model.createStatement(contentInstance,
-		// model.createProperty(baseuri + "/hasContentValue"),
-		// model.createTypedLiteral(dto.getCon()));
-		// slist.add(normalStatement);\
 
 		// time
 		if(this.dto.getCt() != null && ! this.dto.getCt().equals("")) {
 			Statement stmtCreateTime = model.createStatement(contentInstance,
 					model.createProperty(ICBMSResource.baseuri_ont + "/hasCreateDate"), 
-					  	//model.createTypedLiteral(StrUtils.makeXsdDateFromOnem2mDate(this.dto.getCt()), XSDDateType.XSDdateTime));
-					 //"\""+dto.getCt()+"\"");
 					this.dto.getCt());
 			slist.add(stmtCreateTime);
 		}
@@ -328,8 +309,6 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		if(this.dto.getLt() != null || ! this.dto.getLt().equals("")) {
 			Statement stmtLastModifiedTime = model.createStatement(contentInstance,
 					model.createProperty(ICBMSResource.baseuri_ont + "/hasLastModifiedDate"),
-						//model.createTypedLiteral(StrUtils.makeXsdDateFromOnem2mDate(dto.getLt()), XSDDateType.XSDdateTime));
-					    //"\""+dto.getLt()+"\"");
 					    this.dto.getLt());
 			slist.add(stmtLastModifiedTime);
 		}
@@ -363,14 +342,11 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		try {
 
 			return ResourceFactory.createTypedLiteral(Double.valueOf(con));
-			// return "\"" + Double.valueOf(con) + "\"^^xsd:double";
 		} catch (java.lang.NumberFormatException e) {
 			try {
 				return ResourceFactory.createTypedLiteral(Float.valueOf(con));
-				// return "\"" + Float.valueOf(con) + "\"^^xsd:float";
 			} catch (Exception e2) {
 				return ResourceFactory.createTypedLiteral(String.valueOf(con));
-				// return "\"" + con + "\"^^xsd:string";
 			}
 		}
 
@@ -389,39 +365,9 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		return baseuri + Utils.getParentURI(dto.get_uri());
 	}
 	
-	public static void main(String[] args) throws IOException {
-
-		File f = new File("c:/tmp/test2.json");
-		BufferedReader br = new BufferedReader(new FileReader(f));
-		String line = null;
-		String s = "";
-		while ((line = br.readLine()) != null) {
-			s = s + line + "\n";
-		}
-
-		System.out.println(s);
-		Gson gson = new Gson();
-		OneM2MContentInstanceDTO cont = gson.fromJson(s, OneM2MContentInstanceDTO.class);
-		OneM2MContentInstanceMapper mapper = new OneM2MContentInstanceMapper(cont);
-
-		Model model = ModelFactory.createDefaultModel();
-		model.add(mapper.from());
-		System.out.println("content type => " + mapper.getContentType());
-		
-		System.out.println("this.dto.get_uri().toLowerCase() => " + mapper.dto.get_uri().toLowerCase());
-		// 스트링 변환부분
-		RDFDataMgr.write(System.out, model, RDFFormat.NTRIPLES);
-		// System.out.println(mapper.getTypedContent("2k42kk"));
-		// mapper.getTypedContent("2.4");
-		
-		// gooper
-		if(! model.isClosed()) {
-			model.close();
-		}
-		if(model != null) {
-			model = null;
-		}
-
+	// gooper
+	public void close() {
+		if(! model.isClosed()) model.close();
 	}
 
 }

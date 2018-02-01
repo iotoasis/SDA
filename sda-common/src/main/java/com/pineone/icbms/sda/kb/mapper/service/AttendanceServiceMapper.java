@@ -1,7 +1,6 @@
 package com.pineone.icbms.sda.kb.mapper.service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +15,9 @@ import org.apache.jena.vocabulary.RDF;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.kb.mapper.OneM2MMapper;
 
+/**
+ *   참석여부의 Mapper 클래스
+ */
 public class AttendanceServiceMapper implements OneM2MMapper {
 
 	private Resource attendance;
@@ -26,14 +28,6 @@ public class AttendanceServiceMapper implements OneM2MMapper {
 	private Resource user;
 	private Literal createDate;
 
-
-	/**
-	 * 
-	 * @param lecture
-	 * @param createDate : "yyyy-mm-ddThh:mi:ss"^^xsd:dateTime
-	 * @param condition : absent/late/attend
-	 * @param user
-	 */
 	public AttendanceServiceMapper(String lecture, String createDate, String condition, String user) {
 		this.lecture = model.createResource(lecture);
 		this.user = model.createResource(user);
@@ -41,11 +35,17 @@ public class AttendanceServiceMapper implements OneM2MMapper {
 		this.createDate = model.createTypedLiteral(createDate, XSDDateType.XSDdateTime); 
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#initResource()
+	 */
 	@Override
 	public void initResource() {
 		attendance = model.createResource(baseuri + "/Attendance_" + UUID.randomUUID());
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#from()
+	 */
 	@Override
 	public List<Statement> from() {
 		List<Statement> slist = new ArrayList<Statement>();
@@ -56,15 +56,5 @@ public class AttendanceServiceMapper implements OneM2MMapper {
 		slist.add(model.createStatement(this.attendance, model.createProperty(baseuri+"/hasCondition"), this.condition));
 		slist.add(model.createStatement(this.attendance, model.createProperty("http://www.loa-cnr.it/ontologies/DUL.owl#hasMember"), this.user));
 		return slist;
-	}
-
-	public static void main(String[] args) {
-		AttendanceServiceMapper map = new AttendanceServiceMapper("http://www.iotoasis.org/ontology/cm001","2015-12-12T00:00:00","absent","http://www.iotoasis.org/ontology/u00001");
-		List<Statement> result = map.from();
-		Iterator it = result.iterator();
-		while (it.hasNext()) {
-			System.out.println(it.next());
-			
-		}
 	}
 }

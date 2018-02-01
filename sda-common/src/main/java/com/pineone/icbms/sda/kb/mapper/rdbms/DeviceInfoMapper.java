@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.kb.mapper.rdbms;
 
+/**
+ *   Device정보의 Mapper 클래스
+ */
 public class DeviceInfoMapper implements RDBMSMapper {
 	private String str;
 
@@ -17,15 +20,4 @@ public class DeviceInfoMapper implements RDBMSMapper {
 
 		return this.str;
 	}
-	
-	public static void main(String[] args) {
-		String s = " icbms:u00001 rdf:type foaf:Person . ";
-		
-		DeviceInfoMapper mapper = new DeviceInfoMapper(s);
-		
-
-		System.out.println("resul from mapper ====>  "+mapper.from());
-
-	}
-
 }

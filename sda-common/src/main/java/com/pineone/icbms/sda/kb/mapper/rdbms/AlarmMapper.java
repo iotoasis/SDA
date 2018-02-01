@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.kb.mapper.rdbms;
 
+/**
+ *   Alarm정보의 Mapper클래스
+ */
 public class AlarmMapper implements RDBMSMapper {
 	private String str;
 
@@ -17,15 +20,4 @@ public class AlarmMapper implements RDBMSMapper {
 
 		return this.str;
 	}
-	
-	public static void main(String[] args) {
-		String s = " icbms:u00001 rdf:type foaf:Person . ";
-		
-		AlarmMapper mapper = new AlarmMapper(s);
-		
-
-		System.out.println("resul from mapper ====>  "+mapper.from());
-
-	}
-
 }

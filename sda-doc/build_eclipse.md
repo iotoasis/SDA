@@ -5,7 +5,7 @@
 Build를 위한 요구조건은 아래와 같습니다.
 
 ## Requirements
-* JDK 7+
+* JDK 7+ 
 * Windows / Linux
 * Eclipse
 * Maven

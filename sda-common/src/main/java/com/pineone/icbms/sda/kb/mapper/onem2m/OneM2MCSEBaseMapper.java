@@ -7,6 +7,9 @@ import org.apache.jena.rdf.model.Statement;
 import com.pineone.icbms.sda.kb.dto.OneM2MCSEBaseDTO;
 import com.pineone.icbms.sda.kb.mapper.OneM2MMapper;
 
+/**
+ *   CSEBase의 Mapper 클래스
+ */
 public class OneM2MCSEBaseMapper implements OneM2MMapper{
 
 	public OneM2MCSEBaseMapper(OneM2MCSEBaseDTO oneM2MCSEBaseDTO) {

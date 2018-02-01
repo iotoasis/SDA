@@ -6,17 +6,22 @@ import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.rdf.model.Model;
 
+/**
+ *   디바이스 리소스 클래스
+ */
 public class DeviceResource {
-	
 	final String endpoint = "http://166.104.112.43:23030/icbms/sparql";
-
 	final String prefix = getHeaderForTripleFile();
-	
+
 	public DeviceResource() {
 		// TODO Auto-generated constructor stub
 	}
 	
-	
+	/**
+	 *   디바이스 정보 가져오기
+	 * @param deviceUri
+	 * @return
+	 */
 	public String  getDeviceInfo(String deviceUri) {
 		StringWriter out = new StringWriter();
 		String query = prefix + "\n"+ "describe "+ deviceUri;
@@ -56,11 +61,5 @@ public class DeviceResource {
 	    			"prefix herit: <http://www.iotoasis.org/herit-in/herit-cse/>  \n" +
 	    			"prefix o: <http://www.iotoasis.org/ontology/> \n";
 	    return headerForTripleFile;
-	}
-	public static void main(String[] args) {
-		DeviceResource d = new DeviceResource();
-		
-		System.out.println(  d.getDeviceInfo("<http://www.iotoasis.org/herit-in/herit-cse/ONSB_BleScanner01_001>"));
-		
 	}
 }
