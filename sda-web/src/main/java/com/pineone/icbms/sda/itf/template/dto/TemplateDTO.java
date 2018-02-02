@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.itf.template.dto;
 
+/**
+ *  템플릿용 DTO
+ */
 public class TemplateDTO {
 	
 	private String tmid;
@@ -96,6 +99,5 @@ public class TemplateDTO {
 	public void setArg_cnt(int arg_cnt) {
 		this.arg_cnt = arg_cnt;
 	}
-	
-	
+
 }

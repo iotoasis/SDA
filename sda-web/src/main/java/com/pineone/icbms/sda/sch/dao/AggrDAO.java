@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
-import com.pineone.icbms.sda.sch.comm.dao.AbstractDAO;
-import com.pineone.icbms.sda.comm.sch.dto.AggrDTO; 
+import com.pineone.icbms.sda.comm.sch.dto.AggrDTO;
+import com.pineone.icbms.sda.sch.comm.dao.AbstractDAO; 
 
 @Repository("aggrDAO")
 public class AggrDAO extends AbstractDAO {

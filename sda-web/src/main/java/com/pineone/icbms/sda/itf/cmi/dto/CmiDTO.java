@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.itf.cmi.dto;
 
+/**
+ * CMI정보를 담는 DTO
+ */
 public class CmiDTO {
 
 	private String tnsda_context_model_cmid;

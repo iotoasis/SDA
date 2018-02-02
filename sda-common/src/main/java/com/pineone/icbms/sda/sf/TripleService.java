@@ -322,12 +322,13 @@ public class TripleService implements Serializable{
 		    log.debug("exception in addLatestContentInstance() : "+e.getMessage());
 		}
 	}
- 
+
 	/**
 	 * triple파일 생성(작업시간과 생성시간을 엮어서 만듬)
 	 * @param triple_path_file
 	 * @param sb
 	 * @throws Exception
+	 * @return void
 	 */
 	public void makeTripleFile(String triple_path_file, StringBuffer sb) throws Exception {
 		FileWriter fw = null;
@@ -367,12 +368,12 @@ public class TripleService implements Serializable{
 			}
 		}
 	}
- 
+
 	/**
 	 * triple파일을 DW로 전송
 	 * @param triple_path_file
-	 * @return
 	 * @throws Exception
+	 * @return String[]
 	 */
 	public String[] sendTripleFileToDW(String triple_path_file) throws Exception {
 		String[] result = new String[]{"",""};

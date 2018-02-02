@@ -6,23 +6,22 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
-import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 import com.pineone.icbms.sda.itf.template.dao.TemplateDAO;
 import com.pineone.icbms.sda.itf.template.dto.TemplateDTO;
 
 @Service("templateService")
 public class TemplateServiceImpl implements TemplateService {
-	private Log log = LogFactory.getLog(this.getClass());
 
 	@Resource(name="templateDAO")
 	private TemplateDAO templateDAO;
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.template.service.TemplateService#selectList(java.util.Map)
+	 */
 	public List<TemplateDTO> selectList(Map<String, Object> commandMap) throws Exception {
 		List<TemplateDTO> list = new ArrayList<TemplateDTO>();
 		list = templateDAO.selectList(commandMap);
@@ -34,7 +33,9 @@ public class TemplateServiceImpl implements TemplateService {
 		return list ;
 	}
 	
-	// /template/{tmid}
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.template.service.TemplateService#selectOne(java.util.Map)
+	 */
 	public TemplateDTO selectOne(Map<String, Object> commandMap) throws Exception{
 		TemplateDTO templateDTO = new TemplateDTO();
 		templateDTO = templateDAO.selectOne(commandMap);
@@ -44,13 +45,12 @@ public class TemplateServiceImpl implements TemplateService {
 		}
 
 		return templateDTO ;
-		
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.template.service.TemplateService#checkId(java.lang.String)
+	 */
 	public int checkId(String tmid) throws Exception {
 		return templateDAO.checkId(tmid);
 	}
-	
-	
-
 }

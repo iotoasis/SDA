@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.subscribe.dto;
 
+/**
+ * subscribe정보를 담은 DTO
+ */
 public class SubscribeDTO {
 
 	private String cmid;

@@ -10,7 +10,6 @@ import org.quartz.ObjectAlreadyExistsException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,8 +22,10 @@ import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sch.comm.SchedulerMainService;
 import com.pineone.icbms.sda.sch.service.SchService;
-import com.pineone.icbms.sda.sf.TripleService;
 
+/**
+ * 스케줄러용 Controller
+ */
 @RestController
 @RequestMapping(value = "/sch")
 public class SchController {
@@ -36,10 +37,13 @@ public class SchController {
 	@Resource(name = "schService")
 	private SchService schService;
 
-	// 스케쥴러 기동
-	// http://localhost:8080/sda/sch/init?p=XXXX
+	/**
+	 * 스케줄러 기동
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/init", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> inittSch(@RequestParam(value="p")  String args) {
+	public @ResponseBody ResponseEntity<ResponseMessage> initSch(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -86,8 +90,11 @@ public class SchController {
 		return entity;
 	}
 
-	// 스케쥴러 종료
-	// http://localhost:8080/sda/sch/shutdown?p=xxxx
+	/**
+	 * 스케줄러 종료
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/shutdown", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> shutdownSch(@RequestParam(value="p")  String args) {
 		log.debug("requested parameter(p) for shutdownSch ==>" + args);
@@ -143,8 +150,11 @@ public class SchController {
 		return entity;
 	}
 
-	// pause(pause후 resume을 실행하면 미실행된 부분은 수행하지 않음)
-	// http://localhost:8080/sda/sch/pause?p=xxxx
+	/**
+	 * 스케줄러 잠시멈춤
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/pause", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> pauseSch(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -199,8 +209,11 @@ public class SchController {
 
 	}
 
-	// resume(pause후 resume을 실행하면 미실행된 부분은 수행하지 않음)
-	// http://localhost:8080/sda/sch/resume?=xxxx
+	/**
+	 * 스케줄러 재기동
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/resume", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> resumeSch(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -255,8 +268,11 @@ public class SchController {
 
 	}
 
-	// standby(standby후 start를 실행하면 미실행된 부분은 동시에 실행됨)
-	// http://localhost:8080/sda/sch/standby?p=xxxx
+	/**
+	 * 스케줄러 standby
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/standby", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> standbySch(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -310,8 +326,11 @@ public class SchController {
 		return entity;
 	}
 
-	// star(standby후 start를 실행하면 미실행된 부분은 동시에 실행됨)
-	// http://localhost:8080/sda/sch/start?p=xxxx
+	/**
+	 * 스케줄 시작
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/start", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> startSch(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -366,8 +385,11 @@ public class SchController {
 
 	}
 
-	// 스케줄러 상태
-	// http://localhost:8080/sda/sch/status
+	/**
+	 * 스케줄러 상태
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/status", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> statusSchList(@RequestParam(value="p")  String args) {
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -421,7 +443,10 @@ public class SchController {
 		return entity;
 	}
 
-	// 객체상태 확인해서 없으면 만들어줌
+	/**
+	 * 스케줄러 객체상태 확인해서 없으면 만들어줌 
+	 * @return void
+	 */
 	private void checkScheduerMainService() {
 		if (thm == null) {
 			thm = new SchedulerMainService();

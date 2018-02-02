@@ -6,9 +6,8 @@ import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
-import com.pineone.icbms.sda.sch.comm.dao.AbstractDAO;
 import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
-import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
+import com.pineone.icbms.sda.sch.comm.dao.AbstractDAO;
 
 @Repository("ciDAO")
 public class CiDAO extends AbstractDAO{

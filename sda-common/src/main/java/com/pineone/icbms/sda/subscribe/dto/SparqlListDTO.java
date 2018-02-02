@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.subscribe.dto;
 
+/**
+ * sparql의 목록을 담은 DTO
+ */
 public class SparqlListDTO {
 
 	private String cmid;

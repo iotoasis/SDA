@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.itf.cm.dto;
 
+/**
+ * CM정보를 담은 DTO
+ */
 public class CmDTO {
 
 	private String cmid;

@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.itf.cm.dto;
 
+/**
+ * CM-CI연결 정보를 담는 DTO
+ */
 public class CmCiDTO {
 
 	private String tnsda_context_model_cmid;

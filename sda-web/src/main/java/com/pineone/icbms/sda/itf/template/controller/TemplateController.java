@@ -21,10 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.util.Utils;
-import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 import com.pineone.icbms.sda.itf.template.dto.TemplateDTO;
 import com.pineone.icbms.sda.itf.template.service.TemplateService;
 
+/**
+ * 템플릿용 Controller
+ */
 @RestController
 @RequestMapping(value = "/itf")
 public class TemplateController {
@@ -33,7 +35,11 @@ public class TemplateController {
 	@Resource(name = "templateService")
 	private TemplateService templateService;
 
-	// http://localhost:8080/sda/itf/template/all
+	/**
+	 * 목록 조회
+	 * @param commandMap
+	 * @return
+	 */
 	@RequestMapping(value = "/template/all", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -67,7 +73,11 @@ public class TemplateController {
 		return entity;
 	}
 	
-	// http://localhost:8080/sda/itf/template/T1000
+	/**
+	 * 단건 조회
+	 * @param tmid
+	 * @return
+	 */
 	@RequestMapping(value = "/template/{tmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectOne(@PathVariable String tmid) {
 		Map<String, Object> commandMap = new HashMap<String, Object>();
