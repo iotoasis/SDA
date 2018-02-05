@@ -14,27 +14,31 @@ import org.springframework.stereotype.Service;
 
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sch.comm.SchedulerJobComm;
-import com.pineone.icbms.sda.sf.QueryCommon;
 import com.pineone.icbms.sda.sf.QueryService;
 import com.pineone.icbms.sda.sf.QueryServiceFactory;
-import com.pineone.icbms.sda.sf.ShellQueryImpl;
 import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 
+/**
+ * Python3수행 서비스
+ */
 @Service
 public class RunPython3OfStrSubService extends SchedulerJobComm implements Job {
 	private final Log log = LogFactory.getLog(this.getClass());
 	private static AtomicInteger ai = new AtomicInteger();
 	
+	/**
+	 * 처리 메서드
+	 * @param jec
+	 * @throws Exception
+	 * @return void
+	 */
 	public void collect(JobExecutionContext jec) throws Exception {
 		String start_time = Utils.dateFormat.format(new Date());
-		// 중복방지
 		start_time = start_time + "S"+String.format("%010d", ai.getAndIncrement());
 
 		String end_time = Utils.dateFormat.format(new Date());
 
 		log.info("RunPython3OfStrSubService(id : " + jec.getJobDetail().getName() + ") start.......................");
-
-		StringBuffer sb = new StringBuffer();
 
 		StringBuffer sql = new StringBuffer();
 		
@@ -46,7 +50,6 @@ public class RunPython3OfStrSubService extends SchedulerJobComm implements Job {
 		int cnt = 0;
 		StringBuffer work_result = new StringBuffer();
 		
-		//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
 		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 		
 		String day_delete_query = " delete { <http://www.iotoasis.org/ontology/day> <http://www.iotoasis.org/ontology/hasStartTime> ?starttime . } "
@@ -60,11 +63,8 @@ public class RunPython3OfStrSubService extends SchedulerJobComm implements Job {
 		String night_insert_query = " insert data { <http://www.iotoasis.org/ontology/night> <http://www.iotoasis.org/ontology/hasStartTime>  \"@{arg0}\"^^xsd:string  . } ";
 
 		try {
-			//ShellQueryImpl sqi = new ShellQueryImpl();
 			QueryService sqi = QueryServiceFactory.create(Utils.QUERY_GUBUN.SHELL);
-			
 			List<Map<String, String>> list  = sqi.runQuery(sql.toString(), new String[]{""});
-			
 			cnt = list.size();
 			
 			// sch_hist테이블에 data insert
@@ -72,8 +72,6 @@ public class RunPython3OfStrSubService extends SchedulerJobComm implements Job {
 
 			for(int m = 0; m < list.size(); m++) {
 				work_result.append(list.get(m).get("result"));
-				//log.debug("result in RunPython3OfStrSubService.java ====>"+list.get(m).get("result"));
-				// 결과 문자열 샘플 : year=2017, month=02, day=03 ,0734,1758
 				String[] split_str = list.get(m).get("result").split(",");
 				try {
 					// fuseki에 등록 시작
@@ -112,6 +110,9 @@ public class RunPython3OfStrSubService extends SchedulerJobComm implements Job {
 		log.info("RunPython3OfStrSubService(id : " + jec.getJobDetail().getName() + ") end.......................");
 	}
 
+	/* (non-Javadoc)
+	 * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
+	 */
 	public void execute(JobExecutionContext arg0)  throws JobExecutionException{
 		try {
 			collect(arg0);

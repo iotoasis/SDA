@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.Resource;
 
@@ -36,6 +35,9 @@ import com.pineone.icbms.sda.subscribe.dto.CallbackDTO;
 import com.pineone.icbms.sda.subscribe.dto.CallbackNoticeDTO;
 import com.pineone.icbms.sda.subscribe.dto.SubscribeDTO;
 
+/**
+ * subscribe서비스 구현체
+ */
 @Service("subscribeService")
 public class SubscribeServiceImpl implements SubscribeService {
 	private final Log log = LogFactory.getLog(this.getClass());
@@ -54,13 +56,14 @@ public class SubscribeServiceImpl implements SubscribeService {
 	@Resource(name = "cmService")
 	private CmService cmService;
 
-	// subscribe 등록
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.subscribe.service.SubscribeService#regist(java.lang.String)
+	 */
 	public void regist(String cmid) throws Exception {
 		String notification_uri = Utils.getSdaProperty("com.pineone.icbms.sda.si.notification_uri");
 		String subscription_uri = Utils.getSdaProperty("com.pineone.icbms.sda.si.subscription_uri");
 		Map<String, Object> commandMap;
 
-		// 확인
 		commandMap = new HashMap<String, Object>();
 		commandMap.put("cmid", cmid);
 		List<CiDTO> list = subscribeDAO.selectList(commandMap);
@@ -85,8 +88,6 @@ public class SubscribeServiceImpl implements SubscribeService {
 
 		// 처리시작
 		for (int i = 0; i < ciDTO.length; i++) {
-			// log.debug("val["+i+"]"+ciDTO[i].toString());
-
 			// condition을 JENA에 요청하여 uri목록을 얻음
 			List<String> uriList = new ArrayList<String>();
 			OneM2MSubscribeUriMapper mapper = new OneM2MSubscribeUriMapper(ciDTO[i].getDomain(),
@@ -96,7 +97,6 @@ public class SubscribeServiceImpl implements SubscribeService {
 			log.debug("uriList to regist ==> \n" + uriList);
 
 			for (int k = 0; k < uriList.size(); k++) {
-				// tnsda_subscribe에 등록 시작
 				SubscribeDTO subscribeDTO = new SubscribeDTO();
 				String subscribe_time = Utils.dateFormat.format(new Date());
 
@@ -109,9 +109,7 @@ public class SubscribeServiceImpl implements SubscribeService {
 				subscribeDTO.setUuser(user);
 
 				subscribeDAO.insert(subscribeDTO);
-				// tnsda_subscribe에 등록 끝
 
-				// SI에 등록 시작
 				Map<String, String> map = new HashMap<String, String>();
 				map.put("_uri", uriList.get(k));
 				map.put("_notificationUri", notification_uri);
@@ -121,22 +119,19 @@ public class SubscribeServiceImpl implements SubscribeService {
 				log.debug("Request message for subscribing  =>  " + jsonMsg);
 
 				ResponseMessage responseMessage = Utils.requestPost(subscription_uri, jsonMsg); // POST
-				// ResponseMessage responseMessage =
-				// Utils.getMessageFromResponse(response);
 
 				log.debug("result of responseMessage : " + responseMessage.toString());
 				if (responseMessage.getCode() != 200) {
 					throw new RemoteSIException(HttpStatus.valueOf(responseMessage.getCode()),
 							responseMessage.getMessage());
 				}
-				// SI에 등록 끝
 			}
 		}
-		// 처리끝
 	}
 	
-	
-	// subscribe 등록해제
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.subscribe.service.SubscribeService#unregist(java.lang.String)
+	 */
 	public void unregist(String cmid) throws Exception {
 		String unsubscription_uri = Utils.getSdaProperty("com.pineone.icbms.sda.si.unsubscription_uri");
 		Map<String, Object> commandMap;
@@ -154,15 +149,11 @@ public class SubscribeServiceImpl implements SubscribeService {
 		Gson gson = new Gson();
 		CiDTO[] ciDTO = new CiDTO[ciList.size()];
 		
-		// SI 호출 준비(CI list의 값이 CiDTO테이블과 같으므로 CiDTO에 담는다) -CI개수 만큼 ciDTO를 준비함
 		for (int i = 0; i < ciList.size(); i++) {
 			ciDTO[i] = ciList.get(i);
 		}
 
-		// CI개수 만큼 반복해서 삭제처리함
 		for (int i = 0; i < ciDTO.length; i++) {
-			// log.debug("val["+i+"]"+ciDTO[i].toString());
-
 			// condition을 JENA에 요청하여 uri목록을 얻음
 			List<String> uriList = new ArrayList<String>();
 			OneM2MSubscribeUriMapper mapper = new OneM2MSubscribeUriMapper(ciDTO[i].getDomain(),
@@ -172,24 +163,6 @@ public class SubscribeServiceImpl implements SubscribeService {
 			log.debug("uriList to unregist ==> \n" + uriList);
 
 			for (int k = 0; k < uriList.size(); k++) {
-				/*
-				// tnsda_subscribe에 등록 시작
-				SubscribeDTO subscribeDTO = new SubscribeDTO();
-				String subscribe_time = Utils.dateFormat.format(new Date());
-
-				subscribeDTO.setCmid(cmid);
-				subscribeDTO.setCiid(ciDTO[i].getCiid());
-				subscribeDTO.setUri(uriList.get(k));
-				subscribeDTO.setNotification_uri(notification_uri);
-				subscribeDTO.setSubscribe_time(subscribe_time);
-				subscribeDTO.setCuser(user);
-				subscribeDTO.setUuser(user);
-
-				subscribeDAO.insert(subscribeDTO);
-				// tnsda_subscribe에 등록 끝
-				*/
-
-				// SI에 subscription해제 요청시작
 				Map<String, String> map = new HashMap<String, String>();
 				map.put("_uri", uriList.get(k));
 
@@ -202,8 +175,7 @@ public class SubscribeServiceImpl implements SubscribeService {
 					throw new RemoteSIException(HttpStatus.valueOf(responseMessage.getCode()),
 							responseMessage.getMessage());
 				}
-				// SI에 subscription해제 요청끝
-				
+					
 				// subscribe테이블에서 삭제함(cmid와 ciid 그리고  uri를 키로 이용하여 삭제함)
 				commandMap = new HashMap<String, Object>();
 				commandMap.put("cmid", cmid);
@@ -213,10 +185,11 @@ public class SubscribeServiceImpl implements SubscribeService {
 
 			}
 		}
-		// 처리끝
 	}
 
-	// callback 되었을때 호출되는 메서드
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.subscribe.service.SubscribeService#callback(java.lang.String)
+	 */
 	public void callback(String bodyStr) throws Exception {
 		String tripleStr = "";
 		Gson gson = new Gson();
@@ -231,8 +204,6 @@ public class SubscribeServiceImpl implements SubscribeService {
 		String user = this.getClass().getName();
 		int callback_seq = 0;
 		TripleService tripleService = new TripleService();
-		//SparqlService sparqlService = new SparqlService();
-		//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
 		QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 		
 		Map<String, Object> commandMap;
@@ -243,7 +214,6 @@ public class SubscribeServiceImpl implements SubscribeService {
 			log.debug("callback msg  in subscribeserviceimpl : " + bodyStr);
 			String start_time = Utils.dateFormat.format(new Date());
 
-			// tnsda_callback테이블에 등록 시작
 			CallbackDTO callbackDTO = new CallbackDTO();
 			String callback_time = Utils.dateFormat.format(new Date());
 
@@ -253,7 +223,6 @@ public class SubscribeServiceImpl implements SubscribeService {
 			if (callback_uri == null || callback_uri.equals(""))
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Not Valid Callback Uri");
 
-			// callback_ur(예, ../Data/AAA_1234)에서 .../Data까지만 취함
 			callback_uri = callback_uri.substring(0, callback_uri.lastIndexOf("/"));
 			callbackDTO.setCallback_uri(callback_uri);
 			callbackDTO.setCallback_time(callback_time);
@@ -263,10 +232,6 @@ public class SubscribeServiceImpl implements SubscribeService {
 
 synchronized(this) {			
 			callbackDAO.insert(callbackDTO);
-			// tnsda_callback테이블에 등록 끝
-
-			// 가끔 잘못된 이전 값을 리턴하는 버그가 있음
-			//HashMap<String, Object>	lastVal = callbackDAO.selectInsertId();
 			HashMap<String, Object>	lastVal = callbackDAO.selectMaxSeq();
 			
 			if(lastVal == null || lastVal.get("callback_seq").equals("")) {
@@ -275,14 +240,12 @@ synchronized(this) {
 			
 			log.debug("last value of callback_uri : " + lastVal);
 			callback_seq = Integer.parseInt(lastVal.get("callback_seq").toString());
-			// tnsda_callback에서 uri별 callback_seq의 마지막 값을 가져옴 끝
 		}			
 
 			// callback메세지를 triple로 변환
 			tripleStr = tripleService.getTriple(bodyStr);
 			sb.append(tripleStr);
 			
-			// 최근값 저장(DW, DM모두 수행됨)
 			tripleService.addLatestContentInstance();
 
 			// 스트링 버퍼에 있는 값을 파일에 기록한다.
@@ -309,9 +272,7 @@ synchronized(this) {
 						}
 					}
 				}
-				// subscription data triple파일을 DW에 전송
 				tripleService.sendTripleFileToDW(triple_path_file);
-				// subscription data triple파일을 Halyard에 전송
 				try {
 					tripleService.sendTripleFileToHalyard(new File(triple_path_file));
 				} catch (Exception e) {
@@ -319,17 +280,14 @@ synchronized(this) {
 					log.debug("triple_path_file : "+triple_path_file);
 				}
 				
-				// subscription data triple파일을 DM에 전송
 				tripleService.sendTripleFileToDM(triple_path_file);
 			}
 
-			// callback_uri를 기준으로 subscribe테이블과 context_info테이블에서 query할
-			// cmid단위의 distinct한 sparql목록을 가져온다.
+			// query할 cmid단위의 distinct한 sparql목록을 가져온다.
 			commandMap = new HashMap<String, Object>();
 			commandMap.put("uri", callback_uri);
 			List<SubscribeDTO> subscribeList = subscribeDAO.selectListByUri(commandMap);
 
-			// sparql을 이용하여 JENA에 쿼리를 수행후 결과값을 subscribe_notice테이블에 insert한다. 시작
 			SubscribeDTO subscribeDTO;
 			List<Map<String, String>> returnList = new ArrayList<Map<String, String>>();
 
@@ -342,14 +300,8 @@ synchronized(this) {
 				commandMap = new HashMap<String, Object>();
 				commandMap.put("cmid", subscribeDTO.getCmid());
 
-				// CmService cmService = getContext().getBean(CmService.class);
 				list = cmService.selectCmCiList(commandMap);
 
-				// 상황인지행위 시작(차후 추가)
-				// 상황인지행위 끝
-
-				// 실행할 sparql을 추출하며 인수 개수(cm과 ci의 개수 확인)가 동일한지 확인하고 다르면 exception을 발생시킨다.
-				// 여러 sparql을 실행후 각 결과값에서 공통적으로 존재하는 값을 추출함
 				List<String> sparqlList = new ArrayList<String>();
 				for (CmCiDTO cmCiDTO : list) {
 					if(cmCiDTO.getCm_arg_cnt() == 0 && cmCiDTO.getCi_arg_cnt() == 0) {
@@ -364,7 +316,6 @@ synchronized(this) {
 
 				returnList = ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).runQuery(sparqlList);
 
-				// callback_notice테이블에 insert한다. 시작
 				CallbackNoticeDTO callbackNoticeDTO = new CallbackNoticeDTO();
 				callbackNoticeDTO.setCallback_seq(callback_seq);
 				callbackNoticeDTO.setCmid(subscribeDTO.getCmid());
@@ -372,15 +323,12 @@ synchronized(this) {
 				callbackNoticeDTO.setUuser(user);
 
 				callbackNoticeDAO.insert(callbackNoticeDTO);
-				// sparql을 이용하여 JENA에 쿼리를 수행후 결과값을 subscribe_notice테이블에
-				// insert한다. 끝
 
 				String so_notice_time = "";
 				String jsonMsg = "";
 				ResponseMessage responseMessage = new ResponseMessage();
 
 				if (returnList.size() > 0) {
-					// JENA에 쿼리 결과 값을 SO에 전송시작
 					so_notice_time = Utils.dateFormat.format(new Date());
 					Map<String, Object> map = new HashMap<String, Object>();
 
@@ -388,22 +336,15 @@ synchronized(this) {
 					map.put("contextId", subscribeDTO.getCmid());
 					map.put("time", so_notice_time);
 					map.put("contents", returnList);
-
 					jsonMsg = gson.toJson(map);
 
 					log.debug("Request message[" + i + "] of emergency for sending to SO  =>  " + jsonMsg);
-
 					responseMessage = Utils.requestPost(callback_result_uri, jsonMsg); // POST
-
 					log.debug("responseMessage[" + i + "] of emergency from SO : " + responseMessage.toString());
-					// JENA에 쿼리 결과 값을 SO에 전송끝
 				} else {
 					jsonMsg = Utils.NotSendToSo;
 				}
 
-				// SO전송완료 시간및 SO return값을 callback테이블의 so_notice_time,
-				// so_notice_msg, work_result, triple_file_name,
-				// triple_check_result에 update함, 시작
 				callbackNoticeDTO = new CallbackNoticeDTO();
 				callbackNoticeDTO.setCallback_seq(callback_seq);
 				callbackNoticeDTO.setSo_notice_time(so_notice_time);
@@ -431,9 +372,6 @@ synchronized(this) {
 				callbackNoticeDTO.setUuser(user);
 
 				callbackNoticeDAO.updateSoNoticeTime(callbackNoticeDTO);
-				// SO전송완료 시간및 SO return값을 callback테이블의 so_notice_time,
-				// so_notice_msg, work_result, triple_file_name,
-				// triple_check_result에 update함, 끝
 			} // end of for
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -443,21 +381,10 @@ synchronized(this) {
 	}
 
 	// 목록조회
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.subscribe.service.SubscribeService#selectList()
+	 */
 	public List<CiDTO> selectList() throws Exception {
 		return subscribeDAO.selectList();
 	}
-
-	// callback
-	/*
-	public int insertCallback_(Map<String, Object> map) throws Exception {
-		int cnt = 0;
-		@SuppressWarnings("unchecked")
-		List<CallbackDTO> list = (ArrayList<CallbackDTO>) map.get("list");
-		for (int i = 0; i < list.size(); i++) {
-			CallbackDTO callbackDTO = (CallbackDTO) list.get(i);
-			cnt = callbackDAO.insert(callbackDTO);
-		}
-		return cnt;
-	}
-	*/
 }

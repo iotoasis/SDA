@@ -17,10 +17,11 @@ import com.pineone.icbms.sda.itf.ci.dao.CiDAO;
 import com.pineone.icbms.sda.itf.cm.dao.CmDAO;
 import com.pineone.icbms.sda.itf.cm.dto.CmCiDTO;
 import com.pineone.icbms.sda.sf.MultiPurposeQueryService;
-import com.pineone.icbms.sda.sf.QueryService;
 import com.pineone.icbms.sda.sf.QueryServiceFactory;
-import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 
+/**
+ * 시멘틱프레임 서비스 구현체
+ */
 @Service("sfService")
 public class SfServiceImpl implements SfService{ 
 	private final Log log = LogFactory.getLog(this.getClass());
@@ -31,7 +32,9 @@ public class SfServiceImpl implements SfService{
 	@Resource(name="ciDAO")
 	private CiDAO ciDAO;
 
-	//getContext수행(cmid를 받아서 getContext수행)
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.service.SfService#getContext(java.util.Map)
+	 */
 	public List<Map<String, String>> getContext(Map<String, Object> commandMap) throws Exception {
 		List<CmCiDTO> list = new ArrayList<CmCiDTO>();
 		String cmid = (String) commandMap.get("cmid");
@@ -50,12 +53,9 @@ public class SfServiceImpl implements SfService{
 		List<String> queryList = new ArrayList<String>();
 		for(int i = 0; i < list.size(); i++) {
 			CmCiDTO cmCiDTO = list.get(i);
-
-			//query+구분값+cmid+ciid로 만들어서 보내준다.
 			queryList.add(cmCiDTO.getSparql()+Utils.SPLIT_STR+cmCiDTO.getCi_gubun());
 		}
 		
-		//List<Map<String, String>> returnList= new QueryService(new SparqlFusekiQueryImpl()).runQuery(queryList);
 		List<Map<String, String>> returnList  = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL).runQuery(queryList);
 		
 		log.debug("queryList in getContext by cmid =>"+queryList);
@@ -64,8 +64,9 @@ public class SfServiceImpl implements SfService{
 		return returnList;
 	}
 
-	
-	//getContext수행(cmid및 쿼리조건을 받아서 getContext수행)
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.service.SfService#getContext(java.util.Map, java.lang.String)
+	 */
 	public List<Map<String, String>> getContext(Map<String, Object> commandMap, String args) throws Exception {
 		List<CmCiDTO> list = new ArrayList<CmCiDTO>();
 		String cmid = (String) commandMap.get("cmid");
@@ -81,9 +82,6 @@ public class SfServiceImpl implements SfService{
 		// cmid로 쿼리 목록을 가져옴
 		list = cmDAO.selectCmCiList(commandMap);
 		
-		log.debug("query count ================>"+list.size());
-		log.debug("query count ================>"+list.size());
-		
 		if( list == null || list.size() == 0) {
 			throw new UserDefinedException(HttpStatus.NOT_FOUND);
 		}
@@ -98,8 +96,6 @@ public class SfServiceImpl implements SfService{
 		for(int i = 0; i < list.size(); i++) {
 			CmCiDTO cmCiDTO = list.get(i);
 			
-			//log.debug("cmCiDTO["+i+"]====gooper======> "+cmCiDTO.toString());
-			
 			if(cmCiDTO.getCm_arg_cnt() == 0 && cmCiDTO.getCi_arg_cnt() == 0) {
 				// pass
 			} else {
@@ -108,18 +104,11 @@ public class SfServiceImpl implements SfService{
 				}
 			}
 			
-			//query+구분값+cmid+ciid로 만들어서 보내준다. 
 			queryList.add(cmCiDTO.getSparql()+Utils.SPLIT_STR+cmCiDTO.getCi_gubun());
 		}
 		
-		// 쿼리및 조건을 인자로 받음
-		//List<Map<String, String>> returnList = new QueryService(new SparqlFusekiQueryImpl()).runQuery(queryList, args.split(","));
-		//List<Map<String, String>> returnList = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL).runQuery(queryList, args.split(","));
-		
 		MultiPurposeQueryService mpQueryService = new MultiPurposeQueryService();
 		List<Map<String, String>> returnList = mpQueryService.runQuery(queryList, args.split(","));
-		
-		
 		
 		// 쿼리실행결과를 로그로 남김
 		log.debug("queryList in getContext by cmid with args =>"+queryList);
@@ -127,5 +116,4 @@ public class SfServiceImpl implements SfService{
 		
 		return returnList;
 	}
-
 }

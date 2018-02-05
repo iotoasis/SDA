@@ -22,15 +22,22 @@ import com.pineone.icbms.sda.sf.QueryService;
 import com.pineone.icbms.sda.sf.QueryServiceFactory;
 import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 
+/**
+ * 강의시간 확인 서비스
+ */
 @Service
 public class LectureTimeOffStateJobService extends SchedulerJobComm implements Job {
 	private final Log log = LogFactory.getLog(this.getClass());
 	private static AtomicInteger ai = new AtomicInteger();
 	
-	// triple로 부터 집계를해서 domain에 값을 넣음을 스케줄링함
+	/**
+	 * triple로 부터 집계를해서 domain에 값을 넣음
+	 * @param jec
+	 * @throws Exception
+	 * @return void
+	 */
 	public void runner(JobExecutionContext jec) throws Exception {
 		String start_time = Utils.dateFormat.format(new Date());
-		// 중복방지
 		start_time = start_time + "S"+String.format("%010d", ai.getAndIncrement());
 
 		AggrDAO aggrDAO;
@@ -43,41 +50,23 @@ public class LectureTimeOffStateJobService extends SchedulerJobComm implements J
 			List<AggrDTO> aggrList = new ArrayList<AggrDTO>();
 			aggrDAO = getContext().getBean(AggrDAO.class);
 			Map<String, String> commandMap = new HashMap<String, String>();
-			//commandMap.put("task_group_id", jec.getJobDetail().getGroup());
 			commandMap.put("aggr_id", jec.getJobDetail().getName());
 			
 			// 집계정보 가져오기
 			aggrList = (List<AggrDTO>)aggrDAO.selectList(commandMap);
-			
-			
-			//test
-			for(AggrDTO aggrDTO : aggrList) {
-				log.debug("aggrDTO =====>" + aggrDTO.toString());
-			}
 
 			// sch_hist테이블에 data insert(work_cnt는 aggrList목록의 개수로 설정함)
 			insertSchHist(jec, aggrList.size(), start_time, Utils.dateFormat.format(new Date()));
 			
-			// aggr테이블의 aggr_id에 설정된 개수만큼 아래를 수행한다.(1개만 있다..)
-			//SparqlService sparqlService = new SparqlService();
-			//QueryService sparqlService= new QueryService(new SparqlFusekiQueryImpl());
+			// aggr테이블의 aggr_id에 설정된 개수만큼 아래를 수행한다.
 			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 			List<Map<String, String>> argsResultList;		// 대상목록
-//			List<Map<String, String>> aggrResultList;
 			// argsql로 대상및 값을 구함
 			argsResultList = sparqlService.runQuery(aggrList.get(0).getArgsql());
-			
-			//test
-			for(Map<String, String> map : argsResultList) {
-				log.debug("map of argsResultList==============>"+map.toString());
-			}
 			
 			// 결과값 만큼 처리함
 			for(int m = 0; m < argsResultList.size(); m++) {
 				String lecture_loc = argsResultList.get(m).get("location_sub");
-				
-				//update
-				//sparqlService.updateSparql(aggrList.get(0).getUpdateql(), new String[]{location, context_cond});
 				
 				//delete->insert
 				((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(aggrList.get(0).getDeleteql(), aggrList.get(0).getInsertql(), new String[]{lecture_loc}, Utils.QUERY_DEST.ALL.toString());
@@ -105,6 +94,9 @@ public class LectureTimeOffStateJobService extends SchedulerJobComm implements J
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
+	 */
 	public void execute(JobExecutionContext arg0)  throws JobExecutionException{
 		try {
 			runner(arg0);
