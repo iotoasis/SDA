@@ -80,7 +80,7 @@ public class MariaDbOfGribQueryImpl extends QueryCommon implements QueryItf {
 	 *   query수행
 	 * @param query
 	 * @param idxVals
-	 * @return
+	 * @return 임시파일 삭제
 	 * @throws Exception
 	 */
 	private final List<Map<String, String>> getResult (String query, String[] idxVals) throws Exception {

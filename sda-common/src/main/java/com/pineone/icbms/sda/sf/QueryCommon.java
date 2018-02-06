@@ -11,9 +11,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.http.HttpStatus;
 
-import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 
 /**
@@ -23,10 +21,10 @@ public class QueryCommon {
 	private final Log log = LogFactory.getLog(this.getClass());
 
 	/**
-	 * 쿼리에 있는 변수를 적절한 값으로 치환하여 리턴함
+	 * 쿼리에 있는 변수를 적절한 값으로 치환하여 리턴
 	 * @param qlStringl
 	 * @param idxVals
-	 * @return
+	 * @return String
 	 * @throws Exception
 	 */
 	public final String makeFinal(String qlStringl, String[] idxVals) throws Exception {
@@ -45,8 +43,6 @@ public class QueryCommon {
 		}
 
 		if (qlStringl == null || qlStringl.equals("")) {
-			//throw new UserDefinedException(HttpStatus.BAD_REQUEST, "sparql is null or none !");
-			// gooper2
 			return "";
 		}
 
@@ -168,9 +164,11 @@ public class QueryCommon {
 	 * 숫자 비교용 클래스(내림차순, asc)
 	 */
 	public final class CntCompare implements Comparator<IdxCnt> {
+		/* (non-Javadoc)
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
 		@Override
 		public int compare(IdxCnt arg0, IdxCnt arg1) {
-			//asc
 			return arg0.getCnt() < arg1.getCnt() ? -1 : arg0.getCnt() > arg1.getCnt() ? 1 : 0;
 		}
 	}
@@ -178,7 +176,7 @@ public class QueryCommon {
 	/**
 	 * 쿼리 문장에서 구분자 제거
 	 * @param query
-	 * @return
+	 * @return String
 	 */
 	public String removeQueryGubun(String query) {
 		if(query.contains(Utils.SPLIT_STR)) {
@@ -189,7 +187,7 @@ public class QueryCommon {
 	/**
 	 * 쿼리 문장에서 구분자 제거
 	 * @param queryList
-	 * @return
+	 * @return List<String>
 	 */
 	public List<String> removeQueryGubun(List<String> queryList) {
 		List<String> newQuery = new ArrayList<String>();

@@ -22,15 +22,31 @@ public  class MultiPurposeQueryService extends QueryCommon {
 		super();
 	}
 	
+	/**
+	 * 구현클래스 가져오기
+	 * @return QueryItf
+	 */
 	public QueryItf getImplementClass() {
 		return this.queryItf;
 	}
 	
+	/**
+	 * 구현클래스 지정
+	 * @param list
+	 * @throws Exception
+	 * @return void
+	 */
 	private void setImplementClass(List<String> list) throws Exception {
 		if(list == null || list.size() == 0) throw new NullPointerException("list is null or space");
 		setImplementClass(list.get(0).toString());
 	}
 	
+	/**
+	 * 구현클래스 지정
+	 * @param query
+	 * @throws Exception
+	 * @return void
+	 */
 	private void setImplementClass(String query) throws Exception {
 		String queryGubun;
 
@@ -70,7 +86,7 @@ public  class MultiPurposeQueryService extends QueryCommon {
 	/**
 	 * 쿼리 실행
 	 * @param query
-	 * @return 
+	 * @return List<Map<String, String>>
 	 * @throws Exception
 	 */
 	public List<Map<String, String>> runQuery(String query) throws Exception {
@@ -82,7 +98,7 @@ public  class MultiPurposeQueryService extends QueryCommon {
 	 * 쿼리 실행(args있음)
 	 * @param query 
 	 * @param idxVals
-	 * @return
+	 * @return List<Map<String, String>>
 	 * @throws Exception
 	 */
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
@@ -93,7 +109,7 @@ public  class MultiPurposeQueryService extends QueryCommon {
 	/**
 	 *   다수의 쿼리 실행(args없음)
 	 * @param queryList
-	 * @return
+	 * @return List<Map<String, String>>
 	 * @throws Exception
 	 */
 	public List<Map<String, String>> runQuery(List<String> queryList) throws Exception {
@@ -105,7 +121,7 @@ public  class MultiPurposeQueryService extends QueryCommon {
 	 * 다수의 쿼리 실행(args있음)
 	 * @param queryList
 	 * @param idxVals
-	 * @return
+	 * @return List<Map<String, String>>
 	 * @throws Exception
 	 */
 	public List<Map<String, String>> runQuery(List<String> queryList, String[] idxVals) throws Exception {

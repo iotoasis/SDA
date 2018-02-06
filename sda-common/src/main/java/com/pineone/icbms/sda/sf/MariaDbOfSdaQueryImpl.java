@@ -81,7 +81,7 @@ public class MariaDbOfSdaQueryImpl extends QueryCommon implements QueryItf {
 	 *   결과 가져오기
 	 * @param query
 	 * @param idxVals
-	 * @return
+	 * @return List<Map<String, String>>
 	 * @throws Exception
 	 */
 	private final List<Map<String, String>> getResult (String query, String[] idxVals) throws Exception {
@@ -139,16 +139,25 @@ public class MariaDbOfSdaQueryImpl extends QueryCommon implements QueryItf {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.lang.String)
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(String query) throws Exception {
 		throw new NotImplementedError();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.util.List)
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(List<String> queryList) throws Exception {
 		throw new NotImplementedError();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.util.List, java.lang.String[])
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(List<String> queryList, String[] idxVals) throws Exception {
 		throw new NotImplementedError();

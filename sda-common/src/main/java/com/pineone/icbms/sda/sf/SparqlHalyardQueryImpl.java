@@ -56,7 +56,7 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 		
 		if(rm.getContents().length() >= 2) {
 			lines = rm.getContents().split("\n");
-			header = lines[0].split(",");							// header분리
+			header = lines[0].split(",");			
 		} 
 		
 		// 첫번째는 header이므로 1부터 시작함
@@ -76,7 +76,7 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 	/**
 	 * delete->insert(인수가 sparql인 경우)
 	 * @param query
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public ResponseMessage updateByQuery(String query) throws Exception {
@@ -92,7 +92,12 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 		return updateByList(list);
 	}
 	
-	// delete->insert(인수가 String형태의 triple data인경우)
+	/**
+	 * delete->insert(인수가 String형태의 triple data인경우)
+	 * @param data
+	 * @throws Exception
+	 * @return ResponseMessage
+	 */
 	public ResponseMessage updateByData(String data) throws Exception {
 		log.debug("------------------------updateByData-----start-----------------------");		
 		if(data == null || data.equals("")) { throw new NullPointerException("data is null or data is space"); }
@@ -125,7 +130,7 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 	/**
 	 * delete->insert(인수가 List인경우)
 	 * @param dataList
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public ResponseMessage updateByList(List<Map<String, String>> dataList) throws Exception {
@@ -140,7 +145,7 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 			log.debug("dataList["+m+"]"+" : s==>"+(String)map.get("s")+ ", p==>"+(String)map.get("p")+ ", o==>"+(String)map.get("o"));
 			
 			deleteResponse = delete((String)map.get("s"), (String)map.get("p"), (String)map.get("o"));
-			insertResponse = insertByPost((String)map.get("s")+" "+(String)map.get("p")+" "+(String)map.get("o").replace(">", "gooper2>")+ " . ");
+			insertResponse = insertByPost((String)map.get("s")+" "+(String)map.get("p")+" "+(String)map.get("o").replace(">", "gooper>")+ " . ");
 			
 			if(deleteResponse.getCode() != 200 || deleteResponse.getCode() != 204) {
 				returnResponse = deleteResponse;
@@ -158,7 +163,7 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 	 * DELETE(s, p)
 	 * @param s
 	 * @param p
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public ResponseMessage delete(String s, String p) throws Exception {
@@ -183,7 +188,7 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 	 * @param s
 	 * @param p
 	 * @param o
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public ResponseMessage delete(String s, String p, String o) throws Exception {
@@ -208,7 +213,7 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 	/**
 	 * POST로 insert(?s ?p ?o가 모두 일치하는 triple은 skip하고 나머지의 경우는 모두 insert함)
 	 * @param data
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public ResponseMessage insertByPost(String data) throws Exception {
@@ -228,7 +233,7 @@ public class SparqlHalyardQueryImpl extends QueryCommon implements QueryItf {
 	/**
 	 * 문자열의 triple data를 List<Map<String, String>>형태로 변경함
 	 * @param data
-	 * @return
+	 * @return ResponseMessage
 	 */
 	private List<Map<String, String>> makeListData(String data) {
 		log.debug("------------------------makeListData-----start-----------------------");

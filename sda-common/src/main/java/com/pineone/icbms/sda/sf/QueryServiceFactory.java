@@ -20,7 +20,7 @@ public class QueryServiceFactory {
 	/**
 	 * 구분에 따른 쿼리생성
 	 * @param queryGubun
-	 * @return
+	 * @return QueryService
 	 * @throws Exception
 	 */
 	static public QueryService create(Utils.QUERY_GUBUN queryGubun) throws Exception {

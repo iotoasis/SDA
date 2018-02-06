@@ -37,6 +37,7 @@ public class UpdateSemanticDescriptor {
 	 * @throws UserDefinedException
 	 * @throws IOException
 	 * @throws SQLException
+	 * @return void
 	 */
 	private void getMergedFileForDevice(String name) throws UserDefinedException, IOException, SQLException {
 
@@ -96,11 +97,12 @@ public class UpdateSemanticDescriptor {
 	}
 	
 	/**
-	 *   Semantic Descriptor 생성 메서드
+	 * Semantic Descriptor 생성 메서드
 	 * @param dbName
 	 * @throws UserDefinedException
 	 * @throws IOException
 	 * @throws SQLException
+	 * @return void
 	 */
 	private void getMergedFile(String dbName) throws UserDefinedException, IOException, SQLException {
 		StringBuffer buffer = new StringBuffer();
@@ -146,7 +148,7 @@ public class UpdateSemanticDescriptor {
 	
 	/**
 	 *   Lecture시간표를 Triple로 변환
-	 * @return
+	 * @return String
 	 * @throws SQLException
 	 */
 	public String getLectureInfoFromRDBMSTriples() throws SQLException {
@@ -189,7 +191,7 @@ public class UpdateSemanticDescriptor {
 	/**
 	 *   Device정보를 Triple로 변환
 	 * @param name
-	 * @return
+	 * @return String
 	 * @throws SQLException
 	 */
 	public String getOneDeviceInfoFromRDBMSTriples(String name) throws SQLException {
@@ -230,7 +232,7 @@ public class UpdateSemanticDescriptor {
 	
 	/**
 	 *   Device정보를 Triple로 변환
-	 * @return
+	 * @return String
 	 * @throws SQLException
 	 */
 	public String getDeviceInfoFromRDBMSTriples() throws SQLException {
@@ -270,11 +272,10 @@ public class UpdateSemanticDescriptor {
 	/**
 	 *   Device정보 확인
 	 * @param name
-	 * @return
+	 * @return boolean
 	 * @throws SQLException
 	 */
 	public boolean checkDevice(String name) throws SQLException {
-		String driver = "org.mariadb.jdbc.Driver";
 		String url = "jdbc:mariadb://" + Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.server") + ":" 
 					+ Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.port") + "/device";
 		String username = Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.user");
@@ -306,11 +307,12 @@ public class UpdateSemanticDescriptor {
 	}
 	
 	/**
-	 *   Device정보 Update
+	 * Device정보 Update
 	 * @param name
 	 * @throws UserDefinedException
 	 * @throws IOException
 	 * @throws SQLException
+	 * @return void
 	 */
 	public void makeUpdateDevice(String name) throws UserDefinedException, IOException, SQLException {
 		UpdateSemanticDescriptor sd = new UpdateSemanticDescriptor();
@@ -318,11 +320,12 @@ public class UpdateSemanticDescriptor {
 	}
 	
 	/**
-	 *   Jean update
+	 * Jena update
 	 * @param dbName
 	 * @throws UserDefinedException
 	 * @throws IOException
 	 * @throws SQLException
+	 * @return void
 	 */
 	public void makeUpdateJena(String dbName) throws UserDefinedException, IOException, SQLException {
 		UpdateSemanticDescriptor sd = new UpdateSemanticDescriptor();
@@ -330,9 +333,9 @@ public class UpdateSemanticDescriptor {
 	}
 
 	/**
-	 *   임시파일 삭제
+	 * 임시파일 삭제
 	 * @param name
-	 * @return
+	 * @return boolean
 	 */
 	public boolean deleteTempFile(String name) {
 

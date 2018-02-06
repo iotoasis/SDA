@@ -154,6 +154,11 @@ public class PopularMenuImpl implements MongoQueryItf {
 		} 
 	}
 	
+	/**
+	 * map data생성
+	 * @param map
+	 * @return Map<String,String>
+	 */
 	private Map<String,String> makeStringMap(Map<String, String> map) {
 		Map<String, String> newMap = new HashMap<String, String>();
 		

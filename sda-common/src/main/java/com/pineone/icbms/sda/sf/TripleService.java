@@ -109,7 +109,6 @@ public class TripleService implements Serializable{
 	private List<String> ici_ql_statements = new ArrayList<String>();
 	private List<String> cv_ql_statements = new ArrayList<String>();
 	
-
 	public String getCreateDate() {
 		return createDate;
 	}
@@ -153,7 +152,7 @@ public class TripleService implements Serializable{
 	/**
 	 * DBObject나 String값을 triple로 변환
 	 * @param doc
-	 * @return
+	 * @return String
 	 * @throws Exception
 	 */
 	public String getTriple(Object doc) throws Exception {
@@ -169,7 +168,6 @@ public class TripleService implements Serializable{
 			DBObject docT = (DBObject) doc;
 			ty = (Integer) docT.get("ty");
 		} else if (doc instanceof String) {
-			// ty값을 확인하기 위해서 특정 객체에 매핑해봄(ty=4)
 			contextInstanceDTO = gson.fromJson((String)doc, OneM2MContentInstanceDTO.class);
 			ty = Integer.parseInt(contextInstanceDTO.getTy());
 		}
@@ -240,6 +238,7 @@ public class TripleService implements Serializable{
 	/**
 	 * sparql문장 생성
 	 * @throws Exception
+	 * @return void
 	 */
 	public void makeFinalSparql() throws Exception {
 		QueryCommon qc = new QueryCommon();
@@ -262,6 +261,7 @@ public class TripleService implements Serializable{
 	/**
 	 * 여러건을 동시에 처리함
 	 * @throws Exception
+	 * @return void
 	 */
 	public void addLatestContentInstanceMany() throws Exception {
 		int MAX_SIZE = 3000;
@@ -287,7 +287,6 @@ public class TripleService implements Serializable{
 		((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).runModifySparql(String.join(" ; ", 
 				this.ici_ql_statements.subList(MAX_SIZE*bundle_count, ici_ql_statements.size())), new String[]{}, Utils.QUERY_DEST.ALL.toString());
 
-
 		//cv_ql_statements(cv의 delete및 insert를 모두 가지고 있음)
 		bundle_count = this.cv_ql_statements.size() / MAX_SIZE;
 		for(int m = 1; m <= bundle_count; m++) {
@@ -301,6 +300,7 @@ public class TripleService implements Serializable{
 	/**
 	 * LatestContentInstance추가
 	 * @throws Exception
+	 * @return void
 	 */
 	public void addLatestContentInstance() throws Exception {
 		try {
@@ -440,7 +440,7 @@ public class TripleService implements Serializable{
 	/**
 	 * triple파일을 DM로 전송
 	 * @param triple_path_file
-	 * @return
+	 * @return String[]
 	 * @throws Exception
 	 */
 	public String[] sendTripleFileToDM(String triple_path_file) throws Exception {
@@ -484,7 +484,7 @@ public class TripleService implements Serializable{
 	/**
 	 * triple파일을 읽어서 Post형태로 Halyard에 등록함	
 	 * @param triple_path_file
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public ResponseMessage sendTripleFileToHalyard(File triple_path_file) throws Exception {
@@ -517,7 +517,7 @@ public class TripleService implements Serializable{
 	 * triple파일 체크(Fuseki만)
 	 * @param triple_path_file
 	 * @param result_file_name
-	 * @return
+	 * @return String[]
 	 * @throws Exception
 	 */
 	public String[] checkTripleFile(String triple_path_file, String result_file_name) throws Exception {
@@ -588,6 +588,7 @@ public class TripleService implements Serializable{
 	 * @param file_name
 	 * @param check_result
 	 * @throws Exception
+	 * @return void
 	 */
 	public void makeResultFile(String file_name, String[] check_result) throws Exception {
 		FileWriter fw = null;

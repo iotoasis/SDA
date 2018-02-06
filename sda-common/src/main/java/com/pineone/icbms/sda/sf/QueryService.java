@@ -3,21 +3,13 @@ package com.pineone.icbms.sda.sf;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * 쿼리 서비스 수행
  */
 public  class QueryService extends QueryCommon {
-	private final Log log = LogFactory.getLog(this.getClass());
 	
 	private QueryItf queryItf;
 	private Enum<?> QueryGubun;
-	
-	private QueryService() {
-		super();
-	}
 
 	public Enum<?> getQueryGubun() {
 		return QueryGubun;
@@ -26,6 +18,7 @@ public  class QueryService extends QueryCommon {
 	/**
 	 * 쿼리 구분 설정
 	 * @param queryGubun
+	 * @return void
 	 */
 	public void setQueryGubun(Enum<?> queryGubun) {
 		QueryGubun = queryGubun;
@@ -38,8 +31,8 @@ public  class QueryService extends QueryCommon {
 	
 	/**
 	 * 구현체 리턴
-	 * @return
 	 * @throws Exception
+	 * @return QueryItf
 	 */
 	public QueryItf getImplementClass() throws Exception{
 			return this.queryItf;
@@ -48,7 +41,7 @@ public  class QueryService extends QueryCommon {
 	/**
 	 * 	쿼리 실행(args없음) 
 	 * @param query
-	 * @return
+	 * @return List<Map<String, String>>
 	 * @throws Exception
 	 */
 	public List<Map<String, String>> runQuery(String query) throws Exception {
@@ -59,7 +52,7 @@ public  class QueryService extends QueryCommon {
 	 * 쿼리 실행(args있음)
 	 * @param query
 	 * @param idxVals
-	 * @return
+	 * @return List<Map<String, String>>
 	 * @throws Exception
 	 */
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
@@ -69,7 +62,7 @@ public  class QueryService extends QueryCommon {
 	/**
 	 * 다수의 쿼리 실행(args없음)
 	 * @param queryList
-	 * @return
+	 * @return List<Map<String, String>>
 	 * @throws Exception
 	 */
 	public List<Map<String, String>> runQuery(List<String> queryList) throws Exception {
@@ -80,11 +73,10 @@ public  class QueryService extends QueryCommon {
 	 * 다수의 쿼리 실행(args있음)
 	 * @param queryList
 	 * @param idxVals
-	 * @return
+	 * @return List<Map<String, String>>
 	 * @throws Exception
 	 */
 	public List<Map<String, String>> runQuery(List<String> queryList, String[] idxVals) throws Exception {
 		return queryItf.runQuery(removeQueryGubun(queryList), idxVals);
 	}
-
 }

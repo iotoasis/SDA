@@ -14,11 +14,16 @@ public class PresenceServiceMapper implements OneM2MMapper{
 	public PresenceServiceMapper(Resource contentInstance, String con2) {
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#from()
+	 */
 	public List<Statement> from() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#initResource()
+	 */
 	@Override
 	public void initResource() {
 		// TODO Auto-generated method stub

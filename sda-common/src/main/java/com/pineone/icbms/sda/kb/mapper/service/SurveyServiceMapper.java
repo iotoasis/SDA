@@ -66,6 +66,12 @@ public class SurveyServiceMapper implements OneM2MMapper {
 		return slist;
 	}
 
+	/**
+	 * 온톨로지에 추가할 문장
+	 * @param surveydto
+	 * @param surveyuri
+	 * @return List<Statement>
+	 */
 	public List<Statement> getStatementList(SurveyInfoDTO surveydto, Resource surveyuri) {
 		List<Statement> _list = new ArrayList<Statement>(); 
 		
@@ -99,6 +105,11 @@ public class SurveyServiceMapper implements OneM2MMapper {
 		return _list;
 	}
 
+	/**
+	 * condition값에 대한 리소스
+	 * @param condition
+	 * @return Resource
+	 */
 	private Resource identifyConditionValue(String condition) {
 		return model.createResource(baseuri + "/" + condition + "Condition");
 	}

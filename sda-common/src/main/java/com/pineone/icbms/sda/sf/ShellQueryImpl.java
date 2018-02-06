@@ -16,9 +16,11 @@ import scala.NotImplementedError;
  * MongoDB에 접속하여 쿼리수행
  */
 public class ShellQueryImpl extends QueryCommon implements QueryItf {
-
 	private final Log log = LogFactory.getLog(this.getClass());
 	
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.lang.String, java.lang.String[])
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
@@ -40,7 +42,7 @@ public class ShellQueryImpl extends QueryCommon implements QueryItf {
 				log.debug("try (second).................................. ");
 				list = getResult(query, idxVals);
 			} catch (Exception ee) {
-				log.debug("Exception 1====>"+ee.getMessage());
+				log.debug("Exception(1)====>"+ee.getMessage());
 				waitTime = 30*1000;
 				if(ee.getMessage().contains("Service Unavailable")|| ee.getMessage().contains("java.net.ConnectException")
 						) {					
@@ -56,7 +58,7 @@ public class ShellQueryImpl extends QueryCommon implements QueryItf {
 						log.debug("try (final).................................. ");
 						list = getResult(query, idxVals);
 					} catch (Exception eee) {
-						log.debug("Exception 2====>"+eee.getMessage());
+						log.debug("Exception(2)====>"+eee.getMessage());
 						throw eee;
 					}
 				}
@@ -72,7 +74,7 @@ public class ShellQueryImpl extends QueryCommon implements QueryItf {
 	 * 쿼리 수행 결과
 	 * @param query
 	 * @param idxVals
-	 * @return
+	 * @return List<Map<String, String>>
 	 * @throws Exception
 	 */
 	private final List<Map<String, String>> getResult (String query, String[] idxVals) throws Exception {

@@ -41,7 +41,7 @@ public class OneM2MJenaModelFactory {
 
 	/**
 	 *   트리플 생성
-	 * @return
+	 * @return Triple
 	 */
 	public static Triple createDefaultTriple() {
 		return null;

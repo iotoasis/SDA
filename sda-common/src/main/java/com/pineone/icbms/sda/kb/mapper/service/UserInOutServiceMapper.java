@@ -58,6 +58,9 @@ public class UserInOutServiceMapper implements OneM2MMapper {
 		this.userinout = userinout2;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#initResource()
+	 */
 	@Override
 	public void initResource() {
 		this.user = model.createResource(this.baseuri + "/" + this.dto.getUser_id());
@@ -68,6 +71,9 @@ public class UserInOutServiceMapper implements OneM2MMapper {
 		this.direction = model.createResource(this.baseuri + "/" + this.dto.getDirection());
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#from()
+	 */
 	@Override
 	public List<Statement> from() {
 		initResource();

@@ -36,7 +36,6 @@ public class MongoDbQueryImpl extends QueryCommon implements QueryItf {
 			log.debug("Exception message in runQuery() =====> "+e.getMessage());  
 			
 			try {
-				// 일정시간 대기 했다가 다시 수행함
 				log.debug("sleeping (first)................................. in "+waitTime);
 				Thread.sleep(waitTime);
 				
@@ -46,7 +45,6 @@ public class MongoDbQueryImpl extends QueryCommon implements QueryItf {
 				log.debug("Exception(1)====>"+ee.getMessage());
 				waitTime = 30*1000;
 				if(ee.getMessage().contains("Service Unavailable")|| ee.getMessage().contains("java.net.ConnectException")
-						// || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error")
 						) {					
 					try {
 						// restart fuseki
@@ -76,7 +74,7 @@ public class MongoDbQueryImpl extends QueryCommon implements QueryItf {
 	 *   쿼리결과를 가져온다.
 	 * @param query
 	 * @param idxVals
-	 * @return
+	 * @return List<Map<String, String>>
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
@@ -93,16 +91,25 @@ public class MongoDbQueryImpl extends QueryCommon implements QueryItf {
 		return list;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.lang.String)
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(String query) throws Exception {
 		return runQuery(query, new String[]{""});
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.util.List)
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(List<String> queryList) throws Exception {
 		return runQuery(queryList, new String[]{""});
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.util.List, java.lang.String[])
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(List<String> queryList, String[] idxVals) throws Exception {
 		if(queryList.size() == 1) {
@@ -110,4 +117,5 @@ public class MongoDbQueryImpl extends QueryCommon implements QueryItf {
 		} else {
 			throw new NotImplementedError("runQuery() for many querys is not implemented");
 		}
-	}}
+	}
+}

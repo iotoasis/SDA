@@ -27,6 +27,4 @@ public class IdxCnt {
 	public String toString() {
 		return "IdxCnt [idx=" + idx + ", cnt=" + cnt + "]";
 	}
-	
-	
 }
