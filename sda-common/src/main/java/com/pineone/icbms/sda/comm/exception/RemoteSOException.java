@@ -2,6 +2,9 @@ package com.pineone.icbms.sda.comm.exception;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * 원격 SO Exception
+ */
 public class RemoteSOException extends Exception {
 	private static final long serialVersionUID = 6753769994807749L;
 	private HttpStatus httpStatus;
@@ -29,4 +32,3 @@ public class RemoteSOException extends Exception {
    }
   
  }
- 

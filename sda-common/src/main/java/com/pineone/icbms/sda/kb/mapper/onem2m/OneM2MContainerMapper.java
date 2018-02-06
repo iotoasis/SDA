@@ -104,7 +104,6 @@ public class OneM2MContainerMapper implements OneM2MMapper {
 		try {
 			cal1.setTime(sd.parse(StrUtils.makeXsdDateFromOnem2mDate(this.dto.getCt())));
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -117,7 +116,6 @@ public class OneM2MContainerMapper implements OneM2MMapper {
 		try {
 			cal2.setTime(sd.parse(StrUtils.makeXsdDateFromOnem2mDate(this.dto.getLt())));
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Statement stmtLastModifiedTime = model.createStatement(container,
@@ -137,7 +135,10 @@ public class OneM2MContainerMapper implements OneM2MMapper {
 		return slist;
 	}
 	
-	// gooper
+	/**
+	 * 커넥션 닫기
+	 * @return void
+	 */
 	public void close() {
 		if(! model.isClosed()) model.close();
 	}

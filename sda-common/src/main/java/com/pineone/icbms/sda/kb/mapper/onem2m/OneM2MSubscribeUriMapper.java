@@ -36,6 +36,10 @@ public class OneM2MSubscribeUriMapper {
 		this.setConditionModel();
 	}
 
+	/**
+	 * condition model 설정
+	 * @return void
+	 */
 	private void setConditionModel() {
 		Gson gson = new Gson();
 		Type type = new TypeToken<List<ICBMSContextConditionModel>>() {
@@ -43,6 +47,10 @@ public class OneM2MSubscribeUriMapper {
 		clist = gson.fromJson(this.condition, type);
 	}
 
+	/**
+	 * 타입형 uri 가져오기
+	 * @return List<String>
+	 */
 	private List<String> getTypedUri() {
 		Iterator<ICBMSContextConditionModel> it = this.clist.iterator();
 		List<String> typeList = new ArrayList<String>();
@@ -55,6 +63,11 @@ public class OneM2MSubscribeUriMapper {
 		return typeList;
 	}
 
+	/**
+	 * 타입 필드 생성
+	 * @param type
+	 * @return String
+	 */
 	private String makeTypeField(List<String> type) {
 		String result = "";
 		String typequery = "\t{ ?uri o:hasDeviceType @type@ .}";
@@ -67,6 +80,10 @@ public class OneM2MSubscribeUriMapper {
 		return result;
 	}
 
+	/**
+	 * 도메인 필드 생성
+	 * @return String
+	 */
 	private String makeDomainField() {
 		if (this.domain == null)
 			return "";
@@ -74,6 +91,11 @@ public class OneM2MSubscribeUriMapper {
 			return "\n\t?uri dul:hasLocation "+ domain + ".";
 	}
 
+	/**
+	 * subscribe container 가져오기
+	 * @param type
+	 * @return String
+	 */
 	private String getSubscribeDataContainer(String type) {
 		String result = "";
 		if (type.equals(OneM2MContainerType.status.toString())) {
@@ -92,6 +114,10 @@ public class OneM2MSubscribeUriMapper {
 		return result;
 	}
 	
+	/**
+	 * 쿼리 스트링 생성
+	 * @return String
+	 */
 	public String makeQueryString() {
 		String query = Utils.getSparQlHeader();
 		query = query + "select  distinct  ?res  where {	\n\t?uri rdf:type b:Device.\n	";
@@ -101,10 +127,19 @@ public class OneM2MSubscribeUriMapper {
 		return query;
 	}
 
+	/**
+	 * container 타입 가져오기
+	 * @param uri
+	 * @return String
+	 */
 	public String getProperContainerType(String uri) {
 		return uri + "/" + getSubscribeDataContainer("status");
 	}
 
+	/**
+	 * subscribe uri 가져오기
+	 * @return List<String>
+	 */
 	public List<String> getSubscribeUri() {
 		List<String> result = new ArrayList<String>();
 		String query = this.makeQueryString();

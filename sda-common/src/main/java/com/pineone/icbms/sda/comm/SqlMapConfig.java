@@ -7,7 +7,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 /**
- *   쿼리 수행을 위한 설정정보
+ *   쿼리 수행을 위한 설정
  */
 public class SqlMapConfig {
 	private static SqlSessionFactory sqlSession;
@@ -25,8 +25,8 @@ public class SqlMapConfig {
 	}
 
 	/**
-	 * Session을 리턴
-	 * @return
+	 * sql session 리턴
+	 * @return SqlSessionFactory
 	 */
 	public static SqlSessionFactory getSqlSession() {
 		return sqlSession;

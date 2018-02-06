@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.comm.sch.dto;
 
+/**
+ * 스케줄러용 DTO
+ */
 public class SchDTO {
 
 	private String task_group_id;

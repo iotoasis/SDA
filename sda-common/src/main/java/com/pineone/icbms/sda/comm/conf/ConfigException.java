@@ -4,6 +4,9 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 
 
+/**
+ * 환경정보 처리 Excpeiton
+ */
 public class ConfigException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;

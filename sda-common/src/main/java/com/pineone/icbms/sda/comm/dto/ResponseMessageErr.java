@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.comm.dto;
 
+/**
+ * 에러 응답메세지
+ */
 public class ResponseMessageErr {
 
 	String contents;

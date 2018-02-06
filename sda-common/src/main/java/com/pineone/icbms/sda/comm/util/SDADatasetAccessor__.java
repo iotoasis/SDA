@@ -9,15 +9,15 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 
-public class SDADatasetAccessor implements DatasetAccessor {
+public class SDADatasetAccessor__ implements DatasetAccessor {
 	private String serviceURI = "http://localhost:13030/ds";
 	private DatasetAccessor accessor;
 
-	public SDADatasetAccessor() {
+	public SDADatasetAccessor__() {
 		accessor = DatasetAccessorFactory.createHTTP(serviceURI);
 	}
 
-	public SDADatasetAccessor(String str_uri) {
+	public SDADatasetAccessor__(String str_uri) {
 		accessor = DatasetAccessorFactory.createHTTP(str_uri);
 	}
 
@@ -25,15 +25,6 @@ public class SDADatasetAccessor implements DatasetAccessor {
 
 		accessor.putModel(model);
 	}
-
-	// public static void main(String[] args) {
-	// String serviceURI = "http://localhost:13030/ds";
-	// DatasetAccessor accessor = DatasetAccessorFactory.createHTTP(serviceURI);
-	// accessor.putModel(makeModel());
-	//
-	// System.out.println(Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.host.port"));
-	//
-	// }
 
 	private static Model makeSampleModel() {
 		String BASE = "http://example/";

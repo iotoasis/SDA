@@ -11,14 +11,19 @@ import com.pineone.icbms.sda.kb.mapper.OneM2MMapper;
  */
 public class OneM2MRemoteCSEMapper implements OneM2MMapper{
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#initResource()
+	 */
 	@Override
 	public void initResource() {
 		// TODO Auto-generated method stub
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#from()
+	 */
 	@Override
 	public List<Statement> from() {
 		return null;
 	}
-
 }

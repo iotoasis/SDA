@@ -2,6 +2,9 @@ package com.pineone.icbms.sda.comm.conf;
 
 import java.io.Serializable;
 
+/**
+ * Context클래스
+ */
 public class Context implements Serializable {
 	private static final long serialVersionUID = -7263835548888822548L;
 	private String context = "";

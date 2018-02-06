@@ -51,8 +51,9 @@ public class AvroLWM2MDataSparkSubscribe implements Serializable {
 	}
 
 	/**
-	 *   수집 수행 메서드
+	 * 수집 수행 메서드
 	 * @throws Exception
+	 * @return void
 	 */
 	public void collect() throws Exception{
 		SparkConf sc=new SparkConf().setAppName("AvroLWM2MDataSparkSubscribe")
@@ -118,6 +119,9 @@ public class AvroLWM2MDataSparkSubscribe implements Serializable {
 		}
 	}
 	
+	/**
+	 * 쓰레드용 클래스
+	 */
 	public class ConsumerT implements Serializable {
 		private static final long serialVersionUID = 7697840079748720000L;
 		private COL_LWM2M read;
@@ -246,7 +250,7 @@ public class AvroLWM2MDataSparkSubscribe implements Serializable {
 	 *   생성된 triple파일을 fuseki에 전송
 	 * @param sb
 	 * @param start_time
-	 * @return
+	 * @return Map<String, String>
 	 * @throws Exception
 	 */
 	private Map<String, String> sendTriples(StringBuffer sb, String start_time) throws Exception {

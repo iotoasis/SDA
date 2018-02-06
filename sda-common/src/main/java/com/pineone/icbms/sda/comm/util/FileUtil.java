@@ -27,6 +27,9 @@ import java.util.List;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
  
+/**
+ * 파일처리 유틸성 클래스
+ */
 public class FileUtil {
 	public static final String langXML          = "RDF/XML" ;
 	public static final String langXMLAbbrev    = "RDF/XML-ABBREV" ;
@@ -72,7 +75,7 @@ public class FileUtil {
 	 *   파일 확장자에 따른 온톨로지 파일 유형 판단.
 	 * @param name
 	 * @param otherwise
-	 * @return
+	 * @return String
 	 */
 	public static String guessLang( String name, String otherwise )
 	{        
@@ -94,7 +97,7 @@ public class FileUtil {
 	/**
 	 *   아스키 체크
 	 * @param ch
-	 * @return
+	 * @return boolean
 	 */
 	public static boolean isASCIILetter(char ch)
 	{
@@ -104,7 +107,7 @@ public class FileUtil {
 	/**
 	 *   OS에 따른 폴더 구분자 
 	 * @param dir
-	 * @return
+	 * @return String
 	 */
 	public static String getDirectoryDelimeter(String dir){
 		if(System.getProperty("os.name").toLowerCase().startsWith("windows")){
@@ -114,6 +117,10 @@ public class FileUtil {
 		}
 	}
 
+	/**
+	 * 디렉토리 구분자 
+	 * @return String
+	 */
 	public static String getDirectoryDelimeter(){
 		if(System.getProperty("os.name").toLowerCase().startsWith("windows")){
 			return  "\\";
@@ -122,10 +129,20 @@ public class FileUtil {
 		}
 	}
 
+	/**
+	 * 파일을 문자열로 리턴
+	 * @param source
+	 * @return String
+	 */
 	public static String fileToString(File source){
 		return fileToStringBuffer(source).toString();
 	}
 
+	/**
+	 * 파일을 문자열 버퍼에 읽기
+	 * @param source
+	 * @return StringBuffer
+	 */
 	public static StringBuffer fileToStringBuffer(File source){
 		BufferedReader br =  fileModelReader(source, encodingUTF8);
 		StringBuffer sb = new StringBuffer();
@@ -149,14 +166,31 @@ public class FileUtil {
 	}
 
 
+	/**
+	 * 파일 모델 리더
+	 * @param source
+	 * @return BufferedReader
+	 */
 	public static BufferedReader fileModelReader(File source){
 		return fileModelReader(source, 0);
 	}
 
+	/**
+	 * 파일 모델 리더
+	 * @param source
+	 * @param encoding
+	 * @return BufferedReader
+	 */
 	public static BufferedReader fileModelReader(File source, String encoding){
 		return fileModelReader(source, 0, encoding);
 	}
 
+	/**
+	 * 파일 모델 리더
+	 * @param source
+	 * @param sz
+	 * @return BufferedReader
+	 */
 	public static BufferedReader fileModelReader(File source, int sz){
 		BufferedReader br = null;
 		try {
@@ -176,7 +210,7 @@ public class FileUtil {
 	 *   파일로딩(인코딩), BOM(byte order mark)에 대한 체크 수행함.
 	 * @param source
 	 * @param encoding
-	 * @return
+	 * @return InputStream
 	 */
 	public static InputStream fileInputStream(File source, String encoding) {
 		try {
@@ -189,6 +223,13 @@ public class FileUtil {
 		return null;
 	}
 
+	/**
+	 * 파일을 지정한 사이즈 만큼 읽기
+	 * @param source
+	 * @param size
+	 * @param encoding
+	 * @return InputStream
+	 */
 	public static InputStream fileInputStream(File source, int size, String encoding) {
 		try {
 			if(size == 0)
@@ -203,6 +244,11 @@ public class FileUtil {
 		return null;
 	}
 	
+	/**
+	 * InputStream을 Byte로 가져오기
+	 * @param is
+	 * @return byte[]
+	 */
 	static byte[] getInputStreamToBytes(InputStream is) {
 		int read = 0;
 		byte[] bytes = new byte[1024*1024*2];
@@ -216,6 +262,13 @@ public class FileUtil {
 		return bos.toByteArray();
 	}
 	
+	/**
+	 * 파일 모델 리더
+	 * @param source
+	 * @param sz
+	 * @param encoding
+	 * @return BufferedReader
+	 */
 	public static BufferedReader fileModelReader(File source, int sz, String encoding){
 		return fileModelReader(source, sz, encoding, false);
 	}
@@ -226,7 +279,7 @@ public class FileUtil {
 	 * @param sz
 	 * @param encoding
 	 * @param force
-	 * @return
+	 * @return BufferedReader
 	 */
 	public static BufferedReader fileModelReader(File source, int sz, String encoding, boolean force){
 		BufferedReader br = null;
@@ -281,6 +334,12 @@ public class FileUtil {
 		return br;
 	}
 	
+	/**
+	 * 파일 모델 InputStream
+	 * @param source
+	 * @param encoding
+	 * @return InputStream
+	 */
 	public static InputStream fileModelInputStream(File source, String encoding){
 		FileInputStream fis = null;
 		InputStream is = null;
@@ -315,6 +374,11 @@ public class FileUtil {
 	}
 
 	
+	/**
+	 * 캐릭터셋 확인
+	 * @param input
+	 * @return CharsetMatch
+	 */
 	public static CharsetMatch checkCharset(byte[] input) {
 		CharsetDetector cd = new CharsetDetector();
 		cd.setText(input);
@@ -323,6 +387,11 @@ public class FileUtil {
 		return cm;
 	}
 	
+	/**
+	 * 캐릭터셋 확인
+	 * @param input
+	 * @return CharsetMatch
+	 */
 	public static CharsetMatch checkCharset(InputStream input) {
 		CharsetDetector cd = new CharsetDetector();
 		try {
@@ -342,7 +411,7 @@ public class FileUtil {
 	/**
 	 * 파일의 BOM 제거 if exist.
 	 * @param inputStream
-	 * @return
+	 * @return InputStream
 	 * @throws IOException
 	 */
 	public static InputStream checkForUtf8ByteOrderMark(InputStream inputStream) throws IOException {
@@ -360,7 +429,7 @@ public class FileUtil {
 	/**
 	 * Get the directory part of a filename
 	 * @param filename
-	 * @return Directory name
+	 * @return String
 	 */
 	public static String getDirname(String filename)
 	{
@@ -371,7 +440,7 @@ public class FileUtil {
 	/** Get the basename of a filename
 	 * 
 	 * @param filename
-	 * @return Base filename.
+	 * @return String
 	 */
 	public static String getBasename(String filename)
 	{
@@ -391,12 +460,18 @@ public class FileUtil {
 	/**
 	 * 특정 폴더의 파일과 폴더를 모두 지운다.
 	 * @param dir
-	 * @return
+	 * @return boolean
 	 */
 	public static boolean deleteDir(String dir) {
 		return deleteDir(dir, true);
 	}
 	
+	/**
+	 * 특정 폴더의 파일과 폴더를 모두 지운다.
+	 * @param dir
+	 * @param deleteOwner
+	 * @return boolean
+	 */
 	public static boolean deleteDir(String dir, boolean deleteOwner) {
 		boolean success = false;
 		File dirs = new File(dir);
@@ -409,6 +484,11 @@ public class FileUtil {
 		return success;
 	}
 	
+	/**
+	 * 여러파일 지우기
+	 * @param dir
+	 * @return boolean
+	 */
 	public static boolean deleteFiles(String dir) {
 		boolean success = false;
 		File dirs = new File(dir);
@@ -422,6 +502,11 @@ public class FileUtil {
 		return success;
 	}
 
+	/**
+	 * 파일 지우기
+	 * @param f
+	 * @return boolean
+	 */
 	public static boolean deleteFile(String f) {
 		boolean success = false;
 
@@ -433,6 +518,11 @@ public class FileUtil {
 		return success;
 	}
 
+	/**
+	 * 하위디렉토리 삭제
+	 * @param subdir
+	 * @return void
+	 */
 	private static void deleteSubDir(File subdir) {
 		if(subdir.isFile()) {
 			if(subdir.exists()) 
@@ -446,6 +536,12 @@ public class FileUtil {
 		}
 	}
 
+	/**
+	 * 파일 목록
+	 * @param path
+	 * @param allowedExtension
+	 * @return List<File>
+	 */
 	public static List<File> getFiles(String path, String[] allowedExtension) {
 		List<File> r = new ArrayList<File>();
 		File rfolder = new File(path);
@@ -461,12 +557,24 @@ public class FileUtil {
 		return r;
 	}
 	
+	/**
+	 * 파일 목록
+	 * @param path
+	 * @param allowedExtension
+	 * @return File[]
+	 */
 	public static File[] listFiles(String path, String[] allowedExtension) {
 		List<File> fs = getFiles(path, allowedExtension);
 		
 		return fs.toArray(new File[fs.size()]);
 	}
 	
+	/**
+	 * 절대경로 포함 목록
+	 * @param path
+	 * @param allowedExtension
+	 * @return List<File>
+	 */
 	public static List<File> getAbsoluteFiles(String path, String[] allowedExtension) {
 		List<File> r = new ArrayList<File>();
 		File rfolder = new File(path);
@@ -482,6 +590,12 @@ public class FileUtil {
 		return r;
 	}
 
+	/**
+	 * 절대경로 포함 목록
+	 * @param path
+	 * @param allowedExtension
+	 * @return List<String>
+	 */
 	public static List<String> getAbsoluteFiles2List(String path, String[] allowedExtension) {
 		List<String> r = new ArrayList<String>();
 		File rfolder = new File(path);
@@ -497,6 +611,12 @@ public class FileUtil {
 		return r;
 	}
 	
+	/**
+	 * 상대경로 포함 목록
+	 * @param path
+	 * @param allowedExtension
+	 * @return List<String>
+	 */
 	public static List<String> getCanonicalFiles2List(List<String> path, String[] allowedExtension) {
 		List<String> r = new ArrayList<String>();
 		for(String p: path) {
@@ -522,6 +642,13 @@ public class FileUtil {
 		return r;
 	}
 	
+	/**
+	 * 상대경로 포함 목록
+	 * @param path
+	 * @param allowedExtension
+	 * @param checkExt
+	 * @return List<String>
+	 */
 	public static List<String> getCanonicalFiles2List(String[] path, String[] allowedExtension, boolean checkExt) {
 		List<String> r = new ArrayList<String>();
 		for(String p: path) {
@@ -545,6 +672,12 @@ public class FileUtil {
 		return r;
 	}
 	
+	/**
+	 * 파일 목록
+	 * @param path
+	 * @param allowedExtension
+	 * @return List<String>
+	 */
 	public static List<String> getFiles2List(String path, String[] allowedExtension) {
 		List<String> r = new ArrayList<String>();
 		File rfolder = new File(path);
@@ -560,6 +693,12 @@ public class FileUtil {
 		return r;
 	}
 	
+	/**
+	 * 파일목록
+	 * @param paths
+	 * @param allowedExtension
+	 * @return List<String>
+	 */
 	public static List<String> getFiles2List(String[] paths, String[] allowedExtension) {
 		List<String> r = new ArrayList<String>();
 		for (String p: paths) {
@@ -571,11 +710,21 @@ public class FileUtil {
 		return r;
 	}
 
+	/**
+	 * 디렉토리 목록
+	 * @param path
+	 * @return String[]
+	 */
 	public static String[] getDirsArray(String path){
 		List<String> ds = getDirs(path);
 		return ds.toArray(new String[ds.size()]);
 	}
 
+	/**
+	 * 디렉토리 목록
+	 * @param path
+	 * @return List<String>
+	 */
 	public static List<String> getDirs(String path){
 		List<String> r = new ArrayList<String>();
 		File rfolder = new File(path);
@@ -591,6 +740,12 @@ public class FileUtil {
 		return r;
 	}
 	
+	/**
+	 * 디렉토리 목록
+	 * @param pathAll
+	 * @param path
+	 * @return List<String>
+	 */
 	public static List<String> getDirs(List<String> pathAll, String path){
 		File rfolder = new File(path);
 		if(rfolder.exists() && rfolder.isDirectory()) {
@@ -608,6 +763,11 @@ public class FileUtil {
 		return pathAll;
 	}
 	
+	/**
+	 * 디렉토리 목록
+	 * @param path
+	 * @return List<String>
+	 */
 	public static List<String> getAbsDirs(String path){
 		List<String> r = new ArrayList<String>();
 		File rfolder = new File(path);
@@ -623,6 +783,12 @@ public class FileUtil {
 		return r;
 	}
 
+	/**
+	 * 허용가능한 확장자
+	 * @param fExt
+	 * @param allowedExtension
+	 * @return boolean
+	 */
 	private static boolean isAllowedExtension(String fExt, String[] allowedExtension) {
 		for(String ext: allowedExtension) {
 			if(fExt.endsWith(ext))
@@ -631,6 +797,13 @@ public class FileUtil {
 		return false;
 	}
 
+	/**
+	 * 파일에 쓰기
+	 * @param fileName
+	 * @param content
+	 * @param encode
+	 * @return boolean
+	 */
 	public static boolean writeFile(String fileName, String content, String encode){
 		OutputStreamWriter osw = null;
 		boolean success = false;
@@ -653,6 +826,12 @@ public class FileUtil {
 		return success;	
 	}
 
+	/**
+	 * 파일 복사
+	 * @param sourceFile
+	 * @param targetFile
+	 * @return void
+	 */
 	public static void copyFile(File sourceFile, File targetFile){
 		FileInputStream source;
 		FileOutputStream destination;
@@ -672,6 +851,13 @@ public class FileUtil {
 		} 
 	}
 
+	/**
+	 * 채널로 파일복사
+	 * @param aSourceFile
+	 * @param aTargetFile
+	 * @param aAppend
+	 * @return void
+	 */
 	public static void copyWithChannels(File aSourceFile, File aTargetFile, boolean aAppend) {
 		ensureTargetDirectoryExists(aTargetFile.getParentFile());
 		FileChannel inChannel = null;
@@ -706,6 +892,13 @@ public class FileUtil {
 		}
 	}
 
+	/**
+	 * 스트림으로 파일복사
+	 * @param aSourceFile
+	 * @param aTargetFile
+	 * @param aAppend
+	 * @return void
+	 */
 	public static void copyWithStreams(File aSourceFile, File aTargetFile, boolean aAppend) {
 		ensureTargetDirectoryExists(aTargetFile.getParentFile());
 		InputStream inStream = null;
@@ -736,6 +929,11 @@ public class FileUtil {
 		}
 	}
 
+	/**
+	 * 목적지 디렉토리 생성
+	 * @param aTargetDir
+	 * @return void
+	 */
 	public static void ensureTargetDirectoryExists(File aTargetDir){
 		if(!aTargetDir.exists()){
 			aTargetDir.mkdirs();

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Base64;
@@ -84,8 +83,6 @@ public class Utils {
 	public  static final String HBASE_ZOOKEEPER_HOST = "sda1,sda2,sda3";
 	public  static final String HBASE_ZOOKEEPER_PORT = "2181";
 	
-	// zookeeper
-	
 	// 날짜형식
 	public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 	public static final SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");	
@@ -130,7 +127,6 @@ public class Utils {
 	
 	public static final String COL_SS_DEVICEINFO_DATA= "COL-SS-DEVICEINFO-DATA";
 	public static final String COL_SS_TIMETABLE_WATT_DATA= "COL-SS-TIMETABLE-WATT-DATA";
-	
 	
 	// SO 결과 리턴 구분(emergency)
 	public static final String CALLBACK_EMERGENCY = "occ-emergency";
@@ -222,6 +218,10 @@ public class Utils {
 		return resultMsg;
 	}
 
+	/**
+	 * sparql문장의 header
+	 * @return String
+	 */
 	public static final String getSparQlHeader() {
 		String sparQlHeader = ""
 		        +"prefix swrlb: <http://www.w3.org/2003/11/swrlb#>  \n"
@@ -252,6 +252,10 @@ public class Utils {
 		return sparQlHeader;
 	}
 	
+	/**
+	 * triple file 처리를 위한 header
+	 * @return String
+	 */
 	public static final String getHeaderForTripleFile() {
 	    String headerForTripleFile = ""
 	        +"@prefix swrlb: <http://www.w3.org/2003/11/swrlb#> . \n"
@@ -285,7 +289,7 @@ public class Utils {
 	/**
 	 *   설정정보 읽기
 	 * @param envName
-	 * @return
+	 * @return String
 	 */
 	public static synchronized String getSdaProperty(String envName) {
 		String getValue = "";
@@ -319,7 +323,7 @@ public class Utils {
 	 * @param uri
 	 * @param data
 	 * @param headers
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public static final ResponseMessage requestPut(String uri, String data, Map<String, String> headers) throws Exception {
@@ -378,7 +382,7 @@ public class Utils {
 	 *   DELETE요청
 	 * @param uri
 	 * @param headers
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public static final ResponseMessage requestDelete(String uri, Map<String, String> headers) throws Exception {
@@ -438,7 +442,7 @@ public class Utils {
 	 * @param uri
 	 * @param data
 	 * @param headers
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public static final ResponseMessage requestPost(String uri, String data, Map<String, String> headers) throws Exception {
@@ -498,7 +502,7 @@ public class Utils {
 	 *   POST요청
 	 * @param uri
 	 * @param data
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public static final ResponseMessage requestPost(String uri, String data) throws Exception {
@@ -512,7 +516,7 @@ public class Utils {
 	/**
 	 *   GET요청
 	 * @param uri
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public static final ResponseMessage requestGet(String uri) throws Exception {
@@ -527,7 +531,7 @@ public class Utils {
 	 *   GET요청
 	 * @param uri
 	 * @param headers
-	 * @return
+	 * @return ResponseMessage
 	 * @throws Exception
 	 */
 	public static final ResponseMessage requestGet(String uri, Map<String, String> headers) throws Exception {
@@ -584,7 +588,7 @@ public class Utils {
 	/**
 	 *   uri로 부터 부모 객채를 식별 
 	 * @param inputUri
-	 * @return
+	 * @return ResponseMessage
 	 */
 	public static final String getParentURI(String inputUri) {
 		if (inputUri.contains("/")) {
@@ -594,6 +598,11 @@ public class Utils {
 		}
 	}
 	
+	/**
+	 * fuseki 프로세스 지우기
+	 * @throws Exception
+	 * @return String[]
+	 */
 	private static String[] killFuseki() throws Exception {
 		String[] result = new String[]{"",""};
 		String[] args = { "ps","aux", "|", "grep", "-i", "fuseki-server", "|", "awk", "{'print $2'}", "|", "head","-1", "|","xargs", "kill"};
@@ -607,11 +616,9 @@ public class Utils {
 			sb.append(" ");
 		}
 
-		// 실행
 		try {
 			result = Utils.runShell(sb);
 		} catch (Exception ee) {
-			// 로그출력하고 무시함
 			log.debug("runShell exception : "+ee.getMessage());
 		}
 
@@ -624,7 +631,7 @@ public class Utils {
 	
 	/**
 	 *   fuseki 재기동
-	 * @return
+	 * @return String[]
 	 * @throws Exception
 	 */
 	private static String[] startFuseki() throws Exception {
@@ -654,7 +661,8 @@ public class Utils {
 	}
 
 	/**
-	 *   DW데이타 초기화
+	 *   DW데이타 지우기
+	 * @return void	    
 	 * @throws Exception
 	 */
 	public static final void deleteDWTripleAll() throws Exception {
@@ -664,6 +672,11 @@ public class Utils {
 	}
 	
 	
+	/**
+	 * DW데이타 지우기
+	 * @throws Exception
+	 * @return void
+	 */
 	public static final void deleteDWTripleAll2() throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint");
 
@@ -677,6 +690,7 @@ public class Utils {
 	/**
 	 *   DM데이타 초기화
 	 * @throws Exception
+	 * @return void
 	 */
 	public static final void deleteDMTripleAll() throws Exception {
 		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint");
@@ -687,6 +701,7 @@ public class Utils {
 	/**
 	 *   fuseki 재기동
 	 * @throws Exception
+	 * @return void 
 	 */
 	public static final void restartFuseki() throws Exception {
 		log.debug("fuseki-server restart start ...................");
@@ -700,7 +715,7 @@ public class Utils {
 	/**
 	 *   Shell수행
 	 * @param args
-	 * @return
+	 * @return String[]
 	 * @throws Exception
 	 */
 	public static final String[] runShell(StringBuilder args) throws Exception {
@@ -767,7 +782,7 @@ public class Utils {
 	/**
 	 *   폴더 생성
 	 * @param save_path
-	 * @return
+	 * @return String
 	 */
 	public static final String makeSavePath(String save_path) {
 		save_path = save_path + "/" + Utils.sysdateFormat.format(new Date());
@@ -783,7 +798,7 @@ public class Utils {
 	/**
 	 *   날짜 계산
 	 * @param iDay
-	 * @return
+	 * @return String
 	 */
 	public static final String getDate ( int iDay ) 
 	{
@@ -811,7 +826,7 @@ public class Utils {
 	/**
 	 *   Device정보 리턴
 	 * @param deviceUri
-	 * @return
+	 * @return String
 	 * @throws Exception
 	 */
 	public static String getDeviceInfo(String deviceUri) throws Exception {
@@ -826,6 +841,12 @@ public class Utils {
 		return out.toString();
 	}
 
+	/**
+	 * pass여부 확인
+	 * @param args
+	 * @throws Exception
+	 * @return boolean
+	 */
 	public static boolean checkPass(String args) throws Exception {
 		String pass = Utils.sysdateFormat.format(new Date());
 		
@@ -839,6 +860,12 @@ public class Utils {
 		}
 	}
 	
+	/**
+	 * 호스트명 
+	 * @return
+	 * @throws Exception
+	 * @return String
+	 */
 	public static String getHostName() throws Exception {
 		return InetAddress.getLocalHost().getHostName().trim().toLowerCase();
 	}
@@ -846,7 +873,7 @@ public class Utils {
 	/**
 	 *   Base64 엔코딩 여부
 	 * @param str
-	 * @return
+	 * @return boolean
 	 */
 	public static boolean isBase64Encoded(String str) 	{
 	    try {

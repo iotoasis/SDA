@@ -7,23 +7,32 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import com.pineone.icbms.sda.comm.sch.dto.SchDTO;
-import com.pineone.icbms.sda.comm.sch.dto.SchHistDTO; 
+import com.pineone.icbms.sda.comm.sch.dto.SchHistDTO;
 import com.pineone.icbms.sda.comm.service.Sch2Service;
 import com.pineone.icbms.sda.comm.service.Sch2ServiceImpl;
 import com.pineone.icbms.sda.comm.util.Utils;
 
+/**
+ * 스케줄러 공통 클래스
+ */
 public class SchComm {
 	SchDTO schDTO = null;
-	
 	private final Sch2Service sch2Service = new Sch2ServiceImpl();
-
 	private final Log log = LogFactory.getLog(this.getClass());
-
-	// 사용자id(나중에 적절한 값으로 변경해야합니다.)
 	private final String user_id =this.getClass().getName();
 	
-	// schHist테이블에 데이타 insert
+	/**
+	 * 스케줄 히스토리 등록
+	 * @param task_group_id
+	 * @param task_id
+	 * @param start_time
+	 * @param work_cnt
+	 * @param end_time
+	 * @throws Exception
+	 * @return int
+	 */
 	public int insertSchHist(String task_group_id, String task_id, String start_time, int work_cnt, String end_time) throws Exception {
 		log.debug("insertSchHist in SchComm start...."); 
 		int updateCnt = 0;
@@ -57,12 +66,32 @@ public class SchComm {
 		return updateCnt;
 	}
 
-	// SchHist에 finish time, work_result를 update
+	/**
+	 * 최종작업일시를 업데이트
+	 * @param task_group_id
+	 * @param task_id
+	 * @param start_time
+	 * @param finish_time
+	 * @param work_result
+	 * @throws Exception
+	 * @return int
+	 */
 	public int updateFinishTime(String task_group_id, String task_id, String start_time, String finish_time, String work_result) throws Exception {
 		return updateFinishTime(task_group_id, task_id, start_time, finish_time, work_result, Utils.None, Utils.None);
 	}
 
-	// SchHist에 finish time, work_result, triple_file_name, triple_check_result를 update
+	/**
+	 * 종료시간 업데이트
+	 * @param task_group_id
+	 * @param task_id
+	 * @param start_time
+	 * @param finish_time
+	 * @param work_result
+	 * @param triple_file_name
+	 * @param triple_check_result
+	 * @throws Exception
+	 * @return int
+	 */
 	public int updateFinishTime(String task_group_id, String task_id, String start_time, String finish_time, String work_result, 	String triple_file_name, String triple_check_result) throws Exception {
 		log.debug("updateFinishTime in SchComm start.....");
 		
@@ -97,7 +126,14 @@ public class SchComm {
 		return updateCnt;
 	}
 
-	// Sch에 last_work_time을 update
+	/**
+	 * 마지막 작업시간 업데이트
+	 * @param task_group_id
+	 * @param task_id
+	 * @param endDate
+	 * @throws Exception
+	 * @return int
+	 */
 	public int updateLastWorkTime(String task_group_id, String task_id, String endDate) throws Exception {
 		log.debug("updateLastWorkTime in SchComm start.....");
 		

@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.comm.sch.dto;
 
+/**
+ * 집계용 DTO
+ */
 public class AggrDTO {
 
 	private String aggr_id;

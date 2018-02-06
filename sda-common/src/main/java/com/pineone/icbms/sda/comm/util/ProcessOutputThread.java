@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-//스레드로 inputStream 버퍼 비우기 위한 클래스 생성
+/**
+ * 스레드로 inputStream 버퍼 비우기 위한 클래스 
+ */
 public class ProcessOutputThread extends Thread {
 	private InputStream is;
 	private StringBuffer msg;

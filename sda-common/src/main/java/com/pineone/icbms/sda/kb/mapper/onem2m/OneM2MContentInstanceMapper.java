@@ -32,7 +32,6 @@ import com.pineone.icbms.sda.sf.QueryService;
 import com.pineone.icbms.sda.sf.QueryServiceFactory;
 import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 
-
 /**
  *   ContentInstance용 Mapper클래스
  */
@@ -58,18 +57,35 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		return createDate;
 	}
 
+	/**
+	 * 생성일 설정
+	 * @param createDate
+	 * @return void
+	 */
 	public void setCreateDate(String createDate) {
 		this.createDate = createDate;
 	}
 
+	/**
+	 * 수정일
+	 * @return String
+	 */
 	public String getLastModifiedDate() {
 		return lastModifiedDate;
 	}
 
+	/**
+	 * 수정일 설정
+	 * @param lastModifiedDate
+	 * @return void
+	 */
 	public void setLastModifiedDate(String lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 
+	/**
+	 * Content Type
+	 */
 	public enum EnumContentType {
 		userinout, survey, normal, presence, present, dormapp_temperature
 	}
@@ -236,7 +252,6 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 					+" prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 					+" insert data { <@{arg0}> o:hasInHouse \"@{arg1}\"^^xsd:string . }" ;
 			
-			// 필요한 값 추출 시작
 			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 			encodedContent = StringEscapeUtils.unescapeJava(this.dto.getCon()).getBytes();
 			String tmp_ret = new String(Base64.decodeBase64(encodedContent));
@@ -258,13 +273,11 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 			} else {
 				ret =  "N";
 			}
-			// 필요한 값 추출 끝			
 			
 			Literal inhouse = model.createLiteral(ret);
 			slist.add(model.createStatement(contentInstance,
 					model.createProperty("http://www.iotoasis.org/ontology/hasInHouse"), inhouse));
 			
-			//hasInHouse값을 DM에 입력함
 			try {
 				QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
 				((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).updateSparql(delete_hasInHouse_ql, insert_hasInHouse_ql, new String[]{this.getInstanceUri(), ret}, Utils.QUERY_DEST.DM.toString());
@@ -316,6 +329,10 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		return slist;
 	}
 
+	/**
+	 * content type 설정
+	 * @return void
+	 */
 	public void setContentType() {
 		if (this.dto.get_uri().toLowerCase().contains(EnumContentType.survey.toString())) {
 			this.setContentType(EnumContentType.survey);
@@ -330,14 +347,28 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 		}
 	}
 
+	/**
+	 * content type가져오기
+	 * @return String
+	 */
 	public String getContentType() {
 		return contentType;
 	}
 
+	/**
+	 * content type 설정
+	 * @param contentType
+	 * @return void
+	 */
 	public void setContentType(Enum contentType) {
 		this.contentType = contentType.toString();
 	}
 
+	/**
+	 * typed content type 가져오기
+	 * @param con
+	 * @return Literal
+	 */
 	public Literal getTypedContent(String con) {
 		try {
 
@@ -352,20 +383,34 @@ public class OneM2MContentInstanceMapper implements OneM2MMapper {
 
 	}
 
+	/**
+	 * instance uri 가져오기
+	 * @return String
+	 */
 	public String getInstanceUri(){
 		return baseuri + this.dto.get_uri();
 	}
 	
+	/**
+	 * content 가져오기
+	 * @return String
+	 */
 	public String getContent() {
 		return this.content;
 	}
 	
+	/**
+	 * 부모 리소스 uri 가져오기
+	 * @return String
+	 */
 	public String getParentResourceUri(){
-		
 		return baseuri + Utils.getParentURI(dto.get_uri());
 	}
 	
-	// gooper
+	/**
+	 * 커넥션 닫기
+	 * @return void
+	 */
 	public void close() {
 		if(! model.isClosed()) model.close();
 	}
