@@ -10,7 +10,7 @@ import com.pineone.icbms.sda.itf.cmi.dto.CmiDTO;
 import com.pineone.icbms.sda.sch.comm.dao.AbstractDAO;
 
 /**
- * CMI정보를 처리하는 DAO
+ * CMI용 DAO
  */
 @Repository("cmiDAO")
 public class CmiDAO extends AbstractDAO{
@@ -22,7 +22,7 @@ public class CmiDAO extends AbstractDAO{
 	/**
 	 * 등록
 	 * @param map
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked") 
@@ -36,7 +36,7 @@ public class CmiDAO extends AbstractDAO{
 	/**
 	 * 수정
 	 * @param map
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked") 
@@ -50,7 +50,7 @@ public class CmiDAO extends AbstractDAO{
 	/**
 	 * 삭제
 	 * @param map
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked") 
@@ -60,5 +60,4 @@ public class CmiDAO extends AbstractDAO{
 		cnt = Integer.parseInt(insert("itf.cmi.delete", list).toString());
 		return cnt;
 	}
-
 }

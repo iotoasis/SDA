@@ -26,7 +26,6 @@ public class CmiServiceImpl implements CmiService{
 	 */
 	public List<CmiDTO> selectList(Map<String, Object> commandMap) throws Exception {
 		List<CmiDTO> list = new ArrayList<CmiDTO>();
-		//list = cmiDAO.selectList(commandMap);
 
 		if (list == null || list.size() == 0) {
 			throw new UserDefinedException(HttpStatus.NOT_FOUND);
@@ -55,6 +54,4 @@ public class CmiServiceImpl implements CmiService{
 	public int delete(String cmid) throws Exception {
 		return Integer.parseInt(cmiDAO.delete("itf.cmi.delete", cmid).toString()) ;
 	}
-
-	
 }

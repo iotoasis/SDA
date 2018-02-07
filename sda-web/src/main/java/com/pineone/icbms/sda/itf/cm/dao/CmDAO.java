@@ -11,14 +11,14 @@ import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 import com.pineone.icbms.sda.sch.comm.dao.AbstractDAO;
 
 /**
- * CM정보를 담고 있는 DAO
+ * CM용 DAO
  */
 @Repository("cmDAO")
 public class CmDAO extends AbstractDAO{
 	/**
 	 * 목록 조회
 	 * @param commandMap
-	 * @return
+	 * @returnList<CmCiDTO>
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
@@ -29,7 +29,7 @@ public class CmDAO extends AbstractDAO{
 	/**
 	 * 단건 조회
 	 * @param commandMap
-	 * @return
+	 * @return CmCiDTO
 	 * @throws Exception
 	 */
 	public CmCiDTO selectCmCmiCiOne(Map<String, Object> commandMap) throws Exception{
@@ -39,7 +39,7 @@ public class CmDAO extends AbstractDAO{
 	/**
 	 * 조회
 	 * @param commandMap
-	 * @return
+	 * @return List<Map<String, Object>>
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
@@ -50,7 +50,7 @@ public class CmDAO extends AbstractDAO{
 	/**
 	 * 목록조회
 	 * @param commandMap
-	 * @return
+	 * @return List<CmCiDTO>
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
@@ -61,7 +61,7 @@ public class CmDAO extends AbstractDAO{
 	/**
 	 * 등록
 	 * @param map
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked") 
@@ -75,7 +75,7 @@ public class CmDAO extends AbstractDAO{
 	/**
 	 * 삭제
 	 * @param commandMap
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	public int delete(Map<String, Object> commandMap) throws Exception {
@@ -96,7 +96,7 @@ public class CmDAO extends AbstractDAO{
 	/**
 	 * 단건조히
 	 * @param commandMap
-	 * @return
+	 * @return CmDTO
 	 * @throws Exception
 	 */
 	public CmDTO selectOne(Map<String, Object> commandMap) throws Exception{
@@ -106,11 +106,10 @@ public class CmDAO extends AbstractDAO{
 	/**
 	 * ID체크
 	 * @param cmid
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	public int checkId(String cmid) throws Exception {
 		return Integer.parseInt(selectOne("itf.cm.checkId", cmid).toString());
 	}
-
 }

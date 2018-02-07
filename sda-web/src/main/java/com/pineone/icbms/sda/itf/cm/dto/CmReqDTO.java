@@ -4,7 +4,6 @@ package com.pineone.icbms.sda.itf.cm.dto;
  * CM 요청 정보를 담는 DTO
  */
 public class CmReqDTO {
-	
 	private String cmid;
 	private String ciid;
 	private String cmname;

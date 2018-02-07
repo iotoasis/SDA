@@ -1,7 +1,7 @@
 package com.pineone.icbms.sda.itf.cm.dto;
 
 /**
- * CM-CI연결 정보를 담는 DTO
+ * CM-CI 정보를 담는 DTO
  */
 public class CmCiDTO {
 

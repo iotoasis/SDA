@@ -4,7 +4,6 @@ package com.pineone.icbms.sda.itf.ci.dto;
  * CI정보를 담고 있는 DTO
  */
 public class CiDTO {
-
 	private String ciid;
 	private String ciname;
 	private String conditions;

@@ -1,8 +1,6 @@
 package com.pineone.icbms.sda.kb.dto;
 
 import org.apache.jena.rdf.model.Statement;
-
-import com.google.gson.Gson;
 import com.pineone.icbms.sda.kb.model.TripleMap;
 
 /**
@@ -49,13 +47,11 @@ public class UserInOutInfoDTO implements OneM2MDTO{
 
 	@Override
 	public TripleMap<Statement> getTriples() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getStringId() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

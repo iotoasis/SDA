@@ -17,7 +17,7 @@ public class TemplateDAO extends AbstractDAO {
 	/**
 	 * 
 	 * @param commandMap
-	 * @return
+	 * @return List<TemplateDTO>
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
@@ -28,7 +28,7 @@ public class TemplateDAO extends AbstractDAO {
 	/**
 	 * 단건 조회
 	 * @param commandMap
-	 * @return
+	 * @return TemplateDTO
 	 * @throws Exception
 	 */
 	public TemplateDTO selectOne(Map<String, Object> commandMap) throws Exception{
@@ -38,7 +38,7 @@ public class TemplateDAO extends AbstractDAO {
 	/**
 	 * ID체크
 	 * @param tmid
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	public int checkId(String tmid) throws Exception {

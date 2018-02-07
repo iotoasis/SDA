@@ -52,7 +52,7 @@ public class CmController {
 	/**
 	 * 목록조회
 	 * @param commandMap
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/cm/all", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
@@ -89,7 +89,7 @@ public class CmController {
 	/**
 	 * 단건 조회
 	 * @param cmid
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/cm/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectOne(@PathVariable String cmid) {
@@ -130,7 +130,7 @@ public class CmController {
 	/**
 	 * 목록조회
 	 * @param commandMap
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/cmcmici", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectCmCmiCiList(Map<String, Object> commandMap) {
@@ -167,7 +167,7 @@ public class CmController {
 	/**
 	 * 단건조회
 	 * @param cmid
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/cmcmici/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectCmCmiCiOne(@PathVariable String cmid) {
@@ -208,7 +208,7 @@ public class CmController {
 	/**
 	 * 삭제
 	 * @param cmid
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/cm/{cmid}", method = RequestMethod.DELETE)
 	public  @ResponseBody ResponseEntity<ResponseMessage> delete(@PathVariable String cmid) {
@@ -250,7 +250,7 @@ public class CmController {
 	/**
 	 * 등록
 	 * @param cmReqDTO
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/cm", method = RequestMethod.POST)
 	public @ResponseBody ResponseEntity<ResponseMessage> insert(@RequestBody CmReqDTO cmReqDTO) {
@@ -361,7 +361,7 @@ public class CmController {
 	/**
 	 * 수정
 	 * @param cmReqDTO
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/cm", method = RequestMethod.PUT)
 	public @ResponseBody ResponseEntity<ResponseMessage> update(@RequestBody CmReqDTO cmReqDTO) {

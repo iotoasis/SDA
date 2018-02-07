@@ -13,6 +13,9 @@ import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.itf.template.dao.TemplateDAO;
 import com.pineone.icbms.sda.itf.template.dto.TemplateDTO;
 
+/**
+ * 템플릿 서비스 구현체
+ */
 @Service("templateService")
 public class TemplateServiceImpl implements TemplateService {
 

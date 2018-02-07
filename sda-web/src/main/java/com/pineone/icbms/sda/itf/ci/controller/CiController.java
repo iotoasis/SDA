@@ -48,7 +48,7 @@ public class CiController {
 	/**
 	 * ci목록 조회
 	 * @param commandMap
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/ci/all", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
@@ -85,7 +85,7 @@ public class CiController {
 	/**
 	 * 한건 조회
 	 * @param ciid
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/ci/{ciid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectOne(@PathVariable String ciid) {
@@ -126,7 +126,7 @@ public class CiController {
 	/**
 	 * ci 삭제
 	 * @param ciid
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/ci/{ciid}", method = RequestMethod.DELETE)
 	public  @ResponseBody ResponseEntity<ResponseMessage> delete(@PathVariable String ciid) {
@@ -168,7 +168,7 @@ public class CiController {
 	/**
 	 * CI등록
 	 * @param tempReqDTO
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/ci", method = RequestMethod.POST)
 	public @ResponseBody ResponseEntity<ResponseMessage> insert(@RequestBody TemplateReqDTO tempReqDTO) {
@@ -271,7 +271,7 @@ public class CiController {
 	/**
 	 * CI정보 수정
 	 * @param tempReqDTO
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/ci", method = RequestMethod.PUT)
 	public @ResponseBody ResponseEntity<ResponseMessage> update(@RequestBody TemplateReqDTO tempReqDTO) {
@@ -374,7 +374,7 @@ public class CiController {
 	/**
 	 * CI등록
 	 * @param cmDTO
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/ci/", method = RequestMethod.POST)
 	public int insert(@RequestBody CiDTO[] cmDTO) {

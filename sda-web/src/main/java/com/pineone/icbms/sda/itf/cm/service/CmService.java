@@ -14,7 +14,7 @@ public interface CmService {
 	/**
 	 * 목록조회
 	 * @param commandMap
-	 * @return
+	 * @return List<CmCiDTO>
 	 * @throws Exception
 	 */
 	public List<CmCiDTO> selectCmCmiCiList(Map<String, Object> commandMap) throws Exception;
@@ -22,7 +22,7 @@ public interface CmService {
 	/**
 	 * 단건 조회
 	 * @param commandMap
-	 * @return
+	 * @return CmCiDTO
 	 * @throws Exception
 	 */
 	public CmCiDTO selectCmCmiCiOne(Map<String, Object> commandMap) throws Exception;
@@ -30,7 +30,7 @@ public interface CmService {
 	/**
 	 * 목록 조회
 	 * @param commandMap
-	 * @return
+	 * @return List<CmDTO>
 	 * @throws Exception
 	 */
 	public List<CmDTO> selectList(Map<String, Object> commandMap)throws Exception;
@@ -38,7 +38,7 @@ public interface CmService {
 	/**
 	 * 단건조회
 	 * @param commandMap
-	 * @return
+	 * @return CmDTO
 	 * @throws Exception
 	 */
 	public CmDTO selectOne(Map<String, Object> commandMap) throws Exception;
@@ -46,7 +46,7 @@ public interface CmService {
 	/**
 	 * 삭제
 	 * @param commandMap
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	public int delete(Map<String, Object> commandMap) throws Exception;
@@ -54,7 +54,7 @@ public interface CmService {
 	/**
 	 * 수정
 	 * @param ciid
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int update(String ciid) throws Exception;
@@ -62,7 +62,7 @@ public interface CmService {
 	/**
 	 * ID확인
 	 * @param cmid
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int checkId(String cmid) throws Exception;
@@ -70,7 +70,7 @@ public interface CmService {
 	/**
 	 * 등록
 	 * @param map
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int insert(Map<String, Object> map) throws Exception;
@@ -78,7 +78,7 @@ public interface CmService {
 	/**
 	 * 수정
 	 * @param map
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int update(Map<String, Object> map) throws Exception;
@@ -86,11 +86,8 @@ public interface CmService {
 	/**
 	 * 목록조회(SO 스케줄에서 사용됨)
 	 * @param commandMap
-	 * @return
+	 * @return List<CmCiDTO>
 	 * @throws Exception
 	 */
 	public List<CmCiDTO> selectCmCiList(Map<String, Object> commandMap) throws Exception;
-
-	
-
 }

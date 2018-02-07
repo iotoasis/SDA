@@ -163,40 +163,6 @@ public class StrUtils {
 		}
 		return null;
 	}
-
-	/**
-	 * 구분자에 따른 문자열 분리
-	 * @param str
-	 * @param seperator
-	 * @param trim
-	 * @return String[]
-	 */
-	private static String[] internalSplit(String str, String seperator, boolean trim)
-	{
-		try {
-			StringTokenizer fieldToken = new StringTokenizer(str, seperator);
-
-			Vector<String> fieldSplit = new Vector<String>();			
-			while(fieldToken.hasMoreTokens())
-			{
-				fieldSplit.addElement(fieldToken.nextToken());
-			}
-
-			String[] arrayField = new String[fieldSplit.size()];
-
-			for(int k=0;k<fieldSplit.size();k++)
-			{
-				String ss = (String)fieldSplit.elementAt(k);
-				arrayField[k]= (trim)?ss.trim():ss;
-			}
-			return arrayField;
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		return null;
-	}
 	
 	/**
 	 * 구분자에 따른 문자열 분리

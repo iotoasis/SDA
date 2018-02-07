@@ -36,7 +36,4 @@ public class CmiDTO {
 	public void setTnsda_context_info_ciid(String tnsda_context_info_ciid) {
 		this.tnsda_context_info_ciid = tnsda_context_info_ciid;
 	}
-
-
-	
 }

@@ -13,7 +13,7 @@ public interface CiService {
 	/**
 	 * 한건조회
 	 * @param idx
-	 * @return
+	 * @return String
 	 * @throws Exception
 	 */
 	String selectOne(String idx) throws Exception;
@@ -21,7 +21,7 @@ public interface CiService {
 	/**
 	 * 입력
 	 * @param map
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int insert(Map<String, Object> map) throws Exception;
@@ -29,7 +29,7 @@ public interface CiService {
 	/**
 	 * 수정
 	 * @param ciid
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int update(String ciid) throws Exception;
@@ -37,7 +37,7 @@ public interface CiService {
 	/**
 	 * 수정
 	 * @param ciDTO
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int update(CiDTO[] ciDTO) throws Exception;
@@ -45,7 +45,7 @@ public interface CiService {
 	/**
 	 * 수정
 	 * @param map
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int update(Map<String, Object> map) throws Exception;
@@ -53,7 +53,7 @@ public interface CiService {
 	/**
 	 * 삭제
 	 * @param map
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int delete(Map<String, Object> map) throws Exception;
@@ -61,7 +61,7 @@ public interface CiService {
 	/**
 	 * 삭제
 	 * @param ciDTO
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int delete(CiDTO[] ciDTO) throws Exception;
@@ -69,7 +69,7 @@ public interface CiService {
 	/**
 	 * 여러건 조회
 	 * @param commandMap
-	 * @return
+	 * @return List<CiDTO>
 	 * @throws Exception
 	 */
 	List<CiDTO> selectList(Map<String, Object> commandMap) throws Exception;
@@ -77,7 +77,7 @@ public interface CiService {
 	/**
 	 * 단건 조회
 	 * @param commandMap
-	 * @return
+	 * @return CiDTO
 	 * @throws Exception
 	 */
 	public CiDTO selectOne(Map<String, Object> commandMap) throws Exception;
@@ -85,7 +85,7 @@ public interface CiService {
 	/**
 	 * id체크
 	 * @param ciid
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int checkId(String ciid) throws Exception;

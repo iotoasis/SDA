@@ -6,8 +6,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +18,9 @@ import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
  */
 @Service("ciService")
 public class CiServiceImpl implements CiService{ 
-	private Log log = LogFactory.getLog(this.getClass());
-	
 	@Resource(name="ciDAO")
 	private CiDAO ciDAO; 
 	
-	// 한건조회
 	/* (non-Javadoc)
 	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#selectOne(java.lang.String)
 	 */
@@ -33,7 +28,6 @@ public class CiServiceImpl implements CiService{
 		return ciDAO.selectOne("itf.ci.selectCiid", ciid).toString();
 	}
 	
-	// 저장
 	/* (non-Javadoc)
 	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#insert(java.util.Map)
 	 */
@@ -41,7 +35,6 @@ public class CiServiceImpl implements CiService{
 		return Integer.parseInt(ciDAO.insert("itf.ci.insert", map).toString());
 	}
 	
-	// 수정(단건)
 	/* (non-Javadoc)
 	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#update(java.lang.String)
 	 */
@@ -49,7 +42,6 @@ public class CiServiceImpl implements CiService{
 		return Integer.parseInt(ciDAO.update("update", ciid).toString());
 	}
 
-	// 수정(여러건)
 	/* (non-Javadoc)
 	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#update(com.pineone.icbms.sda.itf.ci.dto.CiDTO[])
 	 */
@@ -57,18 +49,16 @@ public class CiServiceImpl implements CiService{
 		return Integer.parseInt(ciDAO.update("updateMany", ciDTO).toString());
 	}
 	
-	// 삭제(단건)
 	/**
-	 * 
+	 * 삭제(단건)
 	 * @param ciid
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	public int delete(String ciid) throws Exception{
 		return Integer.parseInt(ciDAO.delete("delete", ciid).toString());
 	}
 	
-	// DELETE, use_yn을 'N'으로 변경
 	/* (non-Javadoc)
 	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#delete(java.util.Map)
 	 */
@@ -76,12 +66,13 @@ public class CiServiceImpl implements CiService{
 		return Integer.parseInt(ciDAO.update("itf.ci.delete", map).toString());
 	}
 
-	// 삭제(여러건)
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#delete(com.pineone.icbms.sda.itf.ci.dto.CiDTO[])
+	 */
 	public int delete(CiDTO[] ciDTO) throws Exception{
 		return Integer.parseInt(ciDAO.delete("deleteMany", ciDTO).toString());
 	}
 	
-	// /ci/ALL
 	/* (non-Javadoc)
 	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#selectList(java.util.Map)
 	 */
@@ -93,10 +84,9 @@ public class CiServiceImpl implements CiService{
 			throw new UserDefinedException(HttpStatus.NOT_FOUND);
 		}
 
-		return list ;
+		return list;
 	}
 	
-	// /ci/{ciid}
 	/* (non-Javadoc)
 	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#selectOne(java.util.Map)
 	 */

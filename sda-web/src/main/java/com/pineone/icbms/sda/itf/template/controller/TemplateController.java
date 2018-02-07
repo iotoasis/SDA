@@ -38,7 +38,7 @@ public class TemplateController {
 	/**
 	 * 목록 조회
 	 * @param commandMap
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/template/all", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
@@ -76,7 +76,7 @@ public class TemplateController {
 	/**
 	 * 단건 조회
 	 * @param tmid
-	 * @return
+	 * @return ResponseEntity<ResponseMessage>
 	 */
 	@RequestMapping(value = "/template/{tmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectOne(@PathVariable String tmid) {
@@ -113,8 +113,4 @@ public class TemplateController {
 		log.info("/template/{tmid} GET end================>");
 		return entity;
 	}
-
-
-	
-
 }

@@ -13,7 +13,7 @@ public interface TemplateService {
 	/**
 	 * 목록조회
 	 * @param commandMap
-	 * @return
+	 * @return List<TemplateDTO>
 	 * @throws Exception
 	 */
 	public List<TemplateDTO> selectList(Map<String, Object> commandMap)throws Exception;
@@ -29,7 +29,7 @@ public interface TemplateService {
 	/**
 	 * ID체크
 	 * @param tmid
-	 * @return
+	 * @return int
 	 * @throws Exception
 	 */
 	int checkId(String tmid) throws Exception;
