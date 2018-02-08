@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.jena.rdf.model.Model;
@@ -16,16 +15,16 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 
 import com.pineone.icbms.sda.comm.conf.Configuration;
-import com.pineone.icbms.sda.comm.conf.ConfigurationFactory;
 import com.pineone.icbms.sda.comm.util.StrUtils;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.kb.dto.OneM2MContainerDTO;
 import com.pineone.icbms.sda.kb.mapper.OneM2MMapper;
 import com.pineone.icbms.sda.kb.model.ICBMSResource;
 
+/**
+ *   Container의 Mapper 클래스
+ */
 public class OneM2MContainerMapper implements OneM2MMapper {
-
-	// private Configuration config = null;
 	private List<Statement> slist = new ArrayList<Statement>();
 	private Model model = ModelFactory.createDefaultModel();
 	private String baseuri = "";
@@ -39,9 +38,7 @@ public class OneM2MContainerMapper implements OneM2MMapper {
 
 	public OneM2MContainerMapper(OneM2MContainerDTO dto) {
 		this.dto = dto;
-
 		this.baseuri = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.uri");
-		
 	}
 
 	public OneM2MContainerMapper(OneM2MContainerDTO dto, Configuration config) {
@@ -49,13 +46,11 @@ public class OneM2MContainerMapper implements OneM2MMapper {
 		this.baseuri = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.uri");
 	}
 
-	/**
-	 * essential resource initialize
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#initResource()
 	 */
 	@Override
 	public void initResource() {
-		// container = model.createResource(baseuri + "/" + this.dto.getRi());
-
 		container = model.createResource(baseuri + this.dto.get_uri());
 		parentResource = model.createResource(baseuri + "/" + Utils.getParentURI(this.dto.get_uri()));
 		resourceName = dto.getRn();
@@ -67,11 +62,8 @@ public class OneM2MContainerMapper implements OneM2MMapper {
 		
 	}
 
-	/**
-	 * triple object retrieve
-	 * 
-	 * @param dto
-	 * @return
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#from()
 	 */
 	@Override
 	public List<Statement> from() {
@@ -107,14 +99,11 @@ public class OneM2MContainerMapper implements OneM2MMapper {
 		Statement stmtLabel = model.createStatement(container, RDFS.label, label);
 		slist.add(stmtLabel);
 
-		// createtime xsd datetime
-		//SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		SimpleDateFormat sd = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 		Calendar cal1 = Calendar.getInstance();
 		try {
 			cal1.setTime(sd.parse(StrUtils.makeXsdDateFromOnem2mDate(this.dto.getCt())));
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -127,7 +116,6 @@ public class OneM2MContainerMapper implements OneM2MMapper {
 		try {
 			cal2.setTime(sd.parse(StrUtils.makeXsdDateFromOnem2mDate(this.dto.getLt())));
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Statement stmtLastModifiedTime = model.createStatement(container,
@@ -146,8 +134,12 @@ public class OneM2MContainerMapper implements OneM2MMapper {
 		
 		return slist;
 	}
-
-	public static void main(String[] args) {	
-
+	
+	/**
+	 * 커넥션 닫기
+	 * @return void
+	 */
+	public void close() {
+		if(! model.isClosed()) model.close();
 	}
 }

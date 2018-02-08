@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.subscribe.dto;
 
+/**
+ * callback받은후 다른 시스템에 전송할 정보를 담은 DTO
+ */
 public class CallbackNoticeDTO {
 
 	private int callback_seq;

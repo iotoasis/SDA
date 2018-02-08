@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.comm.sch.dto;
 
+/**
+ * 스케줄 히스토리용 DTO
+ */
 public class SchHistDTO {
 
 	private String task_group_id;

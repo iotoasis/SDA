@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.itf.cmi.dto;
 
+/**
+ * CMI정보를 담는 DTO
+ */
 public class CmiDTO {
 
 	private String tnsda_context_model_cmid;
@@ -33,7 +36,4 @@ public class CmiDTO {
 	public void setTnsda_context_info_ciid(String tnsda_context_info_ciid) {
 		this.tnsda_context_info_ciid = tnsda_context_info_ciid;
 	}
-
-
-	
 }

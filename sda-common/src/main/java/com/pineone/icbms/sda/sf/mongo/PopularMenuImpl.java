@@ -1,7 +1,6 @@
 package com.pineone.icbms.sda.sf.mongo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +23,9 @@ import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 import com.pineone.icbms.sda.comm.util.Utils;
 
+/**
+ *   인기메뉴 구하는 클래스
+ */
 public class PopularMenuImpl implements MongoQueryItf {
 	private final Log log = LogFactory.getLog(this.getClass());
 
@@ -34,8 +36,6 @@ public class PopularMenuImpl implements MongoQueryItf {
 		final String db_server = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.server");
 		final String db_port = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.port");
 		final String db_name = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.name");
-		final String user_name = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.user_name");
-		final String password = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.password");
 		final String collection_name = Utils.getSdaProperty("com.pineone.icbms.sda.mongo.db.collection.name"); // resource
 		
 		DBCollection table=null;
@@ -48,7 +48,6 @@ public class PopularMenuImpl implements MongoQueryItf {
 		try {
 			mongoClient = new MongoClient(new ServerAddress(db_server, Integer.parseInt(db_port)));
 			db = mongoClient.getDB(db_name);
-			//boolean auth = db.authenticate(user_name, password.toCharArray());
 			table = db.getCollection(collection_name);
 		} catch (Exception ex) {
 			log.debug("MongoDB connection error : "+ex.getMessage());
@@ -65,11 +64,10 @@ public class PopularMenuImpl implements MongoQueryItf {
 		
 	   // con값에 대한 형변환(String -> Integer)
 	   // 형변환
-	   DBObject searchCastQuery = new BasicDBObject();  //"$match", new BasicDBObject("ct", new BasicDBObject("$gte", "20161213T160000")));
+	   DBObject searchCastQuery = new BasicDBObject();
 	   searchCastQuery.put("ty",working_ty);
 	   searchCastQuery.put("_uri", new BasicDBObject("$regex", working_uri));
 	   searchCastQuery.put("ct", new BasicDBObject("$regex", Utils.sysdateFormat.format(new Date())));
-	   //searchCastQuery.put("ct", new BasicDBObject("$regex", "20161213"));
 		
 		try {	   
 			DBCursor cursor = table.find(searchCastQuery);
@@ -78,7 +76,6 @@ public class PopularMenuImpl implements MongoQueryItf {
 				
 				@SuppressWarnings("unchecked")
 				Map<String, String> map = makeStringMap(oldObj.toMap());
-				//map.put("_id", new ObjectId(map.get("_id")));
 				
 				ObjectId id = new ObjectId(map.get("_id"));
 				BasicDBObject newObj = new BasicDBObject(map);
@@ -94,14 +91,8 @@ public class PopularMenuImpl implements MongoQueryItf {
 				String[] lbl_json = gson.fromJson(lbl_tmp ,String[].class);
 				
 				newObj.append("lbl", lbl_json);
-				
 				table.update(oldObj, newObj);
-				
-				// 아래와 같이 하면 안되네....???
-/*				BasicDBObject updateObj = new BasicDBObject();
-				updateObj.put("$set", newObj);
-				table.update(oldObj, updateObj);			
-*/			}
+			}
 			
 			// update결과 확인
 			DBCursor cursor2 = table.find(searchCastQuery);
@@ -111,13 +102,11 @@ public class PopularMenuImpl implements MongoQueryItf {
 			if(cursor2 != null) cursor2.close();
 			
 			// 집계 수행
-			DBObject match = new BasicDBObject();  //"$match", new BasicDBObject("ct", new BasicDBObject("$gte", "20161213T160000")));
+			DBObject match = new BasicDBObject();  
 			match.put("ty",working_ty);
 			match.put("_uri", new BasicDBObject("$regex", working_uri));
-			//match.put("ct", new BasicDBObject("$gte", "20161213T160000"));
 			long nowDate = new Date().getTime();
 			long newDate = nowDate-(5*60*1000);
-			//long newDate = nowDate-(10*24*60*60*1000);
 			
 			match.put("ct", new BasicDBObject("$gte", Utils.dateFormat.format((new Date(newDate)))));
 	
@@ -125,7 +114,6 @@ public class PopularMenuImpl implements MongoQueryItf {
 			DBObject group = new BasicDBObject();
 			group.put("_id", "$cr");
 			group.put("sum_con", new BasicDBObject("$sum", "$con"));
-			//group.put("sum_con", new BasicDBObject("$sum", 1));
 	
 			//Forming Project parts
 			DBObject project = new BasicDBObject();
@@ -166,6 +154,11 @@ public class PopularMenuImpl implements MongoQueryItf {
 		} 
 	}
 	
+	/**
+	 * map data생성
+	 * @param map
+	 * @return Map<String,String>
+	 */
 	private Map<String,String> makeStringMap(Map<String, String> map) {
 		Map<String, String> newMap = new HashMap<String, String>();
 		

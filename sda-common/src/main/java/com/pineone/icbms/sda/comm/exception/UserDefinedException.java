@@ -2,6 +2,9 @@ package com.pineone.icbms.sda.comm.exception;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * 사용자 정의 Exception
+ */
 public class UserDefinedException extends Exception {
 	private static final long serialVersionUID = -978972073880404008L;
 	private HttpStatus httpStatus;
@@ -29,4 +32,3 @@ public class UserDefinedException extends Exception {
    }
 
  }
- 

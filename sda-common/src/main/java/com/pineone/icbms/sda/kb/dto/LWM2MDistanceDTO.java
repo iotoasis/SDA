@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.kb.dto;
 
+/**
+ *   LWM2M수집 데이타 Distance를 담은 DTO
+ */
 public class LWM2MDistanceDTO {
 	LWM2MDistance_Content content;
 	String status;

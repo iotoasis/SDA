@@ -3,16 +3,13 @@ package com.pineone.icbms.sda.kb.dto;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFFormat;
 
-import com.google.gson.Gson;
-import com.pineone.icbms.sda.kb.mapper.onem2m.OneM2MAEMapper;
 import com.pineone.icbms.sda.kb.model.TripleMap;
 
+/**
+ *   OneM2M의  AE 정보를 담는 DTO
+ */
 public class OneM2MAEDTO implements OneM2MDTO{
 
 	private Object _id="";	// not standard;
@@ -169,31 +166,5 @@ public class OneM2MAEDTO implements OneM2MDTO{
         	return matcher.group(1);
         } 
         return "";
-}
-
-
-	public static void main(String[] args) {
-		String sample = " {     \"_id\" : ObjectId(\"561e1e1e1ee82041fac258b6\"),     \"rn\" : \"SAE_0\",     \"ty\" : 2,     \"ri\" : \"SAE_0\",     \"pi\" : \"herit-in\",     \"lbl\" : [          \"home1\",          \"home_service\"     ],     \"et\" : \"20151203T122321\",     \"at\" : [          \"//onem2m.hubiss.com/cse1\",          \"//onem2m.hubiss.com/cse2\"     ],     \"aa\" : [          \"poa\",          \"apn\"     ],     \"apn\" : \"onem2mPlatformAdmin\",     \"api\" : \"NHeritAdmin\",     \"aei\" : \"/SAE_0\",     \"poa\" : [          \"10.101.101.111:8080\"     ],     \"rr\" : false,     \"_uri\" : \"/herit-in/herit-cse/SAE_0\",     \"ct\" : \"20151014T181926\",     \"lt\" : \"20151014T181926\" }";
-		Gson gson = new Gson();
-		OneM2MAEDTO cont = gson.fromJson(sample, OneM2MAEDTO.class);
-
-
-		System.out.println(cont);
-		
-		OneM2MAEMapper mapper = new OneM2MAEMapper(cont);
-		Model model = ModelFactory.createDefaultModel();
-		model.add(mapper.from());
-		
-		//스트링 변환부분
-		RDFDataMgr.write(System.out, model, RDFFormat.NTRIPLES);
-		
-		// gooper
-		if(! model.isClosed()) {
-			model.close();
-		}
-		if(model != null) {
-			model = null;
-		}
-
 	}
 }

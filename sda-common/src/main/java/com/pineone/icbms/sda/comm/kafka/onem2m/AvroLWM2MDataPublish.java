@@ -17,6 +17,9 @@ import com.pineone.icbms.sda.comm.kafka.avro.COL_LWM2M;
 import com.pineone.icbms.sda.comm.util.Utils;
 
 
+/**
+ * LWM2M data를 produce 
+ */
 public class AvroLWM2MDataPublish { 
 	private  Producer<String, byte[]> producer;
 	
@@ -32,6 +35,12 @@ public class AvroLWM2MDataPublish {
 
 	}
 	
+	/**
+	 * 데이타 전송
+	 * @param event
+	 * @throws Exception
+	 * @return void
+	 */
 	public void send(COL_LWM2M event) throws Exception {
 		EncoderFactory avroEncoderFactory = EncoderFactory.get();
 		SpecificDatumWriter<COL_LWM2M> avroEventWriter = new SpecificDatumWriter<COL_LWM2M>(COL_LWM2M.SCHEMA$);
@@ -54,6 +63,10 @@ public class AvroLWM2MDataPublish {
 		producer.send(data);
 	}
 	
+	/**
+	 * 커텍션 닫기
+	 * @return void
+	 */
 	public void close() {
 		producer.close();
 	}

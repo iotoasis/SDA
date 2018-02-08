@@ -7,21 +7,16 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import scala.NotImplementedError;
-
-import com.pineone.icbms.sda.comm.dto.ResponseMessage;
 import com.pineone.icbms.sda.comm.util.Utils;
+
+import scala.NotImplementedError;
 /*
  * MariaDB of Grib에 접속하여 쿼리수행
  */
@@ -29,6 +24,9 @@ public class MariaDbOfGribQueryImpl extends QueryCommon implements QueryItf {
 
 	private final Log log = LogFactory.getLog(this.getClass());
 	
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.lang.String, java.lang.String[])
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(String query, String[] idxVals) throws Exception {
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
@@ -50,10 +48,9 @@ public class MariaDbOfGribQueryImpl extends QueryCommon implements QueryItf {
 				log.debug("try (second).................................. ");
 				list = getResult(query, idxVals);
 			} catch (Exception ee) {
-				log.debug("Exception 1====>"+ee.getMessage());
+				log.debug("Exception(1)====>"+ee.getMessage());
 				waitTime = 30*1000;
 				if(ee.getMessage().contains("Service Unavailable")|| ee.getMessage().contains("java.net.ConnectException")
-						// || ee.getMessage().contains("500 - Server Error") || ee.getMessage().contains("HTTP 500 error")
 						) {					
 					try {
 						// restart fuseki
@@ -67,7 +64,7 @@ public class MariaDbOfGribQueryImpl extends QueryCommon implements QueryItf {
 						log.debug("try (final).................................. ");
 						list = getResult(query, idxVals);
 					} catch (Exception eee) {
-						log.debug("Exception 2====>"+eee.getMessage());
+						log.debug("Exception(2)====>"+eee.getMessage());
 						throw eee;
 					}
 				}
@@ -79,6 +76,13 @@ public class MariaDbOfGribQueryImpl extends QueryCommon implements QueryItf {
 		return list;
 	}
 	
+	/**
+	 *   query수행
+	 * @param query
+	 * @param idxVals
+	 * @return 임시파일 삭제
+	 * @throws Exception
+	 */
 	private final List<Map<String, String>> getResult (String query, String[] idxVals) throws Exception {
 		String db_server = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.grib.server");
 		String db_port = Utils.getSdaProperty("com.pineone.icbms.sda.stat.db.grib.port");
@@ -135,16 +139,25 @@ public class MariaDbOfGribQueryImpl extends QueryCommon implements QueryItf {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.lang.String)
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(String query) throws Exception {
 		return runQuery(query, new String[]{""});
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.util.List)
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(List<String> queryList) throws Exception {
 		return runQuery(queryList, new String[]{""});
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.sf.QueryItf#runQuery(java.util.List, java.lang.String[])
+	 */
 	@Override
 	public List<Map<String, String>> runQuery(List<String> queryList, String[] idxVals) throws Exception {
 		if(queryList.size() == 1) {

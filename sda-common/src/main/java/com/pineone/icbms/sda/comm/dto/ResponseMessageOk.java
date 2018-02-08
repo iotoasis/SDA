@@ -3,6 +3,9 @@ package com.pineone.icbms.sda.comm.dto;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Ok응답메세지
+ */
 public class ResponseMessageOk {
 
 	String cmd;

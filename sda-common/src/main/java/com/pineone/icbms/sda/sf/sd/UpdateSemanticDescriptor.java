@@ -16,23 +16,29 @@ import java.sql.SQLException;
 
 import org.springframework.http.HttpStatus;
 
-import com.mongodb.util.Util;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 
-
+/**
+ *   SemanticDescriptor update
+ */
 public class UpdateSemanticDescriptor {
 	
 	final Configuration config_lecture = new Configuration(new File(Utils.QUERY_LECTURE_PATH));
 	final Configuration config_device = new Configuration(new File(Utils.QUERY_DEVICE_PATH));
 
-	// update 를 위한 테스트 코드
-	// final Configuration config_one_device = new Configuration(new File(Utils.UPDATE_QUERY_DEVICE_PATH));
-
 	Connection connection = null;
 	PreparedStatement pstmt = null;
 	ResultSet rs = null;
 	
+	/**
+	 * Device용 Triple파일 생성
+	 * @param name
+	 * @throws UserDefinedException
+	 * @throws IOException
+	 * @throws SQLException
+	 * @return void
+	 */
 	private void getMergedFileForDevice(String name) throws UserDefinedException, IOException, SQLException {
 
 		StringBuffer buffer = new StringBuffer();
@@ -70,8 +76,6 @@ public class UpdateSemanticDescriptor {
 		
 		buffer.append(getOneDeviceInfoFromRDBMSTriples(name)); 
 		
-		
-		
 		// Write
 		try {
 			previous = new File(filepath);
@@ -81,14 +85,10 @@ public class UpdateSemanticDescriptor {
 			}
 			
 			fos = new FileOutputStream(filepath);
-			
 			fos.write(buffer.toString().getBytes());
-			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			//null 일시 close 아니면 pass
 			if(fos !=null ) {
 				fos.close();
 			} 
@@ -96,8 +96,15 @@ public class UpdateSemanticDescriptor {
 
 	}
 	
+	/**
+	 * Semantic Descriptor 생성 메서드
+	 * @param dbName
+	 * @throws UserDefinedException
+	 * @throws IOException
+	 * @throws SQLException
+	 * @return void
+	 */
 	private void getMergedFile(String dbName) throws UserDefinedException, IOException, SQLException {
-
 		StringBuffer buffer = new StringBuffer();
 		String prefix = Utils.getHeaderForTripleFile();
 		buffer.append(prefix);
@@ -131,17 +138,19 @@ public class UpdateSemanticDescriptor {
 			fos.write(buffer.toString().getBytes());
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			//null 일시 close 아니면 pass
 			if(fos !=null ) {
 				fos.close();
 			} 
 		}
-
 	}
 	
+	/**
+	 *   Lecture시간표를 Triple로 변환
+	 * @return String
+	 * @throws SQLException
+	 */
 	public String getLectureInfoFromRDBMSTriples() throws SQLException {
 		StringBuffer buffer = new StringBuffer();
 		String driver = "org.mariadb.jdbc.Driver";
@@ -153,7 +162,6 @@ public class UpdateSemanticDescriptor {
 		try {
 			Class.forName(driver);
 		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -180,6 +188,12 @@ public class UpdateSemanticDescriptor {
 	}
 
 	
+	/**
+	 *   Device정보를 Triple로 변환
+	 * @param name
+	 * @return String
+	 * @throws SQLException
+	 */
 	public String getOneDeviceInfoFromRDBMSTriples(String name) throws SQLException {
 		StringBuffer buffer = new StringBuffer();
 		String driver = "org.mariadb.jdbc.Driver";
@@ -191,7 +205,6 @@ public class UpdateSemanticDescriptor {
 		try {
 			Class.forName(driver);
 		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -217,6 +230,11 @@ public class UpdateSemanticDescriptor {
 	}
 	
 	
+	/**
+	 *   Device정보를 Triple로 변환
+	 * @return String
+	 * @throws SQLException
+	 */
 	public String getDeviceInfoFromRDBMSTriples() throws SQLException {
 		StringBuffer buffer = new StringBuffer();
 		String driver = "org.mariadb.jdbc.Driver";
@@ -228,7 +246,6 @@ public class UpdateSemanticDescriptor {
 		try {
 			Class.forName(driver);
 		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -242,7 +259,6 @@ public class UpdateSemanticDescriptor {
 				buffer.append(str + "\n");
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			connection.close();
@@ -252,8 +268,14 @@ public class UpdateSemanticDescriptor {
 		return buffer.toString();
 	}
 	
+	
+	/**
+	 *   Device정보 확인
+	 * @param name
+	 * @return boolean
+	 * @throws SQLException
+	 */
 	public boolean checkDevice(String name) throws SQLException {
-		String driver = "org.mariadb.jdbc.Driver";
 		String url = "jdbc:mariadb://" + Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.server") + ":" 
 					+ Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.port") + "/device";
 		String username = Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.user");
@@ -283,16 +305,38 @@ public class UpdateSemanticDescriptor {
 		
 		return false;
 	}
+	
+	/**
+	 * Device정보 Update
+	 * @param name
+	 * @throws UserDefinedException
+	 * @throws IOException
+	 * @throws SQLException
+	 * @return void
+	 */
 	public void makeUpdateDevice(String name) throws UserDefinedException, IOException, SQLException {
 		UpdateSemanticDescriptor sd = new UpdateSemanticDescriptor();
 		sd.getMergedFileForDevice(name);
 	}
 	
+	/**
+	 * Jena update
+	 * @param dbName
+	 * @throws UserDefinedException
+	 * @throws IOException
+	 * @throws SQLException
+	 * @return void
+	 */
 	public void makeUpdateJena(String dbName) throws UserDefinedException, IOException, SQLException {
 		UpdateSemanticDescriptor sd = new UpdateSemanticDescriptor();
 		sd.getMergedFile(dbName);
 	}
 
+	/**
+	 * 임시파일 삭제
+	 * @param name
+	 * @return boolean
+	 */
 	public boolean deleteTempFile(String name) {
 
 		String temp_sql = Utils.UPDATE_QUERY_DEVICE_TEMP_FILE_PATH+name+".sql";

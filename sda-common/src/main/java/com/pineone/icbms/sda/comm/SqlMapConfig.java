@@ -1,10 +1,14 @@
 package com.pineone.icbms.sda.comm;
 
 import java.io.Reader;
+
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
+/**
+ *   쿼리 수행을 위한 설정
+ */
 public class SqlMapConfig {
 	private static SqlSessionFactory sqlSession;
 
@@ -20,6 +24,10 @@ public class SqlMapConfig {
 		}
 	}
 
+	/**
+	 * sql session 리턴
+	 * @return SqlSessionFactory
+	 */
 	public static SqlSessionFactory getSqlSession() {
 		return sqlSession;
 	}

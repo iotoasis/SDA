@@ -3,10 +3,6 @@ package com.pineone.icbms.sda.comm.kafka.onem2m;
 import java.io.IOException;
 import java.util.Properties;
 
-import kafka.javaapi.producer.Producer;
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
-
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
@@ -16,7 +12,13 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M;
 import com.pineone.icbms.sda.comm.util.Utils;
 
+import kafka.javaapi.producer.Producer;
+import kafka.producer.KeyedMessage;
+import kafka.producer.ProducerConfig;
 
+/**
+ * OneM2M data를 produce
+ */
 public class AvroOneM2MDataPublish { 
 	private  Producer<String, byte[]> producer;
 	
@@ -32,6 +34,12 @@ public class AvroOneM2MDataPublish {
 
 	}
 	
+	/**
+	 * 데이타 전송
+	 * @param event
+	 * @throws Exception
+	 * @return void
+	 */
 	public void send(COL_ONEM2M event) throws Exception {
 		EncoderFactory avroEncoderFactory = EncoderFactory.get();
 		SpecificDatumWriter<COL_ONEM2M> avroEventWriter = new SpecificDatumWriter<COL_ONEM2M>(COL_ONEM2M.SCHEMA$);
@@ -54,6 +62,10 @@ public class AvroOneM2MDataPublish {
 		producer.send(data);
 	}
 	
+	/**
+	 * 커넥션 닫기
+	 * @return void
+	 */
 	public void close() {
 		producer.close();
 	}

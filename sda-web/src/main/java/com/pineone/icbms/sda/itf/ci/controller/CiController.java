@@ -28,12 +28,12 @@ import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
 import com.pineone.icbms.sda.itf.ci.service.CiService;
-import com.pineone.icbms.sda.itf.template.dao.TemplateDAO;
 import com.pineone.icbms.sda.itf.template.dto.TemplateDTO;
 import com.pineone.icbms.sda.itf.template.service.TemplateService;
 
-import net.sf.json.JSONArray;
-
+/**
+ * CI용 Controller
+ */
 @RestController
 @RequestMapping(value = "/itf")
 public class CiController {
@@ -45,7 +45,11 @@ public class CiController {
 	@Resource(name = "templateService")
 	private TemplateService templateService;
 
-	// http://localhost:8080/sda/itf/ci/all
+	/**
+	 * ci목록 조회
+	 * @param commandMap
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/ci/all", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -78,7 +82,11 @@ public class CiController {
 		return entity;
 	}
 
-	// http://localhost:8080/sda/itf/ci/CI-1-1-011
+	/**
+	 * 한건 조회
+	 * @param ciid
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/ci/{ciid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectOne(@PathVariable String ciid) {
 		Map<String, Object> commandMap = new HashMap<String, Object>();
@@ -115,7 +123,11 @@ public class CiController {
 		return entity;
 	}
 	
-	// http://localhost:8080/sda/itf/ci/CQ-1-1-001
+	/**
+	 * ci 삭제
+	 * @param ciid
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/ci/{ciid}", method = RequestMethod.DELETE)
 	public  @ResponseBody ResponseEntity<ResponseMessage> delete(@PathVariable String ciid) {
 		int rtn_cnt = 0;
@@ -153,41 +165,11 @@ public class CiController {
 		return entity;
 	}
 	
-	/* 기존
-
-	// http://localhost:8080/sda/itf/ci/
-	@RequestMapping(value = "/ci/", method = RequestMethod.GET)
-	public List<Map<String, Object>> selectList(Map<String, Object> commandMap) {
-		List<Map<String, Object>> lists = new ArrayList<Map<String, Object>>();
-		if (log.isDebugEnabled()) {
-			log.debug("selectList");
-		}
-		try {
-			lists = ciService.selectList(commandMap);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return lists;
-	}
-	
-	*/
-
-	/* 기존
-	// http://localhost:8080/sda/itf/ci/CQ-1-1-001
-	@RequestMapping(value = "/ci/{idx}", method = RequestMethod.GET)
-	public CiDTO selectOne(@PathVariable String idx) {
-		CiDTO list = new CiDTO();
-		try {
-			list = ciService.selectOne(idx);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return list;
-	}
-	*/
-	
-	// http://localhost:8080/sda/itf/ci
+	/**
+	 * CI등록
+	 * @param tempReqDTO
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/ci", method = RequestMethod.POST)
 	public @ResponseBody ResponseEntity<ResponseMessage> insert(@RequestBody TemplateReqDTO tempReqDTO) {
 		
@@ -286,7 +268,11 @@ public class CiController {
 		return entity;
 	}
 	
-	// http://localhost:8080/sda/itf/ci
+	/**
+	 * CI정보 수정
+	 * @param tempReqDTO
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/ci", method = RequestMethod.PUT)
 	public @ResponseBody ResponseEntity<ResponseMessage> update(@RequestBody TemplateReqDTO tempReqDTO) {
 		
@@ -385,21 +371,11 @@ public class CiController {
 		return entity;
 	}
 	
-	
-	
-	
-	
-	
-
-	// http://localhost:8080/sda/itf/ci/
-	// [{"parent_idx":5000, "title":"title5000", "contents":"5000", "hit_cnt":0,
-	// "del_gb":"N", "crea_dtm":"aaaa", "crea_id":"Admin"}]
-	// [{"parent_idx":100, "title":"title200", "contents":"내용100", "hit_cnt":0,
-	// "del_gb":"N", "crea_dtm":"aaaa", "crea_id":"Admin"},{"parent_idx":100,
-	// "title":"title201", "contents":"내용100", "hit_cnt":0, "del_gb":"N",
-	// "crea_dtm":"aaaa", "crea_id":"Admin"},{"parent_idx":100,
-	// "title":"title202", "contents":"내용100", "hit_cnt":0, "del_gb":"N",
-	// "crea_dtm":"aaaa", "crea_id":"Admin"}]
+	/**
+	 * CI등록
+	 * @param cmDTO
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/ci/", method = RequestMethod.POST)
 	public int insert(@RequestBody CiDTO[] cmDTO) {
 		int rtn_cnt = 0;
@@ -418,7 +394,5 @@ public class CiController {
 		}
 		return rtn_cnt;
 	}
-
-
 
 }

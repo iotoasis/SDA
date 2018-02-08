@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.kb.dto;
 
+/**
+ *   기숙사 온도정보를 담는 DTO
+ */
 public class DomappTempStudentDTO {
 	String user_id;
 	int temperature;

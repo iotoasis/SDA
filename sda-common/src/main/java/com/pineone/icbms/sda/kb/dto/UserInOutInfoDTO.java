@@ -1,12 +1,12 @@
 package com.pineone.icbms.sda.kb.dto;
 
 import org.apache.jena.rdf.model.Statement;
-
-import com.google.gson.Gson;
 import com.pineone.icbms.sda.kb.model.TripleMap;
 
+/**
+ *   사용자 In/Out정보를 담는 DTO
+ */
 public class UserInOutInfoDTO implements OneM2MDTO{
-	
 	private String direction;
 	private String user_id;
 	private String zone;
@@ -43,30 +43,20 @@ public class UserInOutInfoDTO implements OneM2MDTO{
 	@Override
 	public void print() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public TripleMap<Statement> getTriples() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getStringId() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	public String toString(){
 		return "{\"direction\":\""+this.getDirection()+"\",\"user_id\":\""+this.getUser_id()+"\",\"zone\":\""+this.getZone()+"\"}";
-	}
-	
-	public static void main(String[] args) {
-		Gson gson = new Gson();
-		String sample = "{\"direction\":\"in\",\"user_id\":\"u00002\",\"zone\":\"강의실\"}";
-		UserInOutInfoDTO cont = gson.fromJson(sample, UserInOutInfoDTO.class);
-		System.out.println(cont);
 	}
 
 }

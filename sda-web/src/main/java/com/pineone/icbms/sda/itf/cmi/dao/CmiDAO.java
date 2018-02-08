@@ -6,9 +6,12 @@ import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
-import com.pineone.icbms.sda.sch.comm.dao.AbstractDAO;
 import com.pineone.icbms.sda.itf.cmi.dto.CmiDTO;
+import com.pineone.icbms.sda.sch.comm.dao.AbstractDAO;
 
+/**
+ * CMI용 DAO
+ */
 @Repository("cmiDAO")
 public class CmiDAO extends AbstractDAO{
 	@SuppressWarnings("unchecked")
@@ -16,6 +19,12 @@ public class CmiDAO extends AbstractDAO{
 		return (List<Map<String, Object>>) selectList("itf.cmi.selectList", commandMap);
 	}
 	
+	/**
+	 * 등록
+	 * @param map
+	 * @return int
+	 * @throws Exception
+	 */
 	@SuppressWarnings("unchecked") 
 	public int insert(Map<String, Object> map) throws Exception{
 		int cnt = 0; 
@@ -24,6 +33,12 @@ public class CmiDAO extends AbstractDAO{
 		return cnt;
 	}
 	
+	/**
+	 * 수정
+	 * @param map
+	 * @return int
+	 * @throws Exception
+	 */
 	@SuppressWarnings("unchecked") 
 	public int update(Map<String, Object> map) throws Exception{
 		int cnt = 0; 
@@ -32,6 +47,12 @@ public class CmiDAO extends AbstractDAO{
 		return cnt;
 	}
 
+	/**
+	 * 삭제
+	 * @param map
+	 * @return int
+	 * @throws Exception
+	 */
 	@SuppressWarnings("unchecked") 
 	public int delete(Map<String, Object> map) throws Exception{
 		int cnt = 0; 
@@ -39,5 +60,4 @@ public class CmiDAO extends AbstractDAO{
 		cnt = Integer.parseInt(insert("itf.cmi.delete", list).toString());
 		return cnt;
 	}
-
 }

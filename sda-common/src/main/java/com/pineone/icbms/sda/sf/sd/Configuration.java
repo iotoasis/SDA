@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
+/**
+ *   설정정보 클래스 파일
+ */
 public class Configuration extends Properties {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public Configuration() {
@@ -18,11 +18,11 @@ public class Configuration extends Properties {
 	}
 
 	public Configuration(File config) {
-
+		BufferedReader br = null;
 		try {
 			String key  = "";
 			String value = "";
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(config)));
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(config)));
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
 				if (line.startsWith("^")) {
 					if(value.length()>1){
@@ -37,8 +37,10 @@ public class Configuration extends Properties {
 			}
 			this.put(new String(key),new String(value));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			if(br != null) 
+				try { br.close(); } catch (Exception e) {}
 		}
 
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
+
 import com.pineone.icbms.sda.comm.sch.dto.SchHistDTO;
 
 public class SchHist2DAO {
@@ -16,19 +17,41 @@ public class SchHist2DAO {
 		this.sqlSession = sqlSession;
 	}
 
-
+	/**
+	 * 목록조회
+	 * @throws Exception
+	 * @return List<SchHistDTO>
+	 */
 	public List<SchHistDTO> selectList() throws Exception{
 		return sqlSession.selectList("sch.hist.selectList");
 	}
 	
+	/**
+	 * 단건조회
+	 * @param commandMap
+	 * @throws Exception
+	 * @return SchHistDTO
+	 */
 	public SchHistDTO selectOne(Map<String, Object> commandMap) throws Exception{
 		return (SchHistDTO) sqlSession.selectOne("sch.hist.selectOne", commandMap);
 	}
 
+	/**
+	 * 최종수정시간 업데이트
+	 * @param schHistDTO
+	 * @throws Exception
+	 * @return int
+	 */
 	public int updateFinishTime(SchHistDTO schHistDTO) throws Exception{
 		return sqlSession.update("sch.hist.updateFinishTime", schHistDTO);
 	}
 	
+	/**
+	 * 등록
+	 * @param schHistDTO
+	 * @throws Exception
+	 * @return int
+	 */
 	public int insert(SchHistDTO schHistDTO) throws Exception{
 		return sqlSession.insert("sch.hist.insert", schHistDTO);
 	}

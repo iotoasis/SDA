@@ -2,11 +2,8 @@ package com.pineone.icbms.sda.itf.cm.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -24,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 import com.pineone.icbms.sda.comm.dto.ResponseMessage;
-import com.pineone.icbms.sda.comm.dto.TemplateReqDTO;
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
@@ -35,8 +31,10 @@ import com.pineone.icbms.sda.itf.cm.dto.CmReqDTO;
 import com.pineone.icbms.sda.itf.cm.service.CmService;
 import com.pineone.icbms.sda.itf.cmi.dto.CmiDTO;
 import com.pineone.icbms.sda.itf.cmi.service.CmiService;
-import com.pineone.icbms.sda.itf.template.dto.TemplateDTO;
 
+/**
+ * CM용 Controller
+ */
 @RestController
 @RequestMapping(value = "/itf")
 public class CmController {
@@ -51,8 +49,11 @@ public class CmController {
 	@Resource(name = "cmiService")
 	private CmiService cmiService;
 	
-	
-	// http://localhost:8080/sda/itf/cm/all
+	/**
+	 * 목록조회
+	 * @param commandMap
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/cm/all", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -85,7 +86,11 @@ public class CmController {
 		return entity;
 	}
 	
-	// http://localhost:8080/sda/itf/cm/CM-1-1-011
+	/**
+	 * 단건 조회
+	 * @param cmid
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/cm/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectOne(@PathVariable String cmid) {
 		Map<String, Object> commandMap = new HashMap<String, Object>();
@@ -122,10 +127,11 @@ public class CmController {
 		return entity;
 	}
 	
-	
-
-	
-	// http://localhost:8080/sda/itf/cmcmici
+	/**
+	 * 목록조회
+	 * @param commandMap
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/cmcmici", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectCmCmiCiList(Map<String, Object> commandMap) {
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -158,7 +164,11 @@ public class CmController {
 		return entity;
 	}
 
-	// http://localhost:8080/sda/itf/cmcmici/CM-1-1-011
+	/**
+	 * 단건조회
+	 * @param cmid
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/cmcmici/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> selectCmCmiCiOne(@PathVariable String cmid) {
 		Map<String, Object> commandMap = new HashMap<String, Object>();
@@ -195,7 +205,11 @@ public class CmController {
 		return entity;
 	}
 	
-	// http://localhost:8080/sda/itf/cm/CQ-1-1-001
+	/**
+	 * 삭제
+	 * @param cmid
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/cm/{cmid}", method = RequestMethod.DELETE)
 	public  @ResponseBody ResponseEntity<ResponseMessage> delete(@PathVariable String cmid) {
 		int rtn_cnt = 0;
@@ -233,7 +247,11 @@ public class CmController {
 		return entity;
 	}
 	
-	// http://localhost:8080/sda/itf/cm
+	/**
+	 * 등록
+	 * @param cmReqDTO
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/cm", method = RequestMethod.POST)
 	public @ResponseBody ResponseEntity<ResponseMessage> insert(@RequestBody CmReqDTO cmReqDTO) {
 		
@@ -340,7 +358,11 @@ public class CmController {
 		return entity;
 	}
 	
-	// http://localhost:8080/sda/itf/cm
+	/**
+	 * 수정
+	 * @param cmReqDTO
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/cm", method = RequestMethod.PUT)
 	public @ResponseBody ResponseEntity<ResponseMessage> update(@RequestBody CmReqDTO cmReqDTO) {
 		
@@ -449,124 +471,4 @@ public class CmController {
 		log.info("/itf/cm PUT end================>");
 		return entity;
 	}
-
-
-
-/*	
-	// 여러개의 ci를 묶어서 test수행
-	// http://localhost:8080/sda/itf/context
-	// {"cmid":"","ciid":"CI-1-1-011","name":"임박강의실테스트","conditions":[],"execution_type":"test","schedule":"","domain":"", "remarks":""}
-	@RequestMapping(value = "/context", method = RequestMethod.POST)
-	public @ResponseBody ResponseEntity<ResponseMessage> test(@RequestBody RequestDTO requestDTO) {
-		log.debug("requested parameter for test ==>" + requestDTO.toString());
-
-		ResponseMessage resultMsg = new ResponseMessage();
-		ResponseEntity<ResponseMessage> entity = null;
-		HttpHeaders responseHeaders = new HttpHeaders();
-		Gson gson = new Gson();
-		String contents;
-
-		log.info("/context POST test start================>");
-		try {
-
-			List<Map<String, String>> returnMsg = cmService.test(requestDTO);
-
-			contents = gson.toJson(returnMsg);
-
-			resultMsg.setCode(Utils.OK_CODE);
-			resultMsg.setMessage(Utils.OK_MSG);
-			resultMsg.setContent(contents);
-			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
-		} catch (Exception e) {
-			e.printStackTrace();
-			resultMsg = Utils.makeResponseBody(e);
-
-			responseHeaders.add("ExceptionCause", e.getMessage());
-			responseHeaders.add("ExceptionClass", e.getClass().getName());
-			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
-					HttpStatus.valueOf(resultMsg.getCode()));
-		}
-		log.info("/context POST test end================>");
-		return entity;
-	}
-	
-	
-	
-	// cmid를 지정하여 test수행
-	@RequestMapping(value = "/context/{cmid}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> test(@PathVariable String cmid) {
-		log.debug("requested parameter(cmid) for test ==>" + cmid);
-
-		Map<String, Object> commandMap = new HashMap<String, Object>();
-
-		ResponseMessage resultMsg = new ResponseMessage();
-		ResponseEntity<ResponseMessage> entity = null;
-		HttpHeaders responseHeaders = new HttpHeaders();
-		Gson gson = new Gson();
-		String contents;
-
-		log.info("/context/{cmid} GET test start================>");
-		try {
-
-			commandMap.put("cmid",cmid);
-			List<Map<String, String>> returnMsg = cmService.test(commandMap);
-
-			contents = gson.toJson(returnMsg);
-
-			resultMsg.setCode(Utils.OK_CODE);
-			resultMsg.setMessage(Utils.OK_MSG);
-			resultMsg.setContent(contents);
-			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
-		} catch (Exception e) {
-			e.printStackTrace();
-			resultMsg = Utils.makeResponseBody(e);
-
-			responseHeaders.add("ExceptionCause", e.getMessage());
-			responseHeaders.add("ExceptionClass", e.getClass().getName());
-			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
-					HttpStatus.valueOf(resultMsg.getCode()));
-		}
-		log.info("/context/{cmid} GET test end================>");
-		return entity;
-	}
-	
-	// cmid및 쿼리조건을 지정하여 test수행
-	@RequestMapping(value = "/context/{cmid}/{args}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<ResponseMessage> test(@PathVariable String cmid, @PathVariable String args) {
-		log.debug("requested parameter(cmid) for test ==>" + cmid);
-		log.debug("requested parameter(args) for test ==>" + args);
-
-		Map<String, Object> commandMap = new HashMap<String, Object>();
-
-		ResponseMessage resultMsg = new ResponseMessage();
-		ResponseEntity<ResponseMessage> entity = null;
-		HttpHeaders responseHeaders = new HttpHeaders();
-		Gson gson = new Gson();
-		String contents;
-
-		log.info("/context/{cmid}/{args} GET test start================>");
-		try {
-
-			commandMap.put("cmid",cmid);
-			List<Map<String, String>> returnMsg = cmService.test(commandMap, args);
-
-			contents = gson.toJson(returnMsg);
-
-			resultMsg.setCode(Utils.OK_CODE);
-			resultMsg.setMessage(Utils.OK_MSG);
-			resultMsg.setContent(contents);
-			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
-		} catch (Exception e) {
-			e.printStackTrace();
-			resultMsg = Utils.makeResponseBody(e);
-
-			responseHeaders.add("ExceptionCause", e.getMessage());
-			responseHeaders.add("ExceptionClass", e.getClass().getName());
-			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
-					HttpStatus.valueOf(resultMsg.getCode()));
-		}
-		log.info("/context/{cmid}/{args} GET test end================>");
-		return entity;
-	}
-	*/
 }

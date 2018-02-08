@@ -4,10 +4,9 @@ import java.lang.reflect.Method;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
- * 예외상황 처리 핸들러 
- * @author Kevin Jeong
- *
+ * 예외상황 처리 핸들러
  */
 public class ExceptionHelper {
     private static Boolean supportsNestedThrowable = null;
@@ -15,6 +14,12 @@ public class ExceptionHelper {
     private ExceptionHelper() {
     }
 
+    /**
+     * cause 설정
+     * @param exception
+     * @param cause
+     * @return Throwable
+     */
     public static synchronized Throwable setCause(Throwable exception, Throwable cause) {
         if (exception != null) {
             if (supportsNestedThrowable()) {
@@ -32,6 +37,11 @@ public class ExceptionHelper {
         return exception;
     }
     
+    /**
+     * cause 가져오기
+     * @param exception
+     * @return Throwable
+     */
     public static synchronized Throwable getCause(Throwable exception) {
         if (supportsNestedThrowable()) {
             try {
@@ -48,6 +58,11 @@ public class ExceptionHelper {
         return null;
     }
     
+    /**
+     * Nested Throwable 지원여부
+     * @return
+     * @return boolean
+     */
     public static synchronized boolean supportsNestedThrowable() {
         if (supportsNestedThrowable == null) {
             try {
@@ -64,6 +79,11 @@ public class ExceptionHelper {
         return supportsNestedThrowable.booleanValue();
     }
     
+    /**
+     * 로거 가져오기
+     * @return
+     * @return Logger
+     */
     private static Logger getLog() {
         return LoggerFactory.getLogger(ExceptionHelper.class);
     }

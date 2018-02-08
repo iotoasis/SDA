@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.kb.dto;
 
+/**
+ *   SmartBand정보를 담는 DTO
+ */
 public class SmartBandDTO {
 	String user_id;
 	String heartrate;

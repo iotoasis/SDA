@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.pineone.icbms.sda.kb.dto.OneM2MContainerDTO;
-import com.pineone.icbms.sda.kb.dto.OneM2MContentInstanceDTO;
-
+/**
+ *   Triple을 가지고 있는 클래스
+ */
 public class TripleMap <Statement> {
 	private List<Statement> tlist;
 	private Iterator<Statement> stmts;

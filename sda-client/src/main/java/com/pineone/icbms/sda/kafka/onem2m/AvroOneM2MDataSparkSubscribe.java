@@ -13,33 +13,28 @@ import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.derby.impl.sql.catalog.SYSROUTINEPERMSRowFactory;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaPairReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.kafka.KafkaUtils;
-import org.springframework.http.HttpStatus;
 
 import com.pineone.icbms.sda.comm.SchComm;
-import com.pineone.icbms.sda.comm.dto.ResponseMessage;
-import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.comm.kafka.avro.COL_ONEM2M;
 import com.pineone.icbms.sda.comm.util.Utils;
-import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 import com.pineone.icbms.sda.sf.TripleService;
 
-
+/**
+ *   OneM2M 데이타 수집기
+ */
 public class AvroOneM2MDataSparkSubscribe implements Serializable {
 	private static final long serialVersionUID = 1333478786266564011L;
 	private final String TOPIC = Utils.KafkaTopics.COL_ONEM2M.toString();
 	private static final Log log = LogFactory.getLog(AvroOneM2MDataSparkSubscribe.class);
-	
-	//private final TripleService tripleService = new TripleService();	
+
 	private final int NUM_THREADS = Integer.parseInt(Utils.getSdaProperty ("com.pineone.icbms.sda.kafka.thread.count"));
 		
 	private final String user_id =this.getClass().getName();
@@ -54,6 +49,11 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 		}
 	}
 
+	/**
+	 *   수집 수행 메서드
+	 * @throws Exception
+	 * @return void
+	 */
 	public void collect() throws Exception{
 		SparkConf sc=new SparkConf().setAppName("AvroOneM2MDataSparkSubscribe")
 				 .set("spark.ui.port", "4042")
@@ -69,14 +69,13 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 		JavaStreamingContext jssc = new JavaStreamingContext(sc, Durations.seconds(10));
 
 		Map<String, String> conf = new HashMap<String, String>();
-				//class name을 user_id, grup_id로 사용합니다.
 				conf.put("zookeeper.connect",Utils.ZOOKEEPER_LIST);
 				conf.put("group.id",group_id);
 				conf.put("zookeeper.session.timeout.ms", "6000");
 				conf.put("zookeeper.sync.time.ms", "2000");
 				conf.put("auto.commit.enable", "true");
 				conf.put("auto.commit.interval.ms", "5000");
-				conf.put("fetch.message.max.bytes", "31457280");		// 30MB		
+				conf.put("fetch.message.max.bytes", "31457280");		
 				conf.put("auto.offset.reset", "smallest");
 		
 		jssc.checkpoint("/tmp/onem2m");
@@ -86,7 +85,8 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 		log.debug("NUM_THREADS : "+NUM_THREADS);
 
 		try {
-		    JavaPairReceiverInputDStream<byte[], byte[]> kafkaStream = KafkaUtils.createStream(jssc,byte[].class, byte[].class, kafka.serializer.DefaultDecoder.class, kafka.serializer.DefaultDecoder.class, conf, topic, StorageLevel.MEMORY_ONLY());
+		    JavaPairReceiverInputDStream<byte[], byte[]> kafkaStream = KafkaUtils.createStream(jssc,byte[].class, byte[].class, kafka.serializer.DefaultDecoder.class, kafka.serializer.DefaultDecoder.class, 
+		    		conf, topic, StorageLevel.MEMORY_AND_DISK_SER());
 		    JavaDStream<byte[]> lines = kafkaStream.map(tuple2 -> tuple2._2());
 		    
 			  Function <byte[], String> wrkF =
@@ -108,7 +108,6 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 					  
 			JavaDStream<String> rst = lines.map(wrkF);
 			
-			// action을 위해서...
 			rst.print(1);
 			
 			jssc.start();
@@ -119,7 +118,9 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 		}
 	}
 	
-	//public class ConsumerT implements Runnable {
+	/**
+	 * 쓰레드용 클래스
+	 */
 	public class ConsumerT implements Serializable {
 		private static final long serialVersionUID = 7697840079748720000L;
 		private COL_ONEM2M read;
@@ -163,8 +164,6 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 					 for(int i = 0; i < data.size(); i++) {
 						 
 						try { 
-							//log.debug("raw data : "+data.get(i).toString());
-							
 							eachTriple = tripleService.getTriple(data.get(i).toString());
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -174,15 +173,13 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 						}
 						
 						if(calcuate_latest_yn.equals("Y")) {
-							//log.debug("calcuate_latest_yn is Y =gooper==>"+eachTriple);
 							try {
-								//tripleService.addLatestContentInstance();
 								tripleService.makeFinalSparql();
 							} catch (Exception e) { 
 								log.debug("tripleService.addLatestContentInstance() exception : "+e.getMessage());
 							}
 						} else {
-							//log.debug("calcuate_latest_yn is N =gooper==>"+eachTriple);
+							// pass
 						}
 						sb.append(eachTriple);
 					 }
@@ -194,7 +191,6 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 					 }
 				 }
 				 
-				 // task_group_id, task_id, start_time을 key로 work_result값을 update해줌
 				 String finish_time = Utils.dateFormat.format(new Date());
 				 String work_result  ="";
 				 String triple_check_result_file = "";
@@ -233,7 +229,6 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 				 SchComm schComm = new SchComm();					 
 				 schComm.updateFinishTime(task_group_id, task_id, start_time, finish_time, work_result, triple_path_file, triple_check_result);
 				 
-				 // clear
 				 schComm = null;
 				 sb = null;
 				 data = null;
@@ -250,6 +245,13 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 		} // go method
 	} // ConsumerT class
 
+	/**
+	 *   생성된 triple파일을 fuseki에 전송
+	 * @param sb
+	 * @param start_time
+	 * @return Map<String, String>
+	 * @throws Exception
+	 */
 	private Map<String, String> sendTriples(StringBuffer sb, String start_time) throws Exception {
 		String riot_mode = Utils.getSdaProperty("com.pineone.icbms.sda.riot.mode");
 		String triple_path_file = "";
@@ -258,7 +260,6 @@ public class AvroOneM2MDataSparkSubscribe implements Serializable {
 		String save_path  = Utils.getSdaProperty("com.pineone.icbms.sda.triple.save_path");
 		TripleService tripleService = new TripleService();
 		
-		// 폴더가 없으면 생성
 		save_path = Utils.makeSavePath(save_path);
 
 		// 스트링 버퍼에 있는 값을 파일에 기록한다.

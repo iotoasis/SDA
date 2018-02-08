@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.subscribe.dto;
 
+/**
+ * callback 정보를 담는 DTO
+ */
 public class CallbackDTO {
 
 	private int callback_seq;

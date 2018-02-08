@@ -2,7 +2,6 @@ package com.pineone.icbms.sda.kb.mapper.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.jena.datatypes.xsd.impl.XSDDateType;
 import org.apache.jena.rdf.model.Literal;
@@ -18,6 +17,9 @@ import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.kb.dto.UserInOutInfoDTO;
 import com.pineone.icbms.sda.kb.mapper.OneM2MMapper;
 
+/**
+ *   사용자 In/Out에 대한 Mapper 클래스
+ */
 public class UserInOutServiceMapper implements OneM2MMapper {
 	private List<Statement> slist = new ArrayList<Statement>();
 	private Model model = ModelFactory.createDefaultModel();
@@ -56,6 +58,9 @@ public class UserInOutServiceMapper implements OneM2MMapper {
 		this.userinout = userinout2;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#initResource()
+	 */
 	@Override
 	public void initResource() {
 		this.user = model.createResource(this.baseuri + "/" + this.dto.getUser_id());
@@ -66,6 +71,9 @@ public class UserInOutServiceMapper implements OneM2MMapper {
 		this.direction = model.createResource(this.baseuri + "/" + this.dto.getDirection());
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.OneM2MMapper#from()
+	 */
 	@Override
 	public List<Statement> from() {
 		initResource();
@@ -100,12 +108,5 @@ public class UserInOutServiceMapper implements OneM2MMapper {
 
 	public String toString() {
 		return this.dto.toString();
-	}
-
-	public static void main(String[] args) {
-		UserInOutServiceMapper mapper = new UserInOutServiceMapper(
-				"{\"direction\":\"in\",\"user_id\":\"u00002\"}");
-		
-		System.out.println(mapper.toString());
 	}
 }

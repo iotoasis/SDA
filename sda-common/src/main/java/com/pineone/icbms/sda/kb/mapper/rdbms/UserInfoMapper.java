@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.kb.mapper.rdbms;
 
+/**
+ *   사용자 정보의 Mapper클래스
+ */
 public class UserInfoMapper implements RDBMSMapper {
 	private String str;
 
@@ -7,24 +10,20 @@ public class UserInfoMapper implements RDBMSMapper {
 		this.str = str;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.rdbms.RDBMSMapper#initResource()
+	 */
 	@Override
 	public void initResource() {
 	}
 
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.kb.mapper.rdbms.RDBMSMapper#from()
+	 */
 	@Override
 	public String from() {
 		initResource();
 
 		return this.str;
 	}
-	
-	public static void main(String[] args) {
-		String s = " icbms:u00001 rdf:type foaf:Person . ";
-		
-		UserInfoMapper mapper = new UserInfoMapper(s);
-
-		System.out.println("resul from mapper ====>  "+mapper.from());
-
-	}
-
 }

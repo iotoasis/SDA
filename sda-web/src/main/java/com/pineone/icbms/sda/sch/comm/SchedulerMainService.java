@@ -20,6 +20,9 @@ import com.pineone.icbms.sda.comm.sch.dto.SchDTO;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sch.service.SchService;
 
+/**
+ * 스케줄러 서비스의 메인 클래스
+ */
 @Service
 public class SchedulerMainService implements ApplicationContextAware {
 	private static ApplicationContext context;
@@ -29,11 +32,13 @@ public class SchedulerMainService implements ApplicationContextAware {
 	private CronTrigger trigger = null;
 	private SchDTO[] schDTO;
 
-	//@Resource(name = "schService")
-	//private SchService schService;
-
 	private Log log = LogFactory.getLog(this.getClass());
 
+	/**
+	 * 스케줄러 초기화
+	 * @throws Exception
+	 * @return void
+	 */
 	public void JobInit() throws Exception {
 		try {
 			if (scheduler != null && scheduler.isStarted())
@@ -48,6 +53,11 @@ public class SchedulerMainService implements ApplicationContextAware {
 		}
 	}
 
+	/**
+	 * 스케줄러 인스턴스 얻기
+	 * @throws Exception
+	 * @return Scheduler
+	 */
 	public Scheduler getScheduler() throws Exception {
 
 		if (scheduler == null) {
@@ -57,6 +67,11 @@ public class SchedulerMainService implements ApplicationContextAware {
 		return scheduler;
 	}
 
+	/**
+	 * 스케줄러 Job등록
+	 * @throws Exception
+	 * @return void
+	 */
 	public void JobRegist() throws Exception {
 		Class<?> c = null;
 		// 등록할 스케줄 정보 설정
@@ -77,17 +92,15 @@ public class SchedulerMainService implements ApplicationContextAware {
 		}
 	}
 
-	// 상태보기
+	/**
+	 * 스케줄러 목록 
+	 * @throws Exception
+	 * @return void
+	 */
 	public void statusSchList() throws Exception {
 		setSchList();
 		StringBuffer sb = new StringBuffer();
 		for (int j = 0; j < schDTO.length; j++) {
-			/*
-			log.debug("trigger[" + j + "] : "
-					+ scheduler.getTriggerState(schDTO[j].getTask_id(), schDTO[j].getTask_group_id())
-					+ " (not initiated:-1, running/standby:0,  paused:1)");
-					
-           */
 			sb.append("trigger[");
 			sb.append(j);
 			sb.append("](group_id:");
@@ -103,22 +116,12 @@ public class SchedulerMainService implements ApplicationContextAware {
 		
 		log.debug(sb.toString());
 	}
-	
-	/*
-	 * 			sb.append("trigger[");
-			sb.append(j);
-			sb.append("](group_id:");
-			sb.append(schDTO[j].getTask_group_id());
-			sb.append(",");
-			sb.append(" task_id:");
-			sb.append(schDTO[j].getTask_id());
-			sb.append(") : ");
-			sb.append(scheduler.getTriggerState(schDTO[j].getTask_id(), schDTO[j].getTask_group_id()));
-			sb.append(" (not initiated:-1, running/standby:0, paused:1)");
-	 * 
-	 */
 
-	// 상태값
+	/**
+	 * 스케줄러 상태값 목록
+	 * @throws Exception
+	 * @return String
+	 */
 	public String getStatusList() throws Exception {
 		StringBuffer sb = new StringBuffer();
 		setSchList();
@@ -141,7 +144,11 @@ public class SchedulerMainService implements ApplicationContextAware {
 		return sb.toString();
 	}
 
-	// pause
+	/**
+	 * 스케줄 pause
+	 * @throws Exception
+	 * @return void
+	 */
 	public void pauseSch() throws Exception {
 		setSchList();
 		for (int j = 0; j < schDTO.length; j++) {
@@ -159,25 +166,42 @@ public class SchedulerMainService implements ApplicationContextAware {
 		}
 	}
 
-	// standby
+	/**
+	 * 스케줄러 standby상태로 전환
+	 * @throws Exception
+	 * @return void
+	 */
 	public void standbySch() throws Exception {
 		setSchList();
 		scheduler.standby();
 		log.debug("scheduler is in state of standby ......");
 	}
 
-	// start
+	/**
+	 * 스케줄러 시작
+	 * @throws Exception
+	 * @return void
+	 */
 	public void startSch() throws Exception {
 		setSchList();
 		scheduler.start();
 		log.debug("scheduler is in state of start ......");
 	}
 
-	// shutdown
+	/**
+	 * 스케줄러 멈춤
+	 * @throws Exception
+	 * @return void
+	 */
 	public void shutdown() throws Exception {
 		scheduler.shutdown();
 	}
 
+	/**
+	 * 스케줄 목록 설정
+	 * @throws Exception
+	 * @return void
+	 */
 	private void setSchList() throws Exception {
 		if (schDTO != null)
 			return;
@@ -189,7 +213,6 @@ public class SchedulerMainService implements ApplicationContextAware {
 			SchService schService = getContext().getBean(SchService.class);
 			schList = schService.selectList();
 		} catch (SQLNonTransientConnectionException e) {
-			// 쿼리파이프가 깨짐, 여러번 retry하면 접속됨 혹은 gc해서 restart하게함(?)
 			System.gc();
 		} catch (Exception e) {
 			throw e;

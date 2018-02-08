@@ -19,13 +19,15 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
 import com.pineone.icbms.sda.comm.kafka.onem2m.AvroOneM2MDataPublish;
 import com.pineone.icbms.sda.comm.sch.dto.SchDTO;
 import com.pineone.icbms.sda.comm.util.Utils;
 import com.pineone.icbms.sda.sch.comm.SchedulerJobComm;
 
+/**
+ * OneM2M데이타 수집 서비스
+ */
 @Service
 public class CollectDataFromOneM2MJobService extends SchedulerJobComm implements Job {
 	private final Log log = LogFactory.getLog(this.getClass());
@@ -40,18 +42,25 @@ public class CollectDataFromOneM2MJobService extends SchedulerJobComm implements
 	// latestContentInstance 산출하기 변경 기준 날짜(이 시간 전까지는 산출하지 않음)
 	private static String splitDate;
 	
-	// 전부 수집하도록 수정
-	//private final String m = "status/Data";
-	
-	// _uri에 /status/만 수집하도록 다시 수정
+	// _uri에 /status/만 수집
 	private final String m = "/status/";
 	private final int maxLimit = Integer.parseInt(Utils.getSdaProperty("com.pineone.icbms.sda.mongodb.read_limit"));
 	
+	/**
+	 * 수집수행
+	 * @param ip
+	 * @param port
+	 * @param dbname
+	 * @param save_path
+	 * @param jec
+	 * @param user_name
+	 * @param password
+	 * @throws Exception
+	 * @return void
+	 */
 	public void collect(String ip, int port, String dbname, String save_path, JobExecutionContext jec, String user_name, String password) throws Exception {
 		String start_time = Utils.dateFormat.format(new Date());
-		// 중복방지
 		start_time = start_time + "S"+String.format("%010d", ai.getAndIncrement());
-		//start_time = start_time + "S"+String.format("%010d", String.valueOf(ai.getAndIncrement()));
 		
 		log.info("CollectDataFromOneM2MJobService(id : "+jec.getJobDetail().getName()+") start.......................");
 		
@@ -67,7 +76,6 @@ public class CollectDataFromOneM2MJobService extends SchedulerJobComm implements
 		try {
 			mongoClient = new MongoClient(new ServerAddress(ip, port));
 			db = mongoClient.getDB(dbname);
-			//boolean auth = db.authenticate(user_name, password.toCharArray());
 			table = db.getCollection("resource");
 		} catch (Exception ex) {
 			log.debug("MongoDB connection error : "+ex.getMessage());
@@ -116,14 +124,6 @@ public class CollectDataFromOneM2MJobService extends SchedulerJobComm implements
 		DBCursor cursor = null;
 		try {
 			cursor = table.find(searchQuery).limit(maxLimit);
-			/*
-			cursor.sort(new BasicDBObject("ct", -1)); // 1: 정순, -1 : 역순
-			while (cursor.hasNext()) {
-				DBObject doc = cursor.next();
-				endDate = (String) doc.get("ct");
-				break;
-			}
-			*/
 			log.debug("Size of cursor ==> "+cursor.size());
 			log.debug("maxLimit  ==> "+maxLimit);
 			
@@ -185,22 +185,13 @@ public class CollectDataFromOneM2MJobService extends SchedulerJobComm implements
 				haveToMakeLatestContentInstance = false;
 			}
 		}
-
-		log.debug("startDate : " + startDate);
-		log.debug("endDate : " + endDate);
-		log.debug("splitDate : " + splitDate);
-		
-		log.debug("startDate_tmp : " + startDate_tmp);
-		log.debug("endDate_tmp : " + endDate_tmp);
-		log.debug("splitDate_tmp : " + splitDate_tmp);
 		
 		log.debug("haveToMakeLatestContentInstance : " + haveToMakeLatestContentInstance);
 
 		// triple생성 대상 범위의 데이타 가져오기
 		BasicDBObject searchQuery2 = new BasicDBObject("ct", new BasicDBObject("$gte", startDate).append("$lt", endDate));
 		
-		// 전부 수집하도록 수정
-		// _uri에 /status/만 수집하도록 다시 수정
+		// _uri에 /status/만 수집
 		searchQuery2.put("_uri",  java.util.regex.Pattern.compile(m));
 		
 		DBCursor cursor2 = null;
@@ -296,6 +287,9 @@ public class CollectDataFromOneM2MJobService extends SchedulerJobComm implements
 		log.info("CollectDataFromOneM2MJobService(id : "+jec.getJobDetail().getName()+") end.......................");
 	}
 
+	/* (non-Javadoc)
+	 * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
+	 */
 	public void execute(JobExecutionContext arg0)  throws JobExecutionException{
 		String mongodb_server;
 		int mongodb_port;
@@ -316,7 +310,6 @@ public class CollectDataFromOneM2MJobService extends SchedulerJobComm implements
 
 		try {
 			collect(mongodb_server, mongodb_port, mongodb_db, save_path, arg0, user_name, password);
-			//collect("120.0.0.1", mongodb_port, mongodb_db, save_path, arg0);
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.debug("Exception ("+this.getClass()+")  ....................................> "+e.toString());			
@@ -324,17 +317,21 @@ public class CollectDataFromOneM2MJobService extends SchedulerJobComm implements
 		}
 	}
 	
+	/**
+	 * JSON값을 구함
+	 * @param doc
+	 * @throws Exception
+	 * @return String
+	 */
 	private String getJson(Object doc) throws Exception {
 		String rtn = "";
 		if (doc instanceof DBObject) {
 			DBObject docT = (DBObject) doc;
-			//ty = (Integer) docT.get("ty");
 			rtn =  new Gson().toJson(docT);
 		} else if (doc instanceof String) {
 			rtn =  new Gson().toJson(doc);
 		}
 		
-		//log.debug("rtn string ======>: " + rtn);
 		return rtn;
 	}
 }

@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.comm.dto;
 
+/**
+ * 응답메세지
+ */
 public class ResponseMessage {
 
 	int code;

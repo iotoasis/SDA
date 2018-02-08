@@ -1,25 +1,43 @@
 package com.pineone.icbms.sda.subscribe.service;
 
 import java.util.List;
-import java.util.Map;
 
 import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
 
+/**
+ * subscribe용 service
+ */
 public interface SubscribeService {
 
-	// regist
+	/**
+	 * 등록
+	 * @param cmid
+	 * @throws Exception
+	 * @return void
+	 */
 	public void regist(String cmid) throws Exception;
 
-	// unregist
+	/**
+	 * 등록해제
+	 * @param cmid
+	 * @throws Exception
+	 * @return void
+	 */
 	public void unregist(String cmid) throws Exception;
 
-	// subscribe list
+	/**
+	 * subscribe 목록
+	 * @return
+	 * @throws Exception
+	 * @return List<CiDTO>
+	 */
 	public List<CiDTO> selectList() throws Exception;
 
-	// callback
+	/**
+	 * callback 대응
+	 * @param bodyStr
+	 * @throws Exception
+	 * @return void
+	 */
 	public void callback(String bodyStr) throws Exception;
-
-	/*
-	public int insertCallback_(Map<String, Object> map) throws Exception;
-	*/
 }

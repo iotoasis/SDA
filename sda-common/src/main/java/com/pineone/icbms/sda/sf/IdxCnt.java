@@ -1,5 +1,8 @@
 package com.pineone.icbms.sda.sf;
 
+/**
+ *   개수값을 가지는 클래스
+ */
 public class IdxCnt {
 	int idx;
 	int cnt;
@@ -24,6 +27,4 @@ public class IdxCnt {
 	public String toString() {
 		return "IdxCnt [idx=" + idx + ", cnt=" + cnt + "]";
 	}
-	
-	
 }

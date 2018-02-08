@@ -1,14 +1,11 @@
 package com.pineone.icbms.sda.comm.dto;
 
-import java.util.Arrays;
-
-import com.google.gson.Gson;
-import com.sun.mail.imap.Utility.Condition;
-
 import net.sf.json.JSONArray;
 
+/**
+ * Template정보를 담고 있는 DTO
+ */
 public class TemplateReqDTO {
-	
 	private String ciid;
 	private String ciname;
 	private JSONArray conditions;

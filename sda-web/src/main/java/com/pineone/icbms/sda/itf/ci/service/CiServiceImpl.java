@@ -6,67 +6,76 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.pineone.icbms.sda.comm.exception.UserDefinedException;
 import com.pineone.icbms.sda.itf.ci.dao.CiDAO;
 import com.pineone.icbms.sda.itf.ci.dto.CiDTO;
-import com.pineone.icbms.sda.itf.cm.dto.CmDTO;
 
+/**
+ * CiService 구현체
+ */
 @Service("ciService")
 public class CiServiceImpl implements CiService{ 
-	private Log log = LogFactory.getLog(this.getClass());
-	
 	@Resource(name="ciDAO")
 	private CiDAO ciDAO; 
 	
-	/*
-	// 목록조회
-	@SuppressWarnings("unchecked")
-	public List<Map<String, Object>> selectList(Map<String, Object> map) throws Exception {
-		return ciDAO.selectList("selectList", map);
-	}
-	*/
-	
-	// 헌건조회
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#selectOne(java.lang.String)
+	 */
 	public String selectOne(String ciid) throws Exception{
 		return ciDAO.selectOne("itf.ci.selectCiid", ciid).toString();
 	}
 	
-	// 저장
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#insert(java.util.Map)
+	 */
 	public int insert(Map<String, Object> map) throws Exception{
 		return Integer.parseInt(ciDAO.insert("itf.ci.insert", map).toString());
 	}
 	
-	// 수정(단건)
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#update(java.lang.String)
+	 */
 	public int update(String ciid) throws Exception{
 		return Integer.parseInt(ciDAO.update("update", ciid).toString());
 	}
 
-	// 수정(여러건)
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#update(com.pineone.icbms.sda.itf.ci.dto.CiDTO[])
+	 */
 	public int update(CiDTO[] ciDTO) throws Exception{
 		return Integer.parseInt(ciDAO.update("updateMany", ciDTO).toString());
 	}
 	
-	// 삭제(단건)
+	/**
+	 * 삭제(단건)
+	 * @param ciid
+	 * @return int
+	 * @throws Exception
+	 */
 	public int delete(String ciid) throws Exception{
 		return Integer.parseInt(ciDAO.delete("delete", ciid).toString());
 	}
 	
-	// DELETE, use_yn을 'N'으로 변경
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#delete(java.util.Map)
+	 */
 	public int delete(Map<String, Object> map) throws Exception {
 		return Integer.parseInt(ciDAO.update("itf.ci.delete", map).toString());
 	}
 
-	// 삭제(여러건)
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#delete(com.pineone.icbms.sda.itf.ci.dto.CiDTO[])
+	 */
 	public int delete(CiDTO[] ciDTO) throws Exception{
 		return Integer.parseInt(ciDAO.delete("deleteMany", ciDTO).toString());
 	}
 	
-	// /ci/ALL
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#selectList(java.util.Map)
+	 */
 	public List<CiDTO> selectList(Map<String, Object> commandMap) throws Exception {
 		List<CiDTO> list = new ArrayList<CiDTO>();
 		list = ciDAO.selectList(commandMap);
@@ -75,10 +84,12 @@ public class CiServiceImpl implements CiService{
 			throw new UserDefinedException(HttpStatus.NOT_FOUND);
 		}
 
-		return list ;
+		return list;
 	}
 	
-	// /ci/{ciid}
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#selectOne(java.util.Map)
+	 */
 	public CiDTO selectOne(Map<String, Object> commandMap) throws Exception{
 		CiDTO ciDTO = new CiDTO();
 		ciDTO = ciDAO.selectOne(commandMap);
@@ -91,10 +102,16 @@ public class CiServiceImpl implements CiService{
 			
 	}
 		
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#checkId(java.lang.String)
+	 */
 	public int checkId(String ciid) throws Exception {
 		return ciDAO.checkId(ciid);
 	}
 		
+	/* (non-Javadoc)
+	 * @see com.pineone.icbms.sda.itf.ci.service.CiService#update(java.util.Map)
+	 */
 	public int update(Map<String, Object> commandMap) throws Exception {
 		return Integer.parseInt(ciDAO.update("itf.ci.update", commandMap).toString());	
 	}

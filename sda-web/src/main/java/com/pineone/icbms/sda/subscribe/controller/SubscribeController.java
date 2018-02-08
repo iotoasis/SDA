@@ -1,8 +1,6 @@
 package com.pineone.icbms.sda.subscribe.controller;
 
 import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
 
 import javax.annotation.Resource;
 
@@ -26,10 +24,12 @@ import com.pineone.icbms.sda.sf.QueryService;
 import com.pineone.icbms.sda.sf.QueryServiceFactory;
 import com.pineone.icbms.sda.sf.SparqlFusekiQueryImpl;
 import com.pineone.icbms.sda.sf.TripleService;
-import com.pineone.icbms.sda.sf.sd.Configuration;
 import com.pineone.icbms.sda.sf.sd.UpdateSemanticDescriptor;
 import com.pineone.icbms.sda.subscribe.service.SubscribeService;
 
+/**
+ * subscribe용 Controller
+ */
 @RestController
 @RequestMapping(value = "/subscribe")
 public class SubscribeController {
@@ -38,8 +38,11 @@ public class SubscribeController {
 	@Resource(name = "subscribeService")
 	private SubscribeService subscribeService;
 
-	// 지정된 cmid를 기준으로 subscribe 등록
-	// http://localhost:8080/sda/subscribe/regist/CM-1-1-001
+	/**
+	 * subscribe 등록
+	 * @param cmid
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/regist/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> regist(@PathVariable String cmid) {
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -49,7 +52,6 @@ public class SubscribeController {
 		log.info("subscribe regist begin================>");
 		
 		try {
-			// 등록(subscription)
 			subscribeService.regist(cmid);
 
 			resultMsg.setCode(Utils.OK_CODE);
@@ -67,8 +69,11 @@ public class SubscribeController {
 		return entity;
 	}
 
-	// 지정된 cmid를 기준으로 subscribe 등록해제
-	// http://localhost:8080/sda/subscribe/regist/CM-1-1-001
+	/**
+	 * subscribe 등록해제
+	 * @param cmid
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/unregist/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> unregist(@PathVariable String cmid) {
 		ResponseMessage resultMsg = new ResponseMessage();
@@ -78,7 +83,6 @@ public class SubscribeController {
 		log.info("subscribe unregist begin================>");
 		
 		try {
-			// 등록해제(unsubscription)
 			subscribeService.unregist(cmid);
 
 			resultMsg.setCode(Utils.OK_CODE);
@@ -96,7 +100,11 @@ public class SubscribeController {
 		return entity;
 	}
 
-	// callback 되었을때 호출되는 메서드
+	/**
+	 * callback 되었을때 호출되는 메서드
+	 * @param requestBody
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/callback", method = RequestMethod.POST)
 	public @ResponseBody ResponseEntity<ResponseMessage> callback(@RequestBody String requestBody) {
 		ResponseEntity<ResponseMessage> entity = null;
@@ -106,7 +114,6 @@ public class SubscribeController {
 		log.info("callback process begin================>");
 		
 		try {
-			// callback처리
 			subscribeService.callback(requestBody);
 
 			resultMsg.setCode(Utils.OK_CODE);
@@ -124,12 +131,13 @@ public class SubscribeController {
 		return entity;
 	}
 
-	// jena 데이타 초기화(DW를 초기화)
-	// http://localhost:8080/sda/subscribe/init-jena?p=xxxx
+	/**
+	 * jena 데이타 초기화(DW를 초기화)
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/init-jena", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> initJena(@RequestParam(value="p")  String args) {
-		log.debug("requested parameter(p) for initJena ==>" + args);
-	
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> resultMsgFromInit2 = null;
 		
@@ -140,7 +148,7 @@ public class SubscribeController {
 		log.info("init jena data begin================>");
 		
 		try {
-			// dm인지 dw인지 확인(init-jena는 dw에서만 가능함)
+			// init-jena는 dw에서만 가능함
 			if(! Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only Data Warehouse server ! ");
 			}
@@ -173,9 +181,6 @@ public class SubscribeController {
 			}
 			log.debug("init jena sendTripleFileToHalyard end================>");
 
-
-		
-			/* */
 			//DM서버 초기화하기
 			resultMsgFromInit2 = initJena2(args);
 			
@@ -192,13 +197,6 @@ public class SubscribeController {
 				entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
 						HttpStatus.valueOf(resultMsg.getCode()));
 			}
-			/* */
-			
-			/*
-			resultMsg.setCode(Utils.OK_CODE);
-			resultMsg.setMessage(Utils.OK_MSG);
-			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
-			*/
 		} catch (Exception e) {
 			e.printStackTrace();
 			resultMsg = Utils.makeResponseBody(e);
@@ -212,11 +210,13 @@ public class SubscribeController {
 		return entity;
 	}
 	
-	// jena 데이타 초기화(DM서버쪽 초기화에 사용됨)
+	/**
+	 * jena 데이타 초기화(DM서버쪽 초기화에 사용됨)
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "/init-jena2", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> runInitJenaDM(@RequestParam(value="p")  String args) {
-		log.debug("requested parameter(p) for initJena ==>" + args);
-	
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -258,12 +258,16 @@ public class SubscribeController {
 		return entity;
 	}
 	
-	// data mart쪽 서버의 데이타를 초기화한다.
+	/**
+	 * data mart쪽 서버의 데이타를 초기화한다.
+	 * @param args
+	 * @throws Exception
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	private ResponseEntity<ResponseMessage> initJena2(String args) throws Exception {
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
-		//TripleService tripleService = new TripleService();
 
 		log.info("init2 jena data begin================>");
 		
@@ -277,7 +281,6 @@ public class SubscribeController {
 				resultMsg.setMessage(Utils.OK_MSG);
 				entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
 			} else {
-				//resultMsg = resultMsg.getMessage();
 				responseHeaders.add("ExceptionCause", resultMsg.getMessage());
 				responseHeaders.add("ExceptionClass", resultMsg.getClass().getName());
 				entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
@@ -297,11 +300,13 @@ public class SubscribeController {
 		return entity;
 	}
 	
-	// http://localhost:8080/sda/subscribe/update-device?p=날짜8자리,db명,id
+	/**
+	 * device정보 수정
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "update-device", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> updateDevice(@RequestParam(value="p") String args) {
-		log.debug("requested parameter(p) for update device ==> " + args);
-		
 		TripleService tripleService = new TripleService();
 		ResponseMessage resultMsg = new ResponseMessage();
 		ResponseEntity<ResponseMessage> entity = null;
@@ -327,7 +332,6 @@ public class SubscribeController {
 			
 			
 			UpdateSemanticDescriptor updateSemanticDescriptor = new UpdateSemanticDescriptor();
-			// device name의 유무에 따른 처리 : device name이 유일하다는 가정하에 수행 
 			if(!updateSemanticDescriptor.checkDevice(argArr[2])){
 				log.debug("p("+args+") is not found... ");
 				throw new UserDefinedException(HttpStatus.NOT_FOUND);
@@ -461,15 +465,15 @@ public class SubscribeController {
 		return entity;
 	}
 
-	// http://localhost:8080/sda/subscribe/update-jena?p=날짜8자리,db명
+	/**
+	 * 온톨로지 정보 update
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
 	@RequestMapping(value = "update-jena", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<ResponseMessage> updateJena(@RequestParam(value="p")  String args) {
-		log.debug("requested parameter(p) for update Jena ==>" + args);
-		
 		TripleService tripleService = new TripleService();
-
 		ResponseMessage resultMsg = new ResponseMessage();
-		
 		ResponseEntity<ResponseMessage> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
 		
@@ -490,7 +494,6 @@ public class SubscribeController {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
 			}
 			
-			// Make Semantic Descriptor File - DBName
 			UpdateSemanticDescriptor updateSemanticDescriptor = new UpdateSemanticDescriptor();
 			updateSemanticDescriptor.makeUpdateJena(argArr[1]);
 			
@@ -654,13 +657,10 @@ public class SubscribeController {
 				tripleService.sendTripleFileToDM(Utils.ALL_SAVE_FILE_PATH);
 			}
 			
-			
 			resultMsg.setCode(Utils.OK_CODE);
 			resultMsg.setMessage(Utils.OK_MSG);
 			resultMsg.setContents("");
 			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
-			
-		
 		} catch (Exception e) {
 			e.printStackTrace();
 			resultMsg = Utils.makeResponseBody(e);
@@ -673,5 +673,4 @@ public class SubscribeController {
 		log.info("update jena data end================>");
 		return entity;
 	}
-	
 }
