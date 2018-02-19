@@ -464,6 +464,164 @@ public class SubscribeController {
 		log.info("update device data end================>");
 		return entity;
 	}
+	
+	
+	
+	/**
+	 * device정보 삭제
+	 * @param args
+	 * @return ResponseEntity<ResponseMessage>
+	 */
+	@RequestMapping(value = "delete-device", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<ResponseMessage> deleteDevice(@RequestParam(value="p") String args) {
+		ResponseMessage resultMsg = new ResponseMessage();
+		ResponseEntity<ResponseMessage> entity = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		String[] argArr;
+		
+		log.info("delete device data begin================>");
+		
+		try {
+			argArr = args.split(",");
+			if(argArr.length != 3) {
+				log.debug("p(" + args + ") count mismatched");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+			if( ! Utils.checkPass(argArr[0])) {
+				log.debug("p("+args+") is not valid... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+			if(!argArr[1].equals("device")) {
+				log.debug("p(" + args + ") is not valid ... ");
+				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
+			}
+			
+			
+			UpdateSemanticDescriptor updateSemanticDescriptor = new UpdateSemanticDescriptor();
+			if(!updateSemanticDescriptor.checkDevice(argArr[2])){
+				log.debug("p("+args+") is not found... ");
+				throw new UserDefinedException(HttpStatus.NOT_FOUND);
+			}
+		
+			String deleteql =  " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+						  + " prefix dc: <http://purl.org/dc/elements/1.1/> "
+						  + " prefix dul: <http://www.loa-cnr.it/ontologies/DUL.owl#> "
+						  + " prefix xsd: <http://www.w3.org/2001/XMLSchema#> "
+						  + " prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+						  + " prefix b: <http://www.onem2m.org/ontology/Base_Ontology#>  "
+						  + " prefix o: <http://www.iotoasis.org/ontology/> "
+						  + " DELETE { "
+						  + " 	?Aspect o:hasAspectValue ?AspectValue ; "
+						  + " 			o:hasActionValue ?ActionValue ; "
+						  + " 			o:hasUnit ?Unit . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasFunctionality ?Functionality ."
+						  + " 	?Functionality b:hasAspect ?Aspect . "
+						  + "   ?Aspect		   o:hasUnit ?Unit ; "
+						  + " 		   		   o:hasActionType ?ActionType ; "
+						  + " 	   			   o:hasActionValue ?ActionValue ; "
+						  + "    	   		   o:hasAspectValue ?AspectValue . "
+						  + " } ; "
+						  + " DELETE { "
+						  + "   ?Command o:hasCommandValue ?CommandValue ; "
+						  + "   		 b:isExposedByOperation ?Operation ; "
+						  + " 			 rdf:type ?Type . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasFunctionality ?Functionality . "
+						  + "   ?Functionality b:hasCommand ?Command . "
+						  + "   ?Command o:hasCommandValue ?CommandValue ; "
+						  + "   		 b:isExposedByOperation ?Operation ; "
+						  + " 			 rdf:type ?Type . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	?Operation rdf:type ?Type ; "
+						  + " 	   		   b:exposesCommand ?exposesCommand . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasService ?Service . "
+						  + "	?Service b:hasOperation ?Operation . "
+						  + " 	?Operation rdf:type ?Type ; "
+						  + " 			   b:exposesCommand ?exposesCommand . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	?Service o:isDiscovery ?isDiscovery ; "
+						  + " 		  	 b:hasOperation ?Operation ; "
+						  + "  		   	 o:isDiscovery ?isDiscovery ; "
+						  + " 		 	 rdfs:label ?label ; "
+						  + " 		  	 rdf:type ?Type ; "
+						  + " 		 	  b:exposesFunctionality ?exposesFunctionality . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasService ?Service . "
+						  + " 	?Service o:isDiscovery ?isDiscovery ; "
+						  + "			 b:hasOperation ?Operation ; "
+						  + " 			 o:isDiscovery ?isDiscovery ; "
+						  + " 			 rdfs:label ?label ; "
+						  + " 			 rdf:type ?Type ; "
+						  + " 			 b:exposesFunctionality ?exposesFunctionality . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	?Functionality b:hasCommand ?Command ; "
+						  + " 				   rdf:type ?Type ; "
+						  + " 				   b:hasAspect ?Aspect ; "
+						  + " 				   b:isExposeedByService ?ExposeedService ; "
+						  + " 			       b:refersTo ?refersTo . "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasFunctionality ?Functionality . "
+						  + " 	?Functionality b:hasCommand ?Command ; "
+						  + " 		   		   rdf:type ?Type ; "
+						  + "  				   b:hasAspect ?Aspect ; "
+						  + " 				   b:isExposeedByService ?ExposeedService ; "
+						  + " 		   		   b:refersTo ?refersTo . "
+						  + " } ; "
+						  + " DELETE { "
+						  + " 	<@{arg0}> b:hasService ?Service ; "
+						  + " 	          o:hasCreateDate ?CreateDate ; "
+						  + " 	          dul:hasLocation ?Location ; "
+						  + " 	          o:hasDeviceType ?DeviceType ; "
+						  + " 	          b:hasFunctionality ?Functionality ; "
+						  + " 	 	      o:hasPhysicalDeviceType ?PhysicalDeviceType ; "
+						  + "    	      o:name ?Name ; "
+						  + " 		      dc:creator ?Creator ; "
+						  + " 		      rdfs:label ?Label ; "
+						  + " } "
+						  + " WHERE { "
+						  + " 	<@{arg0}> b:hasService ?Service ; "
+						  + "  	   		  o:hasCreateDate ?CreateDate ; "
+						  + " 	  		  dul:hasLocation ?Location ; "
+						  + " 	 	  	  o:hasDeviceType ?DeviceType ; "
+						  + " 		      b:hasFunctionality ?Functionality ; "
+						  + " 		      o:hasPhysicalDeviceType ?PhysicalDeviceType ; "
+						  + "             o:name ?Name ; "
+						  + " 	  		  dc:creator ?Creator ; "
+						  + " 	  		  rdfs:label ?Label ; "
+						  + " } ; "
+						  + " DELETE DATA {<@{arg0}> a o:ApplicationEntity . } " ;
+			
+			QueryService sparqlService = QueryServiceFactory.create(Utils.QUERY_GUBUN.FUSEKISPARQL);
+		    ((SparqlFusekiQueryImpl)sparqlService.getImplementClass()).deleteSparql(deleteql, new String[]{"http://www.iotoasis.org/herit-in/herit-cse/"+argArr[2]}, Utils.QUERY_DEST.ALL.toString()); 
+		    
+			resultMsg.setCode(Utils.OK_CODE);
+			resultMsg.setMessage(Utils.OK_MSG);
+			resultMsg.setContents("");
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders, HttpStatus.OK);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMsg = Utils.makeResponseBody(e);
+			log.debug("Exception 1 : "+resultMsg.getMessage());			
+			responseHeaders.add("ExceptionCause", resultMsg.getMessage());
+			responseHeaders.add("ExceptionClass", resultMsg.getClass().getName());
+			entity = new ResponseEntity<ResponseMessage>(resultMsg, responseHeaders,
+					HttpStatus.valueOf(resultMsg.getCode()));
+		}
+		log.info("delete device data end================>");
+		return entity;
+	}
+	
 
 	/**
 	 * 온톨로지 정보 update
