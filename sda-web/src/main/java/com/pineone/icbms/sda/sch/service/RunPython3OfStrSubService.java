@@ -43,7 +43,7 @@ public class RunPython3OfStrSubService extends SchedulerJobComm implements Job {
 		StringBuffer sql = new StringBuffer();
 		
 		sql.append(Utils.NEW_LINE);		
-		sql.append(" python3 /svc/apps/sda/crawl/str_sub.py ");
+		sql.append(" python3.5 /svc/apps/sda/crawl/str_sub.py ");
 
 		log.debug("sql ==>\n"+sql.toString());
 		
