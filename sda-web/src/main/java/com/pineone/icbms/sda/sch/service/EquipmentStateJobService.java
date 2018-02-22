@@ -75,6 +75,7 @@ public class EquipmentStateJobService extends SchedulerJobComm implements Job {
 				
 				if(diff.equals("low")) {
 					lowList.add(location);
+					argsResultList.remove(m);
 				}
 			}
 			
