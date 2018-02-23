@@ -12,7 +12,7 @@ The Oasis project will continue to grow as an open source based on the open sour
 
 SDA is a data analysis framework that supports the ability to collect, analyze, and provide sensor/device data and legacy data occurred in IoT environments.
  
-## 주요기능
+## Main Functions
 
 * Data collection based on the OneM2M standard platform
 * Complies with Semantic Web standards such as RDF/OWL
