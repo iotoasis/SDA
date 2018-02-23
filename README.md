@@ -30,8 +30,8 @@ SDA is a data analysis framework that supports the ability to collect, analyze, 
  
 ## Modules
 - The SDA Framework consists of three server modules.<br> 
--- sda-client : Modules that have a client program and runs independently<br>
--- sda-common : sda's core module, which includes common functions and core functions<br>
--- sda-web : Web module for providing RESTFul API and web service etc.
+   - sda-client : Modules that have a client program and runs independently<br>
+   - sda-common : sda's core module, which includes common functions and core functions<br>
+   - sda-web : Web module for providing RESTFul API and web service etc.
 <br>
 
