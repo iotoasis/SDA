@@ -46,7 +46,7 @@ public class SparqlFusekiQueryImpl extends QueryCommon implements QueryItf {
 
 		log.info("runQuery of sparql start ======================>");
 		
-		if(Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.hostname"))) {
+		if(Utils.getHostName().contains(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dm.hostname"))) {
 			serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dm.sparql.endpoint");
 		}
 

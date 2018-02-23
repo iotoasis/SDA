@@ -149,7 +149,7 @@ public class SubscribeController {
 		
 		try {
 			// init-jena는 dw에서만 가능함
-			if(! Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
+			if(! Utils.getHostName().contains(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only Data Warehouse server ! ");
 			}
 

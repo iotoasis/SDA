@@ -53,7 +53,7 @@ public class SchController {
 		log.info("init sch begin================>");
 		try {
 			// dm인지 dw인지 확인(scheduler는 dw에서만 가능함)
-			if(! Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
+			if(! Utils.getHostName().contains(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only Data Warehouse server ! ");
 			}
 			
@@ -109,7 +109,7 @@ public class SchController {
 	
 		try {
 			// dm인지 dw인지 확인(scheduler는 dw에서만 가능함)
-			if(! Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
+			if(! Utils.getHostName().contains(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only Data Warehouse server ! ");
 			}
 
@@ -166,7 +166,7 @@ public class SchController {
 		log.info("pause sch begin================>");
 		try {
 			// dm인지 dw인지 확인(scheduler는 dw에서만 가능함)
-			if(! Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
+			if(! Utils.getHostName().contains(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only Data Warehouse server ! ");
 			}
 			
@@ -225,7 +225,7 @@ public class SchController {
 		log.info("resume sch begin================>");
 		try {
 			// dm인지 dw인지 확인(scheduler는 dw에서만 가능함)
-			if(! Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
+			if(! Utils.getHostName().contains(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only Data Warehouse server ! ");
 			}
 			
@@ -284,7 +284,7 @@ public class SchController {
 		log.info("standby sch begin================>");
 		try {
 			// dm인지 dw인지 확인(scheduler는 dw에서만 가능함)
-			if(! Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
+			if(! Utils.getHostName().contains(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only Data Warehouse server ! ");
 			}
 			
@@ -342,7 +342,7 @@ public class SchController {
 		log.info("start sch begin================>");
 		try {
 			// dm인지 dw인지 확인(scheduler는 dw에서만 가능함)
-			if(! Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
+			if(! Utils.getHostName().contains(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only Data Warehouse server ! ");
 			}
 			
@@ -401,7 +401,7 @@ public class SchController {
 		log.info("status sch begin================>");
 		try {
 			// dm인지 dw인지 확인(scheduler는 dw에서만 가능함)
-			if(! Utils.getHostName().equals(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
+			if(! Utils.getHostName().contains(Utils.getSdaProperty("com.pineone.icbms.sda.fuseki.dw.hostname"))) {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "This action are allowd at only Data Warehouse server ! ");
 			}
 			
