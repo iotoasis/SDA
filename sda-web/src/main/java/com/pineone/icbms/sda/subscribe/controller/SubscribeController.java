@@ -496,12 +496,14 @@ public class SubscribeController {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST);
 			}
 			
-			
+			/*
 			UpdateSemanticDescriptor updateSemanticDescriptor = new UpdateSemanticDescriptor();
+
 			if(!updateSemanticDescriptor.checkDevice(argArr[2])){
 				log.debug("p("+args+") is not found... ");
 				throw new UserDefinedException(HttpStatus.NOT_FOUND);
 			}
+			*/
 		
 			String deleteql =  " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
 						  + " prefix dc: <http://purl.org/dc/elements/1.1/> "
