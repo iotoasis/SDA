@@ -177,7 +177,6 @@ public class UpdateSemanticDescriptor {
 			}
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			connection.close();
@@ -219,7 +218,6 @@ public class UpdateSemanticDescriptor {
 				buffer.append(str + "\n");
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			connection.close();
@@ -281,12 +279,12 @@ public class UpdateSemanticDescriptor {
 		String username = Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.user");
 		String password = Utils.getSdaProperty("com.pineone.icbms.sda.m2tech.db.pass");
 		
-		String query = "SELECT COUNT(*) FROM Device WHERE name = '" + name + "'";
-;
+		String query = "SELECT COUNT(*) FROM Device WHERE name = ? ";
 		
 		try {
 			connection = DriverManager.getConnection(url, username, password);
 			pstmt = connection.prepareStatement(query);
+			pstmt.setString(1, name);
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()) {

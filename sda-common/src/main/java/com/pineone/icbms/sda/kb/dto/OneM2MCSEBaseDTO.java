@@ -147,7 +147,6 @@ public class OneM2MCSEBaseDTO implements OneM2MDTO {
 	@Override
 	public void print() {
 		// TODO Auto-generated method stub
-
 	}
 
 	public String toString() {

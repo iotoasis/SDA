@@ -154,7 +154,6 @@ public class OneM2MAEDTO implements OneM2MDTO{
 	}
 	@Override
 	public TripleMap<Statement> getTriples() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
