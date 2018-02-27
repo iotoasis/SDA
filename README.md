@@ -21,9 +21,11 @@ SDA is a data analysis framework that supports the ability to collect, analyze, 
 * Inference function for real-time context awareness.
 
 ## Documents
+<!--
  - [Quick Start](https://github.com/iotoasis/SDA/blob/master/sda-doc/quick-start.md)
  - [SDA Server Setting](https://github.com/iotoasis/SDA/blob/master/sda-doc/configuration.md)
  - [SDA Framework Server Build](https://github.com/iotoasis/SDA/blob/master/sda-doc/build_eclipse.md)
+-->
  - [SDA Development Guide(Korean)](https://github.com/iotoasis/SDA/blob/master/sda-doc/SDA_%EA%B0%9C%EB%B0%9C%EA%B0%80%EC%9D%B4%EB%93%9C_%EC%88%98%EC%A0%95_20180110.pdf)
  - [SDA Development Guide(English)](https://github.com/iotoasis/SDA/blob/master/sda-doc/(English_version)SDA_Development_Guide_20180110_PINEONE_20180220_v4.pdf)
  
