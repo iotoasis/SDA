@@ -237,7 +237,6 @@ public class OneM2MContainerDTO implements OneM2MDTO {
 
 	@Override
 	public TripleMap<Statement> getTriples() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

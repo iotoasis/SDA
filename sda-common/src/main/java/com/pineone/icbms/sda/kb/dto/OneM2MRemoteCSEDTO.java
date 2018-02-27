@@ -196,12 +196,10 @@ public class OneM2MRemoteCSEDTO implements OneM2MDTO {
 	@Override
 	public void print() {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public TripleMap<Statement> getTriples() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
