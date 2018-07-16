@@ -10,7 +10,7 @@ Test5.java
 build/
 bin/
 target/
-build.gradle
+resources/semantic
 dependency-reduced-pom.xml
 .settings/
 *.swp
