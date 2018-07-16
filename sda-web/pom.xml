@@ -6,8 +6,8 @@
   <parent>
   		<groupId>com.pineone.icbms.sda</groupId>  
   		<artifactId>sdaf</artifactId>
-  		<version>3.0</version>
-  		<relativePath>../../sdaf</relativePath>
+  		<version>3.1</version>
+  		<relativePath>../pom.xml</relativePath>
   </parent>
   
   <artifactId>sda-web</artifactId>
@@ -61,7 +61,7 @@
   </properties>
   
   <dependencies>
-      <dependency>      <groupId>com.pineone.icbms.sda</groupId>      <artifactId>sda-common</artifactId>      <version>3.0</version>      <scope>compile</scope>    </dependency>
+      <dependency>      <groupId>com.pineone.icbms.sda</groupId>      <artifactId>sda-common</artifactId>      <version>3.1</version>      <scope>compile</scope>    </dependency>
   
     <dependency>      <groupId>org.springframework</groupId>      <artifactId>spring-beans</artifactId>      <version>4.0.5.RELEASE</version>      <scope>compile</scope>    </dependency>
     <dependency>      <groupId>org.springframework</groupId>      <artifactId>spring-jdbc</artifactId>      <version>4.0.5.RELEASE</version>      <scope>compile</scope>    </dependency>

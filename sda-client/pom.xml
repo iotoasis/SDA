@@ -4,8 +4,8 @@
   <parent>
   		<groupId>com.pineone.icbms.sda</groupId>  
   		<artifactId>sdaf</artifactId>
-  		<version>3.0</version>
-  		<relativePath>../../sdaf</relativePath>
+  		<version>3.1</version>
+  		<relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>sda-client</artifactId>
