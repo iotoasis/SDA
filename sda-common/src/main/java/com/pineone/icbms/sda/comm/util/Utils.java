@@ -78,9 +78,9 @@ public class Utils {
 	}
 	
 	// kafka broker
-	public  static final String BROKER_LIST = "sda1:9092,sda2:9092,sda3:9092";
-	public  static final String ZOOKEEPER_LIST = "sda1:2181,sda2:2181,sda3:2181";
-	public  static final String HBASE_ZOOKEEPER_HOST = "sda1,sda2,sda3";
+	public  static final String BROKER_LIST = "sda6:9092,sda7:9092,sda8:9092";
+	public  static final String ZOOKEEPER_LIST = "sda6:2181,sda7:2181,sda8:2181";
+	public  static final String HBASE_ZOOKEEPER_HOST = "sda6,sda7,sda8";
 	public  static final String HBASE_ZOOKEEPER_PORT = "2181";
 	
 	// 날짜형식
