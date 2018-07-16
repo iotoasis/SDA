@@ -840,6 +840,45 @@ public class Utils {
 		model.write(out,"RDF/XML");
 		return out.toString();
 	}
+	
+	/**
+	 *   Device Semantic Description :: AE Describe Info 
+	 * @param deviceUri
+	 * @return Device Describe Info (Data Format : RDF/XML)
+	 * @throws Query Execution Exception
+	 */
+	public static String getDeviceSemanticDescInfo(String deviceUri) throws Exception {
+		String serviceURI = Utils.getSdaProperty("com.pineone.icbms.sda.knowledgebase.dw.sparql.endpoint")+"/sparql";
+		StringWriter out = new StringWriter();
+		
+		String query = getSparQlHeader() 
+				+ "\n"+ "describe * \n"
+				+ " where \n "
+				+ "{ "
+				+ " bind("+deviceUri+" as ?device). \n "
+				+ " { \n "
+				+ " select distinct * \n "
+				+ "  where \n "
+				+ "  { \n "
+				+ "   ?device o:hasDeviceType ?devicetype. \n "
+				+ "   ?device b:hasFunctionality ?functionality. \n "
+				+ "   ?device b:hasService ?service. \n "
+				+ "   ?device o:hasResource ?resource. \n "
+				+ "   ?functionality b:hasCommand ?command. \n "
+				+ "   ?functionality b:hasAspect ?aspect_i. \n "
+				+ "   ?functionality b:refersTo ?aspect. \n "
+				+ "   ?service b:hasOperation ?operation. \n "
+		        + " } \n "
+		        + "} \n "
+				+"} \n ";
+		
+	
+		QueryExecution qe = QueryExecutionFactory.sparqlService(serviceURI, query);
+		Model model =   qe.execDescribe();
+		qe.close();
+		model.write(out,"RDF/XML");
+		return out.toString();
+	}
 
 	/**
 	 * pass여부 확인

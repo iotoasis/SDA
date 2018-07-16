@@ -89,17 +89,18 @@ public class SfController {
 	}
 	
 	/**
-	 * deviceinfo용 API
+	 * device Semantic-Description 용 API
 	 * @param cmid
 	 * @param args
 	 * @return ResponseEntity<Object>
 	 */
 	@RequestMapping(value = "/deviceinfo/{cmid}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<Object> getDeviceInfo(@PathVariable String cmid, @RequestParam(value="p")  String args){
+		
 		ResponseEntity<Object> entity = null;
 		HttpHeaders responseHeaders = new HttpHeaders();
 
-		log.info("/deviceinfo/{cmid} GET getDeviceInfo start================>");
+		log.info("/deviceinfo/{cmid} GET getDeviceInfoSD start================>");
 		List<Map<String, String>> returnMsg = new ArrayList<Map<String, String>>();
 		
 		ResponseMessageOk ok = new ResponseMessageOk();
@@ -112,7 +113,7 @@ public class SfController {
 				throw new UserDefinedException(HttpStatus.BAD_REQUEST, "Not Valid Argument.");
 			}
 
-			String rtnStr = Utils.getDeviceInfo("<"+Utils.PREF+args+">");
+			String rtnStr = Utils.getDeviceSemanticDescInfo("<"+Utils.PREF+args+">");
 			
 			if( ! rtnStr.contains("rdf:resource")) {
 				entity = new ResponseEntity<Object>(ok, responseHeaders, HttpStatus.NOT_FOUND);
@@ -122,6 +123,7 @@ public class SfController {
 
 			Map<String, String > msgMap = new HashMap<String, String>();
 			
+			// BlankNode Id 
 			rtnStr = replaceBlankNodeId(rtnStr);
 			msgMap.put("device_information", rtnStr);
 			returnMsg.add(msgMap);
