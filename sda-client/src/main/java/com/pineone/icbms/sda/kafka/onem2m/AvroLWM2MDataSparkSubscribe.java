@@ -30,6 +30,9 @@ import com.pineone.icbms.sda.sf.TripleService;
 
 /**
  *   LWM2M데이타 수집기
+ *   kafka topic :: COL_LWM2M 
+ *   @author Pineone
+ *   @version 3.1
  */
 public class AvroLWM2MDataSparkSubscribe implements Serializable {
 	private static final long serialVersionUID = 1333478786266564012L;
