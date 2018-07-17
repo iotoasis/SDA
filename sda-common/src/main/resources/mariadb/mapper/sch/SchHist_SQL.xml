@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
+<!-- sda schedule History To DB-->
 <mapper namespace="sch.hist">
 	<insert id="insert" parameterType="com.pineone.icbms.sda.comm.sch.dto.SchHistDTO">
 		<![CDATA[
